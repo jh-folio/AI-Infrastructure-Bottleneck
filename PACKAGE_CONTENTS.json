@@ -1,23 +1,27 @@
 [
   {
     "path": "plugin.json",
-    "sha256": "221c59c7c3f26dd174a8ee754bd8bfac0d444aa867d5d740e1b242b84ea6eea0"
+    "sha256": "35055e6fc3c8e49563cadf1856dce276daa8a8418facb4c165e43618dd01306f"
   },
   {
     "path": ".codex-plugin/plugin.json",
-    "sha256": "ecd3d06152edd72494140a54209822f5c22f3c2fbbaaf59d886269ca9923b048"
+    "sha256": "156d92e213caa05bb4d8bf2b1eb595c04076845c40572805c99f6ea40ce9bd1f"
   },
   {
     "path": "README.md",
-    "sha256": "0fc0f9eea769358b843758516aeb41cb32fe6bc2f117db83e7ec99171c0944a5"
+    "sha256": "712a8e14ec2b808e087c4adf07f110d8ed718bdcc6ebfb78bf6537bc8a6d825a"
   },
   {
     "path": ".gitignore",
-    "sha256": "c74282c1ebf9dd5f7b9c8ed136a9c20445e57e318624162323af9679c554a10f"
+    "sha256": "e4aae7a9b37c8489f8220ee3e4e12acba81b85ff8e335e2b20d10d0df3768082"
+  },
+  {
+    "path": ".gitattributes",
+    "sha256": "d60f352d0db1404c70afb4bb8b2ca3fd1c610572aa40720e8a0b7baa7885418c"
   },
   {
     "path": "skills/initialize-project/SKILL.md",
-    "sha256": "609ae2d50e5980fff066267dd61348d413f144f7bf66c606c2d8e95e72f79080"
+    "sha256": "90e208c6ae884a5083add3174985173109ed44c18cea0732340cc735318a48f9"
   },
   {
     "path": "plugin/runtime/core/persistence_poc.py",
@@ -33,7 +37,7 @@
   },
   {
     "path": "tests/D1_WORK_HANDOFF.md",
-    "sha256": "0ee3e4392dc5993678cb290760ebd1597d6f8de505160b146cccff852d224b36"
+    "sha256": "c2de2f2f9c78dcaec9587b858740a6243c368422188e6750c4b25ffc9b88a2ad"
   },
   {
     "path": "LICENSE",
