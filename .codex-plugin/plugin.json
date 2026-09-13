@@ -1,0 +1,24 @@
+{
+  "name": "ai-infrastructure-bottleneck",
+  "version": "0.1.0-d1.1",
+  "description": "AI infrastructure research plugin: synthetic persistence POC preview.",
+  "author": {
+    "name": "jh-folio"
+  },
+  "repository": "https://github.com/jh-folio/AI-Infrastructure-Bottleneck",
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "AI Bottleneck · D1 Preview",
+    "shortDescription": "합성 데이터로 저장·재접근을 검증하는 개발 초안",
+    "longDescription": "D1 저장 POC 시험용입니다. 자동 연구·재무 수집·점수 계산·예약·대시보드는 아직 포함하지 않습니다.",
+    "developerName": "jh-folio",
+    "category": "Productivity",
+    "capabilities": [
+      "Read",
+      "Write"
+    ],
+    "defaultPrompt": [
+      "합성 데이터로 D1 저장·재접근 POC를 실행해줘."
+    ]
+  }
+}

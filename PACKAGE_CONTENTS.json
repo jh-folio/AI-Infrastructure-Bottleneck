@@ -1,0 +1,42 @@
+[
+  {
+    "path": "plugin.json",
+    "sha256": "221c59c7c3f26dd174a8ee754bd8bfac0d444aa867d5d740e1b242b84ea6eea0"
+  },
+  {
+    "path": ".codex-plugin/plugin.json",
+    "sha256": "ecd3d06152edd72494140a54209822f5c22f3c2fbbaaf59d886269ca9923b048"
+  },
+  {
+    "path": "README.md",
+    "sha256": "0fc0f9eea769358b843758516aeb41cb32fe6bc2f117db83e7ec99171c0944a5"
+  },
+  {
+    "path": ".gitignore",
+    "sha256": "c74282c1ebf9dd5f7b9c8ed136a9c20445e57e318624162323af9679c554a10f"
+  },
+  {
+    "path": "skills/initialize-project/SKILL.md",
+    "sha256": "609ae2d50e5980fff066267dd61348d413f144f7bf66c606c2d8e95e72f79080"
+  },
+  {
+    "path": "plugin/runtime/core/persistence_poc.py",
+    "sha256": "5fe23fbc1e948584f4175e2db2f4a3d9cd391f8c38c2542ccd7d8051e4e5b9b7"
+  },
+  {
+    "path": "plugin/database/poc_schema.sql",
+    "sha256": "a1c737dca5202ee4ed7400697597b6b3bf6f931e139b65aab6b552b7bc695b0c"
+  },
+  {
+    "path": "tests/test_persistence_poc.py",
+    "sha256": "17b080d2e08f18e786245f88001d817d5e8c371ad8d1ec68e5e4ca215445ea45"
+  },
+  {
+    "path": "tests/D1_WORK_HANDOFF.md",
+    "sha256": "0ee3e4392dc5993678cb290760ebd1597d6f8de505160b146cccff852d224b36"
+  },
+  {
+    "path": "LICENSE",
+    "sha256": "84f84341a945cf712900a2ee6e3fc7d36b40a5d28138112ae964eb0302999016"
+  }
+]
