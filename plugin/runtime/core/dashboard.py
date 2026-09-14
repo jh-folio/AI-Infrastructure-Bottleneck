@@ -1,10 +1,40 @@
 """Read-only projection of a report's exact input snapshot; no new research or scores."""
 from pathlib import Path
 import json
+from datetime import date
+import calendar
 from research_store import required, digest
 from research import data
 
 KINDS={'technical':'기술적 의존','observed':'관측된 지연 전파','conditional':'조건부 전파'}
+
+
+def score_bounds(row):
+    a=(row.get('assessment') or {}).get('result',{})
+    if a.get('scoreability') not in ('Fully Scorable','Provisionally Scorable'):return None
+    v=a.get('overall',{});lo,hi=v.get('low'),v.get('high')
+    if not all(isinstance(n,(int,float)) and not isinstance(n,bool) and 0<=n<=100 for n in (lo,hi)) or lo>hi:return None
+    return {'low':lo,'high':hi,'provisional':a['scoreability']=='Provisionally Scorable'}
+
+
+def history_for(row, records, as_of):
+    end=date.fromisoformat(as_of);month=end.year*12+end.month-1-6;year,m=divmod(month,12);m+=1
+    start=date(year,m,min(end.day,calendar.monthrange(year,m)[1])).isoformat()
+    scope=lambda s:{k:v for k,v in s.items() if k!='as_of_date'}
+    candidates=[row]
+    superseded={rec['payload']['data'].get('supersedes') for rec in records.values() if rec['kind']=='evidence'}
+    for rec in records.values():
+        value=rec['payload']['data']
+        if rec['kind']=='report' and value.get('generation') in ('supply-chain-synthesis-1','supply-chain-synthesis-2'):
+            candidates.extend(value['rows'])
+    by_date={}
+    for r in candidates:
+        if superseded.intersection(r.get('support_ids',[])+r.get('counter_ids',[])):continue
+        when=r['scope']['as_of_date'];score=score_bounds(r)
+        if score and scope(r['scope'])==scope(row['scope']) and start<=when<=as_of:
+            by_date.setdefault(when,{})[r['judgment_id']]=score
+    # Same-day conflicting revisions are not silently joined into a false trend.
+    return [{'date':when,**next(iter(values.values()))} for when,values in sorted(by_date.items()) if len(values)==1]
 
 
 def relation(store, request, value):
@@ -38,7 +68,14 @@ def projection(store, report_id):
             sources.append({'role':'지지 근거' if eid in row['support_ids'] else '반대·대안 근거',
                 'claim':e['claim'],'quote':e['quote'],'nature':e['nature'],'producer':d['producer'],
                 'url':d['url'],'location':e['location'],'published_at':e['published_at']})
-        rows.append({**row,'sources':sources})
+        companies=[]
+        for company in records[row['judgment_id']]['payload']['data'].get('companies',[]):
+            if not isinstance(company,dict) or not company.get('name') or not company.get('role'):continue
+            eids=company.get('evidence_ids',[])
+            if not eids or not isinstance(eids,list) or not set(eids)<=set(row['support_ids']+row['counter_ids']):continue
+            companies.append({'name':company['name'],'role':company['role']})
+        rows.append({**row,'sources':sources,'score':score_bounds(row),
+                     'history':history_for(row,records,report['as_of_date']),'companies':companies})
     ids={r['judgment_id'] for r in rows};relations=[]
     for record in records.values():
         v=record['payload']['data']
@@ -66,7 +103,8 @@ def export(store, report_id, destination):
     value=projection(store,report_id)
     template=Path(__file__).resolve().parents[1]/'ui/dashboard.html'
     raw=json.dumps(value,ensure_ascii=False,allow_nan=False).replace('<','\\u003c').replace('>','\\u003e').replace('&','\\u0026')
-    html=template.read_text(encoding='utf-8').replace('__RESEARCH_DATA__',raw)
+    html=template.read_text(encoding='utf-8').replace('__FONT_CSS__',(template.parent/'fonts.css').read_text(encoding='utf-8'))
+    html=html.replace('__RESEARCH_DATA__',raw)
     path=Path(destination).resolve()
     with path.open('x',encoding='utf-8') as f:f.write(html)
     return {'path':str(path),'snapshot_id':value['snapshot_id'],'projection_sha256':value['projection_sha256'],

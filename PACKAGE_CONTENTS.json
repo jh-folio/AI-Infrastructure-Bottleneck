@@ -1,15 +1,15 @@
 [
   {
     "path": "plugin.json",
-    "sha256": "9d52da8bb80579cf5792051257c1f8bf0bc587fc04417bc61010ad226471e142"
+    "sha256": "b0d1bf3d704e85dfa3d8b78af679de58aaf4f8feca4e47e9af644cb939f9d1a7"
   },
   {
     "path": ".codex-plugin/plugin.json",
-    "sha256": "f9e5f673a07ec85e86c26a08095c6349bf1cdc1e19f4535fbc29cd94a6ea7bff"
+    "sha256": "fe02aff51debcc621e3458de5244c55cab46500d479c86afcb02b37127a06d6f"
   },
   {
     "path": "README.md",
-    "sha256": "2d6ca60ef8874dd9aa965adea30edd86f0116bde528e5c2d01cbf56994a9686b"
+    "sha256": "522068e7ab4dcbd517e10570903bc6315d6e14923a79e88a28d07013da7af7ce"
   },
   {
     "path": ".gitignore",
@@ -109,19 +109,27 @@
   },
   {
     "path": "plugin/runtime/core/dashboard.py",
-    "sha256": "932db8ce123621aed25e1c701376f40e3f4e2008244b46e3596e9f1f78eb7ff8"
+    "sha256": "47d90245ec7e1bb0f7457895f293b131374c2a025e08a384b4289a6af10d0a7f"
   },
   {
     "path": "plugin/runtime/ui/dashboard.html",
-    "sha256": "80a1cc1bdf57e2be9703a4ca29ee1d3e56c7c815f1835a9d23c632ea26aae974"
+    "sha256": "6a42537ed4df7ceb0d8589e8fec430345752af80dfcff24dd748a5c5c6162c69"
   },
   {
     "path": "tests/test_d4_d5.py",
-    "sha256": "34762fdff6d68ca9b736c33179e4201b8e8a7643d70c875e38feaf208f5534e5"
+    "sha256": "245085f588d57c75cb578a6c8f759b13c9c61ac17d4f716f0c615c0abcda30f8"
+  },
+  {
+    "path": "plugin/runtime/ui/fonts.css",
+    "sha256": "0b704a774ee0eeee46e59b2b834e6704c6886c3d01fdffc9dad1ae7af1a8ccb8"
+  },
+  {
+    "path": "plugin/runtime/ui/FONT_LICENSES.txt",
+    "sha256": "68202af90f1dce19ded219e1d93b883b46c081b677b55608fd35b2928f548525"
   },
   {
     "path": "tests/D5_WORK_HANDOFF.md",
-    "sha256": "8672bcdd57fa507ce507d31cb8feb0372dfe88fc7f73f4d7477465c7b0881ba5"
+    "sha256": "3adae4faeee91430cd3159dc08ffc85af5c804b31bd9c5ff137708b67517c952"
   },
   {
     "path": "plugin/runtime/core/engines/__init__.py",
@@ -137,7 +145,7 @@
   },
   {
     "path": "plugin/workflows/RUNTIME_GUIDE.md",
-    "sha256": "084d29ac27cf8ebe874f929802ae0d65f06e0fe66bba7a6e6c81c77096182e2f"
+    "sha256": "76b6413bf66217623a2b6dcb65555dbcea0f10f1b8f5f07c185060992676aec8"
   },
   {
     "path": "plugin/methodology/research_rules.md",
@@ -181,6 +189,6 @@
   },
   {
     "path": "skills/build-dashboard/SKILL.md",
-    "sha256": "0578fce04efc9e277dd32c6a952bfe7f97f79e4a0d93cf9e2b2fbdbf275521e2"
+    "sha256": "fa67a6ffac96ed59dbf08834717fb495cdad2de7c4793b668e916194e30a3621"
   }
 ]

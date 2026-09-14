@@ -110,11 +110,37 @@ run(store,'killed',{'plan_id':sys.argv[4],'period':'2026-09-14'},collect)
             'to_judgment_id':b,'kind':'observed','reason':'Forecast is not observation','evidence_ids':ja['support_ids']})
 
     def test_dashboard_escapes_script_payload(self):
-        a,j=self.fixture.judgment();j['conclusion']='</script><script>window.bad=true</script>'
+        a,j=self.fixture.judgment();j['conclusion']='__FONT_CSS__ </script><script>window.bad=true</script>'
         a=research.judgment(self.store,'injected',j)['id'];rid,_=self.fixture.report(self.fixture.action([a]))
         p=Path(self.fixture.tmp.name)/'escaped.html';dashboard.export(self.store,rid,p)
         html=p.read_text(encoding='utf-8');self.assertNotIn('</script><script>window.bad',html)
         self.assertIn('\\u003c/script',html)
+        embedded=html.split('<script id="research-data" type="application/json">')[1].split('</script>')[0]
+        self.assertEqual(json.loads(embedded)['rows'][0]['conclusion'],j['conclusion'])
+
+    def test_score_bounds_never_fill_unknown_or_midpoint(self):
+        self.assertIsNone(dashboard.score_bounds({'assessment':None}))
+        row={'assessment':{'result':{'scoreability':'Directionally Assessable','overall':{'low':10,'high':80}}}}
+        self.assertIsNone(dashboard.score_bounds(row))
+        row['assessment']['result']['scoreability']='Provisionally Scorable'
+        self.assertEqual(dashboard.score_bounds(row),{'low':10,'high':80,'provisional':True})
+
+    def test_six_month_history_excludes_changed_scope_and_old_points(self):
+        def row(when,region='Test'):
+            return {'judgment_id':when+region,'scope':{'as_of_date':when,'geography':region},
+                'assessment':{'result':{'scoreability':'Fully Scorable','overall':{'low':72,'high':78}}}}
+        current=row('2026-09-14')
+        records={'report':{'kind':'report','payload':{'data':{'generation':'supply-chain-synthesis-2',
+            'rows':[row('2026-01-01'),row('2026-04-01'),row('2026-05-01','Other')]}}}}
+        self.assertEqual([p['date']for p in dashboard.history_for(current,records,'2026-09-14')],['2026-04-01','2026-09-14'])
+        records['report']['payload']['data']['rows'][1]['support_ids']=['old-evidence']
+        records['correction']={'kind':'evidence','payload':{'data':{'supersedes':'old-evidence'}}}
+        self.assertEqual([p['date']for p in dashboard.history_for(current,records,'2026-09-14')],['2026-09-14'])
+
+    def test_unverified_company_mapping_is_not_exposed(self):
+        j,value=self.fixture.judgment();value['companies']=[{'name':'Unverified','role':'Unreviewed supplier','evidence_ids':['missing']}]
+        j=research.judgment(self.store,'company-test',value)['id'];rid,_=self.fixture.report(self.fixture.action([j]))
+        self.assertEqual(dashboard.projection(self.store,rid)['rows'][0]['companies'],[])
 
     def test_handoff_requires_real_files_and_preserves_candidates(self):
         j,v=self.fixture.judgment();doc=research.data(self.store,v['support_ids'][0])['document_id']
