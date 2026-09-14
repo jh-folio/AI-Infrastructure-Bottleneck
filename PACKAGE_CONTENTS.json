@@ -1,15 +1,15 @@
 [
   {
     "path": "plugin.json",
-    "sha256": "565adeafd39b8c9513eb0c55573a6cf879522bf88e3a5c0ba900075e855dcd3b"
+    "sha256": "8928c2b3d3d87bae7a90fb82d9750426a903de41650f45b7ce27e677cbf93cc4"
   },
   {
     "path": ".codex-plugin/plugin.json",
-    "sha256": "5961eaeec4a6712df9b8f473fd07cd867711210163a6d9250f3290abff79f3f8"
+    "sha256": "d131d0846277a7ff7fa24596467d17fbff34f8984782ed9f3fde8623269eb6c9"
   },
   {
     "path": "README.md",
-    "sha256": "de6a2e5a112ce81e793743a8bb5e0439b6cf60b61f9d3cf29b2c8797d865a12f"
+    "sha256": "34bc167ad10f67b295aa6a436a3700f4fe8bbb50ccc6fd998269bf9c0c9eb891"
   },
   {
     "path": ".gitignore",
@@ -129,19 +129,19 @@
   },
   {
     "path": "tests/D5_WORK_HANDOFF.md",
-    "sha256": "8ae9f195cf06db7bb5b8b50bb372db743db25d99da2b87e660bd70cbf20ce442"
+    "sha256": "751af012048a2018797408c7369c7d6dad969e4f0093475168f89a67343cdf0d"
   },
   {
     "path": "tests/test_research_loop.py",
-    "sha256": "24395ad6ca379ff45e7ec8ccd279f8b0ce7ec1405daf8ff557ecf48936811d80"
+    "sha256": "651dbcd4cff412addf40f7d7adcf934a5997d92e69fc706183ed9e8e990cb45b"
   },
   {
     "path": "plugin/runtime/core/research_loop.py",
-    "sha256": "70313e9855bed1edd1f123141a7a8d8ff3905debfc2f5c56c832bc168941e9b1"
+    "sha256": "34da0863ed52a46e0e39c84ba0dc0a9d4606b7887b4ab0b60e63cb0390ed9a2d"
   },
   {
     "path": "plugin/workflows/RESEARCH_EXECUTION.md",
-    "sha256": "cbda2441c66f5c757108d93338426aaa027d6a77a9edf782097c73c4daea02ca"
+    "sha256": "459595d6a0dd9e2dafe900905326170d0a356013f7e5a5ab613a2b97ac9c1585"
   },
   {
     "path": "plugin/runtime/core/engines/__init__.py",
@@ -157,7 +157,7 @@
   },
   {
     "path": "plugin/workflows/RUNTIME_GUIDE.md",
-    "sha256": "520063ba86e68abb1acb78d4aebace1be68465984a57a14bfed0ee12811dee27"
+    "sha256": "7f00fe4801c8062423cb6262860e9b6852df4ec1cf4487f5393a52ae8ed8b7b5"
   },
   {
     "path": "plugin/methodology/research_rules.md",
@@ -169,7 +169,7 @@
   },
   {
     "path": "plugin/methodology/PRODUCT_CONTRACT.md",
-    "sha256": "6851ebbe8aa77bbdccfb7ecae6932493736455cc55ce4a53c70065e500d1743d"
+    "sha256": "dbaa5b64c68272e591ca29bc94528e94c66881022135915746067da2e2b3ead5"
   },
   {
     "path": "plugin/ontology/node_ids_v1.json",
@@ -189,7 +189,7 @@
   },
   {
     "path": "skills/build-baseline/SKILL.md",
-    "sha256": "03dbb14fef81d7d546fb9904df75d60d8037cb5949d0dce03c422fd14d0f9884"
+    "sha256": "4b96971b0dca200a061c8f7e5fca4d2dd624817fad6800c6fc8dd29efbc6ce37"
   },
   {
     "path": "skills/monitor-update/SKILL.md",

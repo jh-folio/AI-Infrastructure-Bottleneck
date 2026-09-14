@@ -55,7 +55,8 @@ def checkpoint(store, request, value):
             raise ValueError('Preserve the full investigation inventory')
         for n in nodes:
             required(n,'disposition','document_ids')
-            if n['disposition'] not in ('queued','scanned','selected','excluded'):raise ValueError('Invalid disposition')
+            if n['disposition'] not in ('queued','scanned','selected','investigated'):
+                raise ValueError('All initial nodes require investigation; exclusion is not allowed')
             if n['disposition']!='queued':required(n,'reason')
             if n['disposition'] in ('scanned','selected') and not n['document_ids']:
                 raise ValueError('Screening needs stored sources')
@@ -102,9 +103,10 @@ def checkpoint(store, request, value):
 def resume(store,campaign_id):
     head,v=current(store,campaign_id)
     pending=[{'node_id':n['node_id'],'action':'screen','name':n.get('name',n['node_id'])}
-             for n in v['nodes'] if n['disposition']=='queued']
+             for n in v['nodes'] if n['disposition'] in ('queued','excluded')]
     selected={n['node_id'] for n in v['nodes'] if n['disposition']=='selected'}
-    for node in sorted(selected):
+    investigated={n['node_id'] for n in v['nodes'] if n['disposition'] not in ('queued','excluded')}
+    for node in sorted(investigated):
         for dim in DIMENSIONS:
             if not any(q['node_id']==node and q['dimension']==dim for q in v['questions']):
                 pending.append({'node_id':node,'action':'create_question','dimension':dim})
@@ -112,7 +114,8 @@ def resume(store,campaign_id):
                 for q in v['questions'] if q['status'] in ('open','blocked')]
     resolved=any(q['status']=='resolved' and q['node_id'] in selected for q in v['questions'])
     return {'campaign_id':campaign_id,'checkpoint_id':head,'nodes':v['nodes'],'questions':v['questions'],
-            'pending':pending,'ready_for_review':bool(selected) and resolved and not pending,
+            'pending':pending,'full_inventory_investigated':not pending,
+            'ready_for_review':bool(selected) and resolved and not pending,
             'meaning':'Structural research readiness only; source interpretation and user acceptance remain separate.'}
 
 

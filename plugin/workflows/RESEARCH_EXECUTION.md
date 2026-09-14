@@ -5,8 +5,8 @@
 ## 작업 순서
 
 1. 기존 project.json·research.sqlite·백업과 원문 색인을 발견한다. 과거 자료가 있으면 새 조사 전에 관련 자료를 재조회한다. DB를 찾지 못해도 접근 가능한 과거 보고서·공개 출처는 후보로 재활용한다. 찾지 못한 상태는 재개 공백으로 기록하며 과거 보고서를 원장처럼 복원하지 않는다. 데이터가 없다는 이유로 전체 조사를 소수 사례로 축소하지 않는다.
-2. `research-start`로 최초 연구 원장을 생성한다. 87개 기존 노드는 빠뜨림을 확인하는 탐색 목록이다. 모두 동일 깊이로 조사하거나 점수를 채우라는 뜻이 아니다. 관련 공식 자료를 묶음 수집해 여러 노드를 함께 스크리닝할 수 있다. 각 노드를 queued/scanned/selected/excluded로 분류한다. 제외는 사용자 범위 밖·비적용 등의 이유가 있어야 하며 시간 부족이나 출처 접근 실패를 제외 사유로 사용하지 않는다. 알려진 후보만 선택하고 나머지를 이유 없이 제외하지 않는다.
-3. 선정 노드에는 수요와 가용 공급, 과거 계획과 실현, 대체 설명과 반증, 가동 영향, 변화 추세의 질문을 만든다. 막연한 '정보 더 찾기' 대신 결론을 바꿀 자료와 대상·지역·규격·기간을 명시한다. 고급 패키징의 고객 주문/생산능력, 전력 인입의 실제 대규모 부하 연결, 광제품의 인증/납기처럼 각 분야의 질문을 구체화한다. 개별 프로젝트 지연이 비공개라고 직접적인 범위한정 정성 판단까지 중단하지 않는다.
+2. `research-start`로 최초 연구 원장을 생성한다. 첫 실행은 기존 87개 노드 전수 조사다. 모든 노드에 실제 자료 탐색·검토·공백 확인을 수행한다. 심층 강도는 달라도 노드 자체를 조사에서 생략할 수 없으며 점수 채우기는 요구하지 않는다. 관련 공식 자료를 묶음 수집해 여러 노드를 함께 스크리닝할 수 있다. 각 노드를 queued/scanned/investigated/selected로 기록한다. queued는 미착수, scanned는 탐색 중간 단계, investigated는 조사 기록을 남긴 노드, selected는 추가 심층 검토 대상이다. excluded로 미조사 노드를 제외하는 것은 금지한다. 비적용 여부도 조사한 뒤 적용 범위와 이유를 기록한다. 자료가 없거나 접근하지 못했어도 실제 탐색 경로·결과·대체 경로와 남은 공백을 질문별로 남긴다.
+3. 모든 노드에는 수요와 가용 공급, 과거 계획과 실현, 대체 설명과 반증, 가동 영향, 변화 추세의 질문을 만든다. 막연한 '정보 더 찾기' 대신 결론을 바꿀 자료와 대상·지역·규격·기간을 명시한다. 고급 패키징의 고객 주문/생산능력, 전력 인입의 실제 대규모 부하 연결, 광제품의 인증/납기처럼 각 분야의 질문을 구체화한다. 개별 프로젝트 지연이 비공개라고 직접적인 범위한정 정성 판단까지 중단하지 않는다.
 4. 질문별 자료를 취득·위치 지정 재조회한다. SEC는 공시·재무·계약·CAPEX, 기업 IR은 생산능력·고객 인증·출하·주문·가이던스, 공공기관/계통운영자는 연결·인허가·프로젝트 상태, 규격/학술 자료는 기술적 대체·제조 제약을 맡는다. 웹은 원출처 발견·누락 범위·반증·독립 교차검증에 적극 사용한다. API 사용 비율이나 검색 횟수를 목표로 삼지 않는다. yfinance 가격은 물리 병목의 필수 입력이 아니다.
 5. 수집 실패는 다음 경로로 이어간다. 직접 HTTP 실패라면 허용된 브라우저 원문·공식 PDF/공시 미러·다른 공개 출처를 시도한다. 인증/설정 미비는 실제 상태로 남긴다. 우회 인증이나 가짜 연락처는 사용하지 않는다. 발췌를 저장하면 발췌의 해시라고 표시한다. 원문 전체 취득에 성공했다고 바꾸지 않는다.
 6. 역사 질문은 2024–2025년 계획에서 기준일까지 수정·발주·인증·출하·가동을 연결한다. 기존 DB에 시계열이 없어도 공개 과거 자료를 조사한다. 동일 대상·규격·기간으로 비교 가능한 관측을 재구성하고 관측일과 발표일을 구분한다. 계획/행동/표현 변화는 경쟁 가설과 정상 완료 표본으로 검토한다. 변화 근거가 없으면 점수를 만들어내지 않는다.
@@ -24,7 +24,7 @@ open은 추가 조사할 질문, blocked는 실제 접근 제한으로 진행하
 
 research-resume은 미탐색 노드·빠진 질문·open/blocked를 반환한다. pending이 남아 있으면 조사하거나 중간 저장 후 재개한다. 중단/컨텍스트 제한은 완료 사유가 아니다. 예상보다 오래 걸리면 진행 범위와 다음 행동을 사용자에게 알리며 가능한 작업을 계속한다. 소요 시간·자료 수·점수 개수로 통과시키지 않는다.
 
-synthesize는 기본 `research_stage: "interim"`이며 문서에 중간 결과로 표시한다. 최초 연구 검토본은 `research_stage: "baseline_review"`, `campaign_id`, 최신 `checkpoint_id`를 지정한다. 전체 탐색 목록의 상태 설명, 선정 노드별 다섯 질문, 미해결 질문 부재, 실제 수행 기록이 필요하다. 이는 구조 검사이며 결론의 타당성 인증이나 baseline 승인이 아니다. 원문 의미·범위별 부족 강도·분야 간 비교·읽기 쉬운 설명을 작성자가 별도로 검토한다. 전체 결과가 미확인뿐이면 검토본으로 제출하지 말고 조사 설계를 재검토한다.
+synthesize는 기본 `research_stage: "interim"`이며 문서에 중간 결과로 표시한다. 최초 연구 검토본은 `research_stage: "baseline_review"`, `campaign_id`, 최신 `checkpoint_id`를 지정한다. 전체 탐색 목록의 상태 설명, 전체 노드별 다섯 질문, 미해결 질문 부재, 실제 수행 기록이 필요하다. 이는 구조 검사이며 결론의 타당성 인증이나 baseline 승인이 아니다. 원문 의미·범위별 부족 강도·분야 간 비교·읽기 쉬운 설명을 작성자가 별도로 검토한다. 전체 결과가 미확인뿐이면 검토본으로 제출하지 말고 조사 설계를 재검토한다.
 
 ## CLI 계약
 
@@ -34,7 +34,9 @@ synthesize는 기본 `research_stage: "interim"`이며 문서에 중간 결과�
 - 재개: `{"op":"research-resume","campaign_id":"시작 결과 ID"}`. 반환 nodes/questions와 checkpoint_id를 유지한다.
 - 저장: `{"op":"research-checkpoint","request_id":"study-step-1","data":{"campaign_id":"시작 ID","previous_id":"최신 checkpoint_id","nodes":[],"questions":[]}}`. 배열은 비워 보내지 말고 재개 결과 전체를 수정해 전달한다. 같은 request_id는 동일 재시도에만 쓴다. 오래된 previous_id는 거부된다.
 
-node는 node_id/name/disposition/reason/document_ids다. scanned/selected는 저장된 문서 참조가 필요하다. question은 id/node_id/dimension/question/status/attempts다. dimension은 demand_supply/history/alternatives/operational_impact/trend다. attempts는 route/outcome/finding/document_ids 배열이며 outcome은 found/failed/irrelevant/unavailable이다. found는 실제 저장 문서가 필요하다. open/blocked는 next_action, resolved는 answer/closure_reason/judgment_ids, bounded는 answer/closure_reason/remaining_uncertainty/why_more_search_unlikely가 필요하다. 질문 ID·문장·대상과 이전 attempts는 보존하고 새 시도를 덧붙인다. 해석 정정은 새 시도와 답변에 기록한다.
+node는 node_id/name/disposition/reason/document_ids다. investigated는 원문 미확보 상태도 허용하지만 실제 조사한 질문과 시도 기록은 필수다. scanned/selected는 저장된 문서 참조가 필요하다. question은 id/node_id/dimension/question/status/attempts다. dimension은 demand_supply/history/alternatives/operational_impact/trend다. attempts는 route/outcome/finding/document_ids 배열이며 outcome은 found/failed/irrelevant/unavailable이다. found는 실제 저장 문서가 필요하다. open/blocked는 next_action, resolved는 answer/closure_reason/judgment_ids, bounded는 answer/closure_reason/remaining_uncertainty/why_more_search_unlikely가 필요하다. 질문 ID·문장·대상과 이전 attempts는 보존하고 새 시도를 덧붙인다. 해석 정정은 새 시도와 답변에 기록한다.
 
 
 긴 조사에서는 `{"op":"research-next","campaign_id":"시작 ID","limit":10}`으로 다음 질문 묶음만 읽는다. 원문과 전체 시도 이력을 매번 대화에 출력하지 않는다. research-resume의 전체 상태는 로컬 JSON 파일로 받아 코드로 수정·checkpoint하고, 대화에는 이번 묶음의 새 근거와 판단만 전달한다. research-next는 작업을 대신 실행하는 자동 수집기가 아니라 에이전트가 이어서 실행할 목록이다.
+
+기존 버전 원장의 excluded 노드는 재개 시 미조사 작업으로 돌려준다. 원본 이력은 삭제하지 않고 새 checkpoint에서 해당 노드를 queued 또는 실제 조사 상태로 전환한다. full_inventory_investigated는 모든 노드의 조사 질문이 해결 또는 조사 후 공백으로 정리되었는지 나타낸다. 전수 조사를 했더라도 전체 결과가 미확인뿐이면 연구 검토본의 적합성은 별도로 판단한다.

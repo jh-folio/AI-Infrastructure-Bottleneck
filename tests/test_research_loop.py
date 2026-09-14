@@ -22,11 +22,20 @@ class ResearchLoopTests(unittest.TestCase):
         doc=research.data(self.store,d['support_ids'][0])['document_id']
         v=self.checkpoint_input()
         for n in v['nodes']:
-            n.update(disposition='excluded',reason='Synthetic narrow test scope; not a product coverage claim')
+            n.update(disposition='investigated',reason='Synthetic investigation found no accessible data')
             if n['node_id']=='A01':n.update(disposition='selected',reason='Synthetic source screened',document_ids=[doc])
         v['questions']=[dict(id=dim,node_id='A01',dimension=dim,question=dim,status='resolved',
             attempts=[dict(route='synthetic issuer document',outcome='found',finding='Synthetic direct evidence',document_ids=[doc])],
             answer='Synthetic scope-limited answer',closure_reason='Synthetic review',judgment_ids=[j])for dim in loop.DIMENSIONS]
+        for n in v['nodes']:
+            if n['node_id']=='A01':continue
+            for dim in loop.DIMENSIONS:
+                v['questions'].append(dict(id=n['node_id']+'-'+dim,node_id=n['node_id'],dimension=dim,
+                    question='Synthetic '+dim,status='bounded',answer='Unknown after synthetic investigation',
+                    closure_reason='Synthetic routes exhausted',remaining_uncertainty='No usable data',
+                    why_more_search_unlikely='Synthetic fixture only; actual source availability was not assessed',
+                    attempts=[dict(route=route,outcome='unavailable',finding='Synthetic access limit',document_ids=[])
+                              for route in ('official archive','independent source')]))
         return v,j
 
     def test_inventory_resume_and_idempotence(self):
@@ -44,7 +53,7 @@ class ResearchLoopTests(unittest.TestCase):
         with self.assertRaises(ValueError):loop.next_work(self.store,self.cid,True)
 
     def test_missing_history_question_keeps_research_open(self):
-        v,j=self.investigated();v['questions']=[q for q in v['questions'] if q['dimension']!='history']
+        v,j=self.investigated();v['questions']=[q for q in v['questions'] if not(q['node_id']=='A01' and q['dimension']=='history')]
         loop.checkpoint(self.store,'no-history',v)
         state=loop.resume(self.store,self.cid)
         self.assertFalse(state['ready_for_review'])
@@ -90,5 +99,33 @@ class ResearchLoopTests(unittest.TestCase):
         report['research_execution']={'status':'excluded_by_user','reason':'Synthetic explicit exclusion fixture'}
         out=make_report(self.store,'review',report)['id']
         self.assertEqual(research.data(self.store,out)['research_stage'],'baseline_review')
+
+    def test_unselected_node_without_investigation_cannot_pass(self):
+        v,j=self.investigated()
+        v['questions']=[q for q in v['questions'] if q['node_id']!='A02']
+        loop.checkpoint(self.store,'uninvestigated',v)
+        state=loop.resume(self.store,self.cid)
+        self.assertFalse(state['ready_for_review'])
+        self.assertFalse(state['full_inventory_investigated'])
+        self.assertEqual(len([p for p in state['pending'] if p['node_id']=='A02']),5)
+
+    def test_exclusion_cannot_bypass_initial_census(self):
+        v,j=self.investigated();v['nodes'][1]['disposition']='excluded'
+        with self.assertRaisesRegex(ValueError,'exclusion'):loop.checkpoint(self.store,'exclude',v)
+
+    def test_legacy_excluded_node_returns_to_pending(self):
+        v,j=self.investigated();v['nodes'][1]['disposition']='excluded'
+        self.store.append('task','legacy',{'type':'research_checkpoint',**v},[self.cid])
+        state=loop.resume(self.store,self.cid)
+        self.assertFalse(state['full_inventory_investigated'])
+        self.assertTrue(any(p['node_id']==v['nodes'][1]['node_id'] and p['action']=='screen' for p in state['pending']))
+
+    def test_gaps_after_every_node_investigated_are_allowed(self):
+        v,j=self.investigated();loop.checkpoint(self.store,'full',v)
+        state=loop.resume(self.store,self.cid)
+        self.assertTrue(state['full_inventory_investigated'])
+        self.assertTrue(state['ready_for_review'])
+        self.assertEqual(len({q['node_id'] for q in state['questions']}),87)
+        self.assertTrue(any(q['status']=='bounded' for q in state['questions']))
 
 if __name__=='__main__':unittest.main()

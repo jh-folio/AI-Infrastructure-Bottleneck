@@ -237,3 +237,6 @@ Companies는 judgment의 선택적 companies 배열에서 name/role/evidence_ids
 최초 연구와 재개는 [연구 실행 계약](RESEARCH_EXECUTION.md)을 먼저 적용한다. research-start/research-checkpoint/research-resume 및 synthesize.research_stage는 해당 문서의 CLI 계약을 따른다. 기본 interim은 중간 보고서이며 baseline_review에는 campaign_id와 최신 checkpoint_id가 필요하다. 저장된 기존 보고서는 다시 쓰지 않는다.
 
 심층 리서치의 수행은 별도 호스트 도구 호출에 한정되지 않는다. 실제 스킬을 에이전트가 직접 수행하면 research-return에 execution_mode=skill_direct를 사용한다. 별도 도구는 host_tool이다. 위의 '호스트 실행/반환'은 직접 수행의 기록과 결과 보존도 포함한다. 단순 웹 열람과 스킬의 반복 심층 조사 절차를 구분하되, 웹을 사용했다는 이유로 실제 스킬 수행을 부정하지 않는다.
+
+
+0.3.0-d5.4: 첫 실행은 전수 조사다. research-resume은 선정 여부와 관계없이 모든 착수 노드에 다섯 차원의 질문을 요구한다. excluded 신규 저장은 거부하며 기존 excluded는 미조사 작업으로 반환한다. 조사 후 공백은 bounded로 기록하되 실제 시도와 대체 경로가 있어야 한다. full_inventory_investigated는 전수 조사 기록의 완료 상태이며 점수 적격성이나 연구 품질 승인이 아니다.
