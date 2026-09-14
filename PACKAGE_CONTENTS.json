@@ -1,15 +1,15 @@
 [
   {
     "path": "plugin.json",
-    "sha256": "b0d1bf3d704e85dfa3d8b78af679de58aaf4f8feca4e47e9af644cb939f9d1a7"
+    "sha256": "565adeafd39b8c9513eb0c55573a6cf879522bf88e3a5c0ba900075e855dcd3b"
   },
   {
     "path": ".codex-plugin/plugin.json",
-    "sha256": "fe02aff51debcc621e3458de5244c55cab46500d479c86afcb02b37127a06d6f"
+    "sha256": "5961eaeec4a6712df9b8f473fd07cd867711210163a6d9250f3290abff79f3f8"
   },
   {
     "path": "README.md",
-    "sha256": "522068e7ab4dcbd517e10570903bc6315d6e14923a79e88a28d07013da7af7ce"
+    "sha256": "de6a2e5a112ce81e793743a8bb5e0439b6cf60b61f9d3cf29b2c8797d865a12f"
   },
   {
     "path": ".gitignore",
@@ -65,7 +65,7 @@
   },
   {
     "path": "plugin/runtime/research_cli.py",
-    "sha256": "a6986af092307fa93871fe7912ca6f890796a8d73637a025ccc808f46863e2d2"
+    "sha256": "82fced21a1ffd32068f4245a50bc2d8090e54880dab6ee00e3565cfa934bba69"
   },
   {
     "path": "plugin/runtime/core/research_store.py",
@@ -85,7 +85,7 @@
   },
   {
     "path": "plugin/runtime/core/synthesis.py",
-    "sha256": "983dd8a4ab86767ffbe452751f5c885e5937002a036e3e831fe83a410a9672cc"
+    "sha256": "580daee892dbb8abb6b5385ee3051f9fbe101c2eaf81daf486bc352bec8ff921"
   },
   {
     "path": "tests/test_synthesis.py",
@@ -97,7 +97,7 @@
   },
   {
     "path": "plugin/runtime/core/reader_report.py",
-    "sha256": "a6f666333fc63ebc05f8b1c98c39ba4163a45351082febfe674511d0cf679271"
+    "sha256": "cf6ed75a262afa23f8d2fd76d87386fd5457de24dac722b1329c17f55dfa98e2"
   },
   {
     "path": "plugin/runtime/core/monitoring.py",
@@ -105,7 +105,7 @@
   },
   {
     "path": "plugin/runtime/core/research_handoff.py",
-    "sha256": "f656294c6dc8b237c800232381c92022aef415bd5aeb51615c8966aee3f6657d"
+    "sha256": "793a5dec9bed619ff98cd0a3dff926aae5ea57d3e2f13c01f973154a8ba82eee"
   },
   {
     "path": "plugin/runtime/core/dashboard.py",
@@ -129,7 +129,19 @@
   },
   {
     "path": "tests/D5_WORK_HANDOFF.md",
-    "sha256": "3adae4faeee91430cd3159dc08ffc85af5c804b31bd9c5ff137708b67517c952"
+    "sha256": "8ae9f195cf06db7bb5b8b50bb372db743db25d99da2b87e660bd70cbf20ce442"
+  },
+  {
+    "path": "tests/test_research_loop.py",
+    "sha256": "24395ad6ca379ff45e7ec8ccd279f8b0ce7ec1405daf8ff557ecf48936811d80"
+  },
+  {
+    "path": "plugin/runtime/core/research_loop.py",
+    "sha256": "70313e9855bed1edd1f123141a7a8d8ff3905debfc2f5c56c832bc168941e9b1"
+  },
+  {
+    "path": "plugin/workflows/RESEARCH_EXECUTION.md",
+    "sha256": "cbda2441c66f5c757108d93338426aaa027d6a77a9edf782097c73c4daea02ca"
   },
   {
     "path": "plugin/runtime/core/engines/__init__.py",
@@ -145,7 +157,7 @@
   },
   {
     "path": "plugin/workflows/RUNTIME_GUIDE.md",
-    "sha256": "76b6413bf66217623a2b6dcb65555dbcea0f10f1b8f5f07c185060992676aec8"
+    "sha256": "520063ba86e68abb1acb78d4aebace1be68465984a57a14bfed0ee12811dee27"
   },
   {
     "path": "plugin/methodology/research_rules.md",
@@ -157,7 +169,7 @@
   },
   {
     "path": "plugin/methodology/PRODUCT_CONTRACT.md",
-    "sha256": "ef210d5451236d7c1fa63153e28b8692418372d7236528648dd374892dbdcd77"
+    "sha256": "6851ebbe8aa77bbdccfb7ecae6932493736455cc55ce4a53c70065e500d1743d"
   },
   {
     "path": "plugin/ontology/node_ids_v1.json",
@@ -177,15 +189,15 @@
   },
   {
     "path": "skills/build-baseline/SKILL.md",
-    "sha256": "cb842082d2b28cc24171106688cf072d7ee23107cec30c6c724bd6bdf377eb89"
+    "sha256": "03dbb14fef81d7d546fb9904df75d60d8037cb5949d0dce03c422fd14d0f9884"
   },
   {
     "path": "skills/monitor-update/SKILL.md",
-    "sha256": "5513b6289df37365d8417d3e97cb07f6b0d0fbc168c4b38676612666d5816aa4"
+    "sha256": "4a79bee2ab57bfab6523695c1e323c1b426e5e544576f8c2b344cd830d4d3079"
   },
   {
     "path": "skills/audit-research/SKILL.md",
-    "sha256": "58fd7aee9f253fbb69ff1d4ee0aad3cbe7554c4135b7fd389946d268731c076c"
+    "sha256": "620abdf2e80e9d371eb8af632094032c41ecec7a7d4e984d6bfa09bfb3de399b"
   },
   {
     "path": "skills/build-dashboard/SKILL.md",

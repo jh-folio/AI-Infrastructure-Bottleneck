@@ -43,6 +43,15 @@ def make_report(store, request, value):
     prior = existing_action(store, 'report', request, action)
     if prior:
         return prior
+    stage=value.get('research_stage','interim')
+    if stage not in ('interim','baseline_review'):raise ValueError('Invalid research stage')
+    campaign=None
+    if stage=='baseline_review':
+        required(value,'campaign_id','checkpoint_id')
+        from research_loop import resume
+        campaign=resume(store,value['campaign_id'])
+        if campaign['checkpoint_id']!=value['checkpoint_id'] or not campaign['ready_for_review']:
+            raise ValueError('Research incomplete or checkpoint stale; resume investigation or save interim report')
     required(value, 'title', 'as_of_date', 'coverage')
     date.fromisoformat(value['as_of_date'])
     if not isinstance(value['coverage'], list) or not value['coverage']:
@@ -52,6 +61,7 @@ def make_report(store, request, value):
     documents = {d['id']: d for d in snap['documents']}
     superseded = {r['payload']['data'].get('supersedes') for r in records.values() if r['kind'] == 'evidence'}
     refs, used_evidence = set(), {}
+    if campaign:refs.add(campaign['checkpoint_id'])
 
     def get(rid, kind):
         r = records.get(rid)
@@ -206,7 +216,23 @@ def make_report(store, request, value):
                 changes.append({'scope': old['scope'], 'status': '이번 비교에서 제외 — 병목 해소를 뜻하지 않음',
                                 'before': old['conclusion'], 'after': None, 'previous_judgment_id': old['judgment_id']})
     failures = [a for a in snap['attempts'] if a['status'] not in ('success', 'unchanged')]
+    if campaign:
+        from research_loop import current
+        head, campaign_state=current(store,value['campaign_id'])
+        if head!=value['checkpoint_id']:raise ValueError('Research advanced during rendering; retry latest checkpoint')
+        campaign_root=get(value['campaign_id'],'task')
+        if campaign_root['as_of_date']!=value['as_of_date']:raise ValueError('Campaign/report cutoff mismatch')
+        selected={n['node_id'] for n in campaign_state['nodes'] if n['disposition']=='selected'}
+        if not selected <= {r['scope']['node_id'] for r in rows}:
+            raise ValueError('Baseline report must include selected research nodes')
+        conclusions={rid for q in campaign_state['questions'] if q['status']=='resolved' for rid in q['judgment_ids']}
+        if not conclusions <= {r['judgment_id'] for r in rows}:
+            raise ValueError('Report must carry the judgments used to resolve research questions')
+        if execution['status'] not in ('completed','excluded_by_user'):
+            raise ValueError('Baseline research execution incomplete; save interim and continue')
     output = {'title': value['title'], 'as_of_date': value['as_of_date'], 'mode': 'synthesis',
+              'research_stage':stage,'campaign_id':value.get('campaign_id'),
+              'checkpoint_id':value.get('checkpoint_id'),
               'snapshot_id': snap['snapshot_id'], 'generation': FORMAT, 'action_sha256': digest(action),
               'coverage': coverage, 'rows': rows, 'highlight_ids': highlights, 'changes': changes,
               'previous_report_id': value.get('previous_report_id'), 'source_failures': failures, 'synthesis_claims': claims,

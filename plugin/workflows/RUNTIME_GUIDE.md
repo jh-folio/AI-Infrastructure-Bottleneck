@@ -230,3 +230,10 @@ HTML은 대시보드와 공급망 지도 두 화면으로 제공한다. 대시�
 Companies는 judgment의 선택적 companies 배열에서 name/role/evidence_ids가 있고 해당 판단의 근거를 참조하는 항목만 표시한다. 언급된 발행처나 그래프 연결을 수혜 기업으로 자동 바꾸지 않는다. 예: {"name":"기업명","role":"해당 범위에서 검토한 역할","evidence_ids":["지지/반대 근거 ID"]}. 관련 기업이 없으면 미확인으로 남긴다.
 
 지도는 검토된 관계를 축약 순환 그래프로 정리한 뒤 공급 출발→다음 의존 단계 순서를 가로축에 유지한다. 순환 관계는 같은 단계로 모은다. 세로 위치를 조정해도 단계는 바뀌지 않는다. 원 크기/색은 적격 점수 하한, 외곽 고리는 상한이며 미평가는 작은 회색 점선 원이다. 이 시각화는 새 점수 산식이나 순위가 아니다. 밝고 어두운 테마와 6개 내장 폰트 파일(SUIT 3굵기, IBM Plex Sans, Inter, Bricolage Grotesque)을 사용한다. 배포 폰트의 라이선스는 runtime/ui/FONT_LICENSES.txt에 보존한다.
+
+
+## 지속 조사 실행 — 0.3.0-d5.3
+
+최초 연구와 재개는 [연구 실행 계약](RESEARCH_EXECUTION.md)을 먼저 적용한다. research-start/research-checkpoint/research-resume 및 synthesize.research_stage는 해당 문서의 CLI 계약을 따른다. 기본 interim은 중간 보고서이며 baseline_review에는 campaign_id와 최신 checkpoint_id가 필요하다. 저장된 기존 보고서는 다시 쓰지 않는다.
+
+심층 리서치의 수행은 별도 호스트 도구 호출에 한정되지 않는다. 실제 스킬을 에이전트가 직접 수행하면 research-return에 execution_mode=skill_direct를 사용한다. 별도 도구는 host_tool이다. 위의 '호스트 실행/반환'은 직접 수행의 기록과 결과 보존도 포함한다. 단순 웹 열람과 스킬의 반복 심층 조사 절차를 구분하되, 웹을 사용했다는 이유로 실제 스킬 수행을 부정하지 않는다.

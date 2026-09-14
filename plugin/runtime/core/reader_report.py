@@ -21,6 +21,8 @@ def render_reader(value, evidence, documents, text):
         return f"[자료 {sources[eid]}](#source-{sources[eid]})"
 
     lines = ['# ' + t(value['title']), '', '기준일: ' + value['as_of_date'], '',
+             ('연구 상태: 검토용 종합 결과 — 최종 승인은 별도입니다.' if value.get('research_stage')=='baseline_review'
+              else '연구 상태: 조사 중간 결과 — 최초 연구가 완료된 보고서가 아닙니다.'), '',
              '심층 리서치: ' + states[execution['status']], '',
              '표는 공급망 위치에 따라 정리했으며 순위를 뜻하지 않습니다. 확인하지 못한 구간은 별도로 표시했습니다.', '',
              '## 핵심 요약', '']

@@ -16,3 +16,6 @@ description: 기존 연구의 공개자료를 반복 수집하고 변경 근거 
 주간 요청은 report mode=weekly_brief에 선택한 event_ids/judgment_ids/assessment_ids를 넘겨 브리프를 만들고 인용/미확인/다음 관측을 검토한다. 최신 backup과 snapshot/버전/다음 행동을 남긴다. 예약 요청이 있으면 schedule-packet을 바탕으로 실제 호스트 도구에 주기·시간대·상태 경로·회차 ID를 연결한다. packet 자체는 등록이 아니며 실제 예약 ID/결과 없이 활성화로 표시하지 않는다. 필요한 변경 근거를 검토한 뒤 새 보고서와 화면을 만들도록 예약 지시문에 연결한다. 수집 오류를 점수 변경이나 변화 없음으로 바꾸지 않는다.
 
 공급망 종합 갱신은 현재 judgment의 comparison에 이전 판단과 새 관측 근거·변경 원인을 연결하고 synthesize에 previous_report_id를 전달한다. 추가/제외된 구간과 범위 변경을 병목 심화/해소로 표현하지 않는다. 합성 결과의 변경 요약과 원문 근거를 검토한 뒤 export-report/backup한다. 개별 사건만의 brief는 기존 report mode=weekly_brief를 사용한다.
+
+
+미완료 최초 연구 campaign이 있으면 업데이트 전에 research-next로 남은 질문을 확인한다. '이어서 조사' 요청은 기존 checkpoint에서 재개하며 새 원장을 만들거나 미완료 baseline을 완료로 간주하지 않는다. 새 근거가 중요한 공백을 열면 기존 질문에 시도와 다음 행동을 덧붙인다. 세부 절차는 [연구 실행과 재개](../../plugin/workflows/RESEARCH_EXECUTION.md)를 따른다. 좁은 변경 확인 요청에는 그 범위를 우선한다.

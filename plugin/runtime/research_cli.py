@@ -23,6 +23,11 @@ def execute(action):
     if op=='restore':
         return restore(action['backup_dir'],action['destination'])
     store=Store(action['state_dir'],action['project_id'])
+    if op in ('research-start','research-checkpoint','research-resume','research-next'):
+        import research_loop
+        if op=='research-next':return research_loop.next_work(store,action['campaign_id'],action.get('limit',10))
+        if op=='research-resume':return research_loop.resume(store,action['campaign_id'])
+        return (research_loop.start if op=='research-start' else research_loop.checkpoint)(store,action['request_id'],action['data'])
     if op in ('monitor-plan','monitor-run','schedule-packet'):
         import monitoring
         if op=='schedule-packet': return monitoring.schedule_packet(store,action['plan_id'])

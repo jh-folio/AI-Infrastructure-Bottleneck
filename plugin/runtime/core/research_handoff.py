@@ -20,6 +20,8 @@ def prepare(store, request, value):
 
 def receive(store, request, value):
     required(value,'handoff_id','entrypoint','execution_path','result_path')
+    mode=value.get('execution_mode','host_tool')
+    if mode not in ('skill_direct','host_tool'):raise ValueError('Invalid research execution mode')
     handoff=data(store,value['handoff_id'],'task')
     if handoff.get('type')!='research_handoff':raise ValueError('Expected prepared research handoff')
     paths=[Path(value[k]).resolve() for k in ('execution_path','result_path')]
@@ -33,6 +35,7 @@ def receive(store, request, value):
                        {'role':role,'entrypoint':value['entrypoint'],'handoff_id':value['handoff_id']})['document_id']
           for p,b,role in zip(paths,raw,('execution','result'))]
     execution={'status':'completed','reason':'실행자가 수행 기록과 반환 자료를 등록했습니다. 독립 실행 감사는 별도입니다.',
+        'execution_mode':mode,
         'entrypoint':value['entrypoint'],'execution_document_id':docs[0],'result_document_id':docs[1]}
     return store.append('task',request,{'type':'research_return','action_sha256':digest(action),
         'handoff_id':value['handoff_id'],'research_execution':execution,'review_status':'candidate_requires_review'},
