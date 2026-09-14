@@ -1,15 +1,15 @@
 [
   {
     "path": "plugin.json",
-    "sha256": "11caf3a6142fec1258d7f2541cba4949cf6ea7d060025287f4b3e51bc6e42811"
+    "sha256": "d57c263db3190965ff2e690f41d915ad55fcb38443e3812e2c9fcd03cf29aca3"
   },
   {
     "path": ".codex-plugin/plugin.json",
-    "sha256": "e7b604270d90f3c395fcb9bd4a4f572aa9fd82ff96b3cce13c1a45c5b13e14bb"
+    "sha256": "2de6dce37724440a3da008950b1b8bd07dba583b9f1041451c668c8ce4156993"
   },
   {
     "path": "README.md",
-    "sha256": "135d2c460c04557af87a15d9c834be315e99c6c12446b48714a9d3499e85a583"
+    "sha256": "47025aad65a2c47f16edee349881320802d3fa318ea5abe969612942f30c688b"
   },
   {
     "path": ".gitignore",
@@ -20,8 +20,8 @@
     "sha256": "d60f352d0db1404c70afb4bb8b2ca3fd1c610572aa40720e8a0b7baa7885418c"
   },
   {
-    "path": "skills/initialize-project/SKILL.md",
-    "sha256": "1384e9b3688d4e92aa6d7867ec1e76bd52c27d2cc9843b13b0bd354101301599"
+    "path": "requirements-optional.txt",
+    "sha256": "267380042dad95f7019ceafb27ab71ea67d0a092c030fd4a008ed944b5da3ce1"
   },
   {
     "path": "plugin/runtime/core/persistence_poc.py",
@@ -58,5 +58,85 @@
   {
     "path": "tests/D1_SOURCE_HANDOFF.md",
     "sha256": "2dfc26d6bf421f5df5eea076745e50adef87c64b0828a313c15924c1c05c4373"
+  },
+  {
+    "path": "plugin/database/research_v1.sql",
+    "sha256": "4e15c6a2c7e5e7d6c29bbb8f519671a6aee5f3274e995f39533abeb9e4d0f16b"
+  },
+  {
+    "path": "plugin/runtime/research_cli.py",
+    "sha256": "6e1c22e42749be6a066b17825ec55c77c8181b1a37fad2d2449b4b43aaf9e4ef"
+  },
+  {
+    "path": "plugin/runtime/core/research_store.py",
+    "sha256": "1f61502b3d02637b07cd9aa9e4a304b047b99a9cc43ae842e02d41207c3f3636"
+  },
+  {
+    "path": "plugin/runtime/core/extraction.py",
+    "sha256": "564b3f793efa945448e8fd10300bb574b7484489792f2dc2d54e3fb7373e166f"
+  },
+  {
+    "path": "plugin/runtime/core/research.py",
+    "sha256": "e062e5186925dd03bde60275ee245a4ee2e9cccb32afa9d1c629f7483ee609ad"
+  },
+  {
+    "path": "plugin/runtime/core/scoring.py",
+    "sha256": "0e7aa6622d13e042882336f927b83e5b5d649731996e5e7315747f4f1a56606c"
+  },
+  {
+    "path": "plugin/runtime/core/engines/__init__.py",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "path": "plugin/runtime/core/engines/d3_1_0.py",
+    "sha256": "0915795b6779f6b9616f574a688af1a596a8931f802c32d0ea98187be118bb8b"
+  },
+  {
+    "path": "plugin/runtime/adapters/research_sources.py",
+    "sha256": "e37c909e9a2a7fe75772c0f6515a7a7d2ca990e1f88f871dd39bdb8ce00db7e1"
+  },
+  {
+    "path": "plugin/workflows/RUNTIME_GUIDE.md",
+    "sha256": "2a5a999304703c538da781624d63d2c3f1cd1eeb9d817854c0d03ed8b05993d6"
+  },
+  {
+    "path": "plugin/methodology/research_rules.md",
+    "sha256": "a9c9f2d5150f38083c37b4a8e794ecf4d4c14788ebdad9c6275767a167a93ac1"
+  },
+  {
+    "path": "plugin/methodology/scoring_v31_reference.md",
+    "sha256": "25ad9fe9d4d8a820b8e04e3833d4b9000f56b75aa990f4a701062d7332fab514"
+  },
+  {
+    "path": "plugin/ontology/node_ids_v1.json",
+    "sha256": "9350e615b46b5d826b6d586fb2908c4ce7524ff072e06105e132e84b68e6e9da"
+  },
+  {
+    "path": "tests/test_research_d3.py",
+    "sha256": "368d634f2ea797f13b18fbf71cbd1e9adfaf5a547c3b7f6a94360642f2518f0e"
+  },
+  {
+    "path": "tests/D3_WORK_HANDOFF.md",
+    "sha256": "041b1444f37bbb1d30527eb5a1dc487bf4543ce4eebc134b34e1c32db980ba45"
+  },
+  {
+    "path": "skills/initialize-project/SKILL.md",
+    "sha256": "919f056e25832145e0c3ca20168a20e6f5ad6177a6a3ff6a0f137bd81748d0e1"
+  },
+  {
+    "path": "skills/build-baseline/SKILL.md",
+    "sha256": "26ae9f513ac03cc694af3cfb5d5a9385663fa601286716637c97ef6b45e7a205"
+  },
+  {
+    "path": "skills/monitor-update/SKILL.md",
+    "sha256": "fb13d8bd4f47bc52f9b4d03bfc8a45a021ca9eecd90dc7d949a9c235edb2dfc3"
+  },
+  {
+    "path": "skills/audit-research/SKILL.md",
+    "sha256": "58fd7aee9f253fbb69ff1d4ee0aad3cbe7554c4135b7fd389946d268731c076c"
+  },
+  {
+    "path": "skills/build-dashboard/SKILL.md",
+    "sha256": "f774347a16f343608511d431f69b280f63c6adc372df6d9b65e8fd2d4a38e279"
   }
 ]

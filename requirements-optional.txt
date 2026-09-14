@@ -1,0 +1,3 @@
+# Versions exercised in local D3 validation; optional source adapters only.
+yfinance==1.5.2
+pypdf==6.18.1

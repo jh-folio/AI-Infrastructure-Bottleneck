@@ -1,0 +1,703 @@
+{
+  "version": "legacy-id-map-1.0",
+  "source_sha256": "5a8a67ad03d54ebd18464c67f632999bb9273124a9be4f202195f425bb647686",
+  "note": "Identity reference only; no research scopes, scores, rankings or default study universe. Original IDs retained; loading this file does not initialize nodes.",
+  "nodes": [
+    {
+      "Node_ID": "A01",
+      "Module": "A",
+      "Node_Name": "Accelerator / GPU / ASIC",
+      "Primary_Archetype": "Manufactured Supply",
+      "Dependencies": "A02 A03 A04 A05 A06",
+      "Parent_Node_ID": ""
+    },
+    {
+      "Node_ID": "A02",
+      "Module": "A",
+      "Node_Name": "Leading-edge Foundry",
+      "Primary_Archetype": "Technology / Capacity Platform",
+      "Dependencies": "A07 A08 A09 A10 A11",
+      "Parent_Node_ID": ""
+    },
+    {
+      "Node_ID": "A03",
+      "Module": "A",
+      "Node_Name": "HBM",
+      "Primary_Archetype": "Manufactured Supply",
+      "Dependencies": "A02 A04 A08 A09 A10",
+      "Parent_Node_ID": ""
+    },
+    {
+      "Node_ID": "A04",
+      "Module": "A",
+      "Node_Name": "Advanced Packaging",
+      "Primary_Archetype": "Manufactured Supply",
+      "Dependencies": "A02 A03 A05 A06",
+      "Parent_Node_ID": ""
+    },
+    {
+      "Node_ID": "A05",
+      "Module": "A",
+      "Node_Name": "Interposer",
+      "Primary_Archetype": "Manufactured Supply",
+      "Dependencies": "A08 A09 A10",
+      "Parent_Node_ID": ""
+    },
+    {
+      "Node_ID": "A06",
+      "Module": "A",
+      "Node_Name": "Advanced Substrate",
+      "Primary_Archetype": "Manufactured Supply",
+      "Dependencies": "D05 A11",
+      "Parent_Node_ID": ""
+    },
+    {
+      "Node_ID": "A07",
+      "Module": "A",
+      "Node_Name": "Lithography Equipment",
+      "Primary_Archetype": "Technology / Capacity Platform",
+      "Dependencies": "E04 E05",
+      "Parent_Node_ID": ""
+    },
+    {
+      "Node_ID": "A08",
+      "Module": "A",
+      "Node_Name": "Etch Equipment",
+      "Primary_Archetype": "Technology / Capacity Platform",
+      "Dependencies": "D06 D08 D11 E04",
+      "Parent_Node_ID": ""
+    },
+    {
+      "Node_ID": "A09",
+      "Module": "A",
+      "Node_Name": "Deposition / Thermal Process Equipment",
+      "Primary_Archetype": "Technology / Capacity Platform",
+      "Dependencies": "D07 D10 E04",
+      "Parent_Node_ID": ""
+    },
+    {
+      "Node_ID": "A10",
+      "Module": "A",
+      "Node_Name": "Metrology / Inspection Equipment",
+      "Primary_Archetype": "Technology / Capacity Platform",
+      "Dependencies": "E04 E05",
+      "Parent_Node_ID": ""
+    },
+    {
+      "Node_ID": "A11",
+      "Module": "A",
+      "Node_Name": "Fab Material Process Qualification",
+      "Primary_Archetype": "Infrastructure / Process",
+      "Dependencies": "D05 D06 D07 D08 D09 D10 D11 D12 D13 D14",
+      "Parent_Node_ID": ""
+    },
+    {
+      "Node_ID": "A12",
+      "Module": "A",
+      "Node_Name": "NIC / DPU",
+      "Primary_Archetype": "Manufactured Supply",
+      "Dependencies": "A02",
+      "Parent_Node_ID": ""
+    },
+    {
+      "Node_ID": "A13",
+      "Module": "A",
+      "Node_Name": "Switch Silicon",
+      "Primary_Archetype": "Manufactured Supply",
+      "Dependencies": "A02 A04",
+      "Parent_Node_ID": ""
+    },
+    {
+      "Node_ID": "A14",
+      "Module": "A",
+      "Node_Name": "Network Switch Systems",
+      "Primary_Archetype": "Manufactured Supply",
+      "Dependencies": "A13 A15",
+      "Parent_Node_ID": ""
+    },
+    {
+      "Node_ID": "A15",
+      "Module": "A",
+      "Node_Name": "Optical Transceivers",
+      "Primary_Archetype": "Manufactured Supply",
+      "Dependencies": "A16 A18 A19 A20 D22",
+      "Parent_Node_ID": ""
+    },
+    {
+      "Node_ID": "A16",
+      "Module": "A",
+      "Node_Name": "Laser / InP Active Components",
+      "Primary_Archetype": "Manufactured Supply",
+      "Dependencies": "D17 D19 A11",
+      "Parent_Node_ID": ""
+    },
+    {
+      "Node_ID": "A17",
+      "Module": "A",
+      "Node_Name": "CPO Integration",
+      "Primary_Archetype": "Manufactured Supply",
+      "Dependencies": "A04 A13 A16 A18",
+      "Parent_Node_ID": ""
+    },
+    {
+      "Node_ID": "A18",
+      "Module": "A",
+      "Node_Name": "Silicon Photonics / PIC",
+      "Primary_Archetype": "Manufactured Supply",
+      "Dependencies": "A02 A16",
+      "Parent_Node_ID": ""
+    },
+    {
+      "Node_ID": "A19",
+      "Module": "A",
+      "Node_Name": "Optical DSP / SerDes",
+      "Primary_Archetype": "Manufactured Supply",
+      "Dependencies": "A02",
+      "Parent_Node_ID": ""
+    },
+    {
+      "Node_ID": "A20",
+      "Module": "A",
+      "Node_Name": "Passive Optical Connectivity",
+      "Primary_Archetype": "Manufactured Supply",
+      "Dependencies": "D22 E02",
+      "Parent_Node_ID": ""
+    },
+    {
+      "Node_ID": "B01",
+      "Module": "B",
+      "Node_Name": "Data Center Construction",
+      "Primary_Archetype": "Infrastructure / Process",
+      "Dependencies": "B02 B14 E01 E07 E10",
+      "Parent_Node_ID": ""
+    },
+    {
+      "Node_ID": "B02",
+      "Module": "B",
+      "Node_Name": "Rack Integration",
+      "Primary_Archetype": "Manufactured Supply",
+      "Dependencies": "A01 A12 A14 B03 B09",
+      "Parent_Node_ID": ""
+    },
+    {
+      "Node_ID": "B03",
+      "Module": "B",
+      "Node_Name": "Direct-to-chip Cooling",
+      "Primary_Archetype": "Manufactured Supply",
+      "Dependencies": "B04 B05",
+      "Parent_Node_ID": ""
+    },
+    {
+      "Node_ID": "B04",
+      "Module": "B",
+      "Node_Name": "CDU",
+      "Primary_Archetype": "Manufactured Supply",
+      "Dependencies": "B05 B06",
+      "Parent_Node_ID": ""
+    },
+    {
+      "Node_ID": "B05",
+      "Module": "B",
+      "Node_Name": "Pumps / Manifold / Fluid Connections",
+      "Primary_Archetype": "Manufactured Supply",
+      "Dependencies": "B06",
+      "Parent_Node_ID": ""
+    },
+    {
+      "Node_ID": "B06",
+      "Module": "B",
+      "Node_Name": "Facility Water Loop",
+      "Primary_Archetype": "Infrastructure / Process",
+      "Dependencies": "B05 B08 E02",
+      "Parent_Node_ID": ""
+    },
+    {
+      "Node_ID": "B07",
+      "Module": "B",
+      "Node_Name": "Chiller",
+      "Primary_Archetype": "Manufactured Supply",
+      "Dependencies": "B08",
+      "Parent_Node_ID": ""
+    },
+    {
+      "Node_ID": "B08",
+      "Module": "B",
+      "Node_Name": "Heat Rejection",
+      "Primary_Archetype": "Manufactured Supply",
+      "Dependencies": "E09",
+      "Parent_Node_ID": ""
+    },
+    {
+      "Node_ID": "B09",
+      "Module": "B",
+      "Node_Name": "UPS",
+      "Primary_Archetype": "Manufactured Supply",
+      "Dependencies": "B12",
+      "Parent_Node_ID": ""
+    },
+    {
+      "Node_ID": "B10",
+      "Module": "B",
+      "Node_Name": "PDU",
+      "Primary_Archetype": "Manufactured Supply",
+      "Dependencies": "B12",
+      "Parent_Node_ID": ""
+    },
+    {
+      "Node_ID": "B11",
+      "Module": "B",
+      "Node_Name": "Busway",
+      "Primary_Archetype": "Manufactured Supply",
+      "Dependencies": "D01 D02",
+      "Parent_Node_ID": ""
+    },
+    {
+      "Node_ID": "B12",
+      "Module": "B",
+      "Node_Name": "Facility Electrical Distribution / Switchgear",
+      "Primary_Archetype": "Manufactured Supply",
+      "Dependencies": "C04 B09 B10 B11",
+      "Parent_Node_ID": ""
+    },
+    {
+      "Node_ID": "B13",
+      "Module": "B",
+      "Node_Name": "Modular Power Systems",
+      "Primary_Archetype": "Manufactured Supply",
+      "Dependencies": "B09 B12 C02",
+      "Parent_Node_ID": ""
+    },
+    {
+      "Node_ID": "B14",
+      "Module": "B",
+      "Node_Name": "Facility Commissioning",
+      "Primary_Archetype": "Infrastructure / Process",
+      "Dependencies": "B02 B03 B06 B12 E06 E11",
+      "Parent_Node_ID": ""
+    },
+    {
+      "Node_ID": "C01",
+      "Module": "C",
+      "Node_Name": "Large Power / Substation Transformer",
+      "Primary_Archetype": "Manufactured Supply",
+      "Dependencies": "D01 D03 D04 E02 E05",
+      "Parent_Node_ID": ""
+    },
+    {
+      "Node_ID": "C02",
+      "Module": "C",
+      "Node_Name": "Distribution Transformer",
+      "Primary_Archetype": "Manufactured Supply",
+      "Dependencies": "D01 D02 D03 D04",
+      "Parent_Node_ID": ""
+    },
+    {
+      "Node_ID": "C03",
+      "Module": "C",
+      "Node_Name": "Generator Step-up Transformer",
+      "Primary_Archetype": "Manufactured Supply",
+      "Dependencies": "D01 D03 C11",
+      "Parent_Node_ID": ""
+    },
+    {
+      "Node_ID": "C04",
+      "Module": "C",
+      "Node_Name": "HV Switchgear / Breaker",
+      "Primary_Archetype": "Manufactured Supply",
+      "Dependencies": "D01 E05",
+      "Parent_Node_ID": ""
+    },
+    {
+      "Node_ID": "C05",
+      "Module": "C",
+      "Node_Name": "Substation Integration",
+      "Primary_Archetype": "Infrastructure / Process",
+      "Dependencies": "C01 C02 C04 E04 E06 E07",
+      "Parent_Node_ID": ""
+    },
+    {
+      "Node_ID": "C06",
+      "Module": "C",
+      "Node_Name": "Large-load Connection",
+      "Primary_Archetype": "Infrastructure / Process",
+      "Dependencies": "C05 C08 C09 E12",
+      "Parent_Node_ID": ""
+    },
+    {
+      "Node_ID": "C07",
+      "Module": "C",
+      "Node_Name": "Generation / Storage Interconnection",
+      "Primary_Archetype": "Infrastructure / Process",
+      "Dependencies": "C08 C10 C15 C16 C17",
+      "Parent_Node_ID": ""
+    },
+    {
+      "Node_ID": "C08",
+      "Module": "C",
+      "Node_Name": "Transmission",
+      "Primary_Archetype": "Infrastructure / Process",
+      "Dependencies": "C01 C04 E01 E03 E07",
+      "Parent_Node_ID": ""
+    },
+    {
+      "Node_ID": "C09",
+      "Module": "C",
+      "Node_Name": "Resource Adequacy / Deliverable Firm Power",
+      "Primary_Archetype": "Energy / Resource",
+      "Dependencies": "C08 C10 C13 C14 C15 C16 C17",
+      "Parent_Node_ID": ""
+    },
+    {
+      "Node_ID": "C10",
+      "Module": "C",
+      "Node_Name": "Natural-gas Generation",
+      "Primary_Archetype": "Energy / Resource",
+      "Dependencies": "C03 C11 C12 E01 E07",
+      "Parent_Node_ID": ""
+    },
+    {
+      "Node_ID": "C11",
+      "Module": "C",
+      "Node_Name": "Gas Turbine",
+      "Primary_Archetype": "Manufactured Supply",
+      "Dependencies": "C12 E04 E05",
+      "Parent_Node_ID": ""
+    },
+    {
+      "Node_ID": "C12",
+      "Module": "C",
+      "Node_Name": "Pipeline / Gas Deliverability",
+      "Primary_Archetype": "Energy / Resource",
+      "Dependencies": "E01 E07 E08",
+      "Parent_Node_ID": ""
+    },
+    {
+      "Node_ID": "C13",
+      "Module": "C",
+      "Node_Name": "Existing Nuclear / Restart / Uprate",
+      "Primary_Archetype": "Energy / Resource",
+      "Dependencies": "C03 E01 E04 E07",
+      "Parent_Node_ID": ""
+    },
+    {
+      "Node_ID": "C14",
+      "Module": "C",
+      "Node_Name": "New Nuclear / SMR",
+      "Primary_Archetype": "Energy / Resource",
+      "Dependencies": "C03 E01 E04 E07",
+      "Parent_Node_ID": ""
+    },
+    {
+      "Node_ID": "C15",
+      "Module": "C",
+      "Node_Name": "Solar",
+      "Primary_Archetype": "Energy / Resource",
+      "Dependencies": "C07 C08 C17",
+      "Parent_Node_ID": ""
+    },
+    {
+      "Node_ID": "C16",
+      "Module": "C",
+      "Node_Name": "Wind",
+      "Primary_Archetype": "Energy / Resource",
+      "Dependencies": "C07 C08 C17",
+      "Parent_Node_ID": ""
+    },
+    {
+      "Node_ID": "C17",
+      "Module": "C",
+      "Node_Name": "Battery / Storage",
+      "Primary_Archetype": "Energy / Resource",
+      "Dependencies": "C07 C09",
+      "Parent_Node_ID": ""
+    },
+    {
+      "Node_ID": "C18",
+      "Module": "C",
+      "Node_Name": "Behind-the-meter Generation",
+      "Primary_Archetype": "Energy / Resource",
+      "Dependencies": "C10 C11 C12 C17 E01",
+      "Parent_Node_ID": ""
+    },
+    {
+      "Node_ID": "D01",
+      "Module": "D",
+      "Node_Name": "Copper",
+      "Primary_Archetype": "Commodity / Material",
+      "Dependencies": "E01 E07 E09",
+      "Parent_Node_ID": ""
+    },
+    {
+      "Node_ID": "D02",
+      "Module": "D",
+      "Node_Name": "Aluminum",
+      "Primary_Archetype": "Commodity / Material",
+      "Dependencies": "E01",
+      "Parent_Node_ID": ""
+    },
+    {
+      "Node_ID": "D03",
+      "Module": "D",
+      "Node_Name": "GOES / Electrical Steel",
+      "Primary_Archetype": "Commodity / Material",
+      "Dependencies": "E01",
+      "Parent_Node_ID": ""
+    },
+    {
+      "Node_ID": "D04",
+      "Module": "D",
+      "Node_Name": "Amorphous Metal",
+      "Primary_Archetype": "Commodity / Material",
+      "Dependencies": "E01",
+      "Parent_Node_ID": ""
+    },
+    {
+      "Node_ID": "D05",
+      "Module": "D",
+      "Node_Name": "Semiconductor-grade Polysilicon",
+      "Primary_Archetype": "Commodity / Material",
+      "Dependencies": "E01",
+      "Parent_Node_ID": ""
+    },
+    {
+      "Node_ID": "D06",
+      "Module": "D",
+      "Node_Name": "NF3",
+      "Primary_Archetype": "Commodity / Material",
+      "Dependencies": "E01",
+      "Parent_Node_ID": ""
+    },
+    {
+      "Node_ID": "D07",
+      "Module": "D",
+      "Node_Name": "WF6",
+      "Primary_Archetype": "Commodity / Material",
+      "Dependencies": "E01",
+      "Parent_Node_ID": ""
+    },
+    {
+      "Node_ID": "D08",
+      "Module": "D",
+      "Node_Name": "HBr",
+      "Primary_Archetype": "Commodity / Material",
+      "Dependencies": "E01",
+      "Parent_Node_ID": ""
+    },
+    {
+      "Node_ID": "D09",
+      "Module": "D",
+      "Node_Name": "Helium",
+      "Primary_Archetype": "Commodity / Material",
+      "Dependencies": "E01",
+      "Parent_Node_ID": ""
+    },
+    {
+      "Node_ID": "D10",
+      "Module": "D",
+      "Node_Name": "HCl",
+      "Primary_Archetype": "Commodity / Material",
+      "Dependencies": "E01",
+      "Parent_Node_ID": ""
+    },
+    {
+      "Node_ID": "D11",
+      "Module": "D",
+      "Node_Name": "HF",
+      "Primary_Archetype": "Commodity / Material",
+      "Dependencies": "E01",
+      "Parent_Node_ID": ""
+    },
+    {
+      "Node_ID": "D12",
+      "Module": "D",
+      "Node_Name": "UHP IPA",
+      "Primary_Archetype": "Commodity / Material",
+      "Dependencies": "E01",
+      "Parent_Node_ID": ""
+    },
+    {
+      "Node_ID": "D13",
+      "Module": "D",
+      "Node_Name": "Photoresist / Lithography Materials",
+      "Primary_Archetype": "Commodity / Material",
+      "Dependencies": "E01",
+      "Parent_Node_ID": ""
+    },
+    {
+      "Node_ID": "D14",
+      "Module": "D",
+      "Node_Name": "Other Qualified Fab / Packaging Materials",
+      "Primary_Archetype": "Commodity / Material",
+      "Dependencies": "E01",
+      "Parent_Node_ID": ""
+    },
+    {
+      "Node_ID": "D15",
+      "Module": "D",
+      "Node_Name": "Silver",
+      "Primary_Archetype": "Commodity / Material",
+      "Dependencies": "E01",
+      "Parent_Node_ID": ""
+    },
+    {
+      "Node_ID": "D16",
+      "Module": "D",
+      "Node_Name": "Tin",
+      "Primary_Archetype": "Commodity / Material",
+      "Dependencies": "E01",
+      "Parent_Node_ID": ""
+    },
+    {
+      "Node_ID": "D17",
+      "Module": "D",
+      "Node_Name": "Gallium",
+      "Primary_Archetype": "Commodity / Material",
+      "Dependencies": "E01",
+      "Parent_Node_ID": ""
+    },
+    {
+      "Node_ID": "D18",
+      "Module": "D",
+      "Node_Name": "Germanium",
+      "Primary_Archetype": "Commodity / Material",
+      "Dependencies": "E01",
+      "Parent_Node_ID": ""
+    },
+    {
+      "Node_ID": "D19",
+      "Module": "D",
+      "Node_Name": "Indium",
+      "Primary_Archetype": "Commodity / Material",
+      "Dependencies": "E01",
+      "Parent_Node_ID": ""
+    },
+    {
+      "Node_ID": "D20",
+      "Module": "D",
+      "Node_Name": "Antimony",
+      "Primary_Archetype": "Commodity / Material",
+      "Dependencies": "E01",
+      "Parent_Node_ID": ""
+    },
+    {
+      "Node_ID": "D21",
+      "Module": "D",
+      "Node_Name": "Bulk Silicon",
+      "Primary_Archetype": "Commodity / Material",
+      "Dependencies": "E01",
+      "Parent_Node_ID": ""
+    },
+    {
+      "Node_ID": "D22",
+      "Module": "D",
+      "Node_Name": "Optical Fiber / Raw Optical Materials",
+      "Primary_Archetype": "Commodity / Material",
+      "Dependencies": "D18 E01",
+      "Parent_Node_ID": ""
+    },
+    {
+      "Node_ID": "E01",
+      "Module": "E",
+      "Node_Name": "Permitting / Environmental Approval",
+      "Primary_Archetype": "Infrastructure / Process",
+      "Dependencies": "E04",
+      "Parent_Node_ID": ""
+    },
+    {
+      "Node_ID": "E02",
+      "Module": "E",
+      "Node_Name": "Electricians",
+      "Primary_Archetype": "Labor / Execution",
+      "Dependencies": "",
+      "Parent_Node_ID": ""
+    },
+    {
+      "Node_ID": "E03",
+      "Module": "E",
+      "Node_Name": "Lineworkers",
+      "Primary_Archetype": "Labor / Execution",
+      "Dependencies": "",
+      "Parent_Node_ID": ""
+    },
+    {
+      "Node_ID": "E04",
+      "Module": "E",
+      "Node_Name": "Electrical Engineers",
+      "Primary_Archetype": "Labor / Execution",
+      "Dependencies": "",
+      "Parent_Node_ID": ""
+    },
+    {
+      "Node_ID": "E05",
+      "Module": "E",
+      "Node_Name": "Specialist Manufacturing / Fab Workforce",
+      "Primary_Archetype": "Labor / Execution",
+      "Dependencies": "",
+      "Parent_Node_ID": ""
+    },
+    {
+      "Node_ID": "E06",
+      "Module": "E",
+      "Node_Name": "Protection / Control Engineers",
+      "Primary_Archetype": "Labor / Execution",
+      "Dependencies": "",
+      "Parent_Node_ID": ""
+    },
+    {
+      "Node_ID": "E07",
+      "Module": "E",
+      "Node_Name": "EPC Capacity",
+      "Primary_Archetype": "Labor / Execution",
+      "Dependencies": "E02 E03 E04 E08 E10",
+      "Parent_Node_ID": ""
+    },
+    {
+      "Node_ID": "E08",
+      "Module": "E",
+      "Node_Name": "Welders",
+      "Primary_Archetype": "Labor / Execution",
+      "Dependencies": "",
+      "Parent_Node_ID": ""
+    },
+    {
+      "Node_ID": "E09",
+      "Module": "E",
+      "Node_Name": "Water / Environmental Resource Constraints",
+      "Primary_Archetype": "Energy / Resource",
+      "Dependencies": "",
+      "Parent_Node_ID": ""
+    },
+    {
+      "Node_ID": "E10",
+      "Module": "E",
+      "Node_Name": "Construction Labor",
+      "Primary_Archetype": "Labor / Execution",
+      "Dependencies": "",
+      "Parent_Node_ID": ""
+    },
+    {
+      "Node_ID": "E11",
+      "Module": "E",
+      "Node_Name": "Commissioning Specialists",
+      "Primary_Archetype": "Labor / Execution",
+      "Dependencies": "E06",
+      "Parent_Node_ID": ""
+    },
+    {
+      "Node_ID": "E12",
+      "Module": "E",
+      "Node_Name": "Utility Study / Engineering Capacity",
+      "Primary_Archetype": "Labor / Execution",
+      "Dependencies": "E04 E06",
+      "Parent_Node_ID": ""
+    },
+    {
+      "Node_ID": "E13",
+      "Module": "E",
+      "Node_Name": "Powered Land / Siting",
+      "Primary_Archetype": "Infrastructure / Process",
+      "Dependencies": "C06 E01 E09",
+      "Parent_Node_ID": ""
+    }
+  ]
+}
