@@ -1,6 +1,6 @@
 # AI Infrastructure Bottleneck — D3 Preview
 
-버전 **0.2.0-d3.2**. 공개자료 취득 → 원문 위치 조회 → 근거 검토 → 판단/계산 → 인용 초안을 연결한 연구 시험판입니다. 실제 Work에서의 연구 흐름·품질 인수를 앞둔 버전입니다.
+버전 **0.2.0-d3.3**. 공개자료 취득 → 원문 위치 조회 → 근거 검토 → 판단/계산 → 인용 초안을 연결한 연구 시험판입니다. 실제 Work에서의 연구 흐름·품질 인수를 앞둔 버전입니다.
 
 ## Work에서 시작
 
@@ -16,6 +16,7 @@
 - SEC submissions/companyfacts, yfinance 가격, 공개 IR HTML/PDF 취득과 실패 이력
 - 단위·공시 vintage를 보존한 fact 후보, 문단/페이지/JSON Pointer 재조회와 질문별 제한 packet
 - 범위가 일치하는 채택/보류/정정 근거, 반증·경쟁 가설을 포함한 판단과 사건 기록
+- 검토된 분야 간 종합 문장·공급망 위치/심화도/추세 비교표·미검토 범위·추적 목록을 고정 snapshot에서 생성, 이전 보고서 대비 변경 요약
 - Scoring 3.1 산술·적격성·Tier/binding 구분, 버전별 엔진 재현·snapshot·인용 초안
 - UUID/해시/참조 검사, 중복 요청 방지, 비파괴 backup/restore
 

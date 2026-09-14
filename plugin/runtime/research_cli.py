@@ -62,6 +62,9 @@ def execute(action):
         return store.append(op,action['request_id'],action['data'],action.get('refs',[]))
     if op=='report':
         return research.report(store,action['request_id'],action.get('judgment_ids',[]),action.get('assessment_ids',[]),action.get('mode','report'),action.get('title','연구 검토 초안'),action.get('event_ids',[]))
+    if op=='synthesize':
+        from synthesis import make_report
+        return make_report(store,action['request_id'],action['data'])
     if op=='record':
         result=store.record(action['id'])
         if not action.get('include_artifacts'):

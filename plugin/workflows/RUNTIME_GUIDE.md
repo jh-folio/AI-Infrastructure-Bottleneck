@@ -82,3 +82,58 @@ D3는 Unknown confidence 예외의 robustness 증명을 구현하지 않았으�
 `replay`는 assessment id로 등록된 당시 엔진 산술을 재현한다. `compare`의 old_id/new_id는 scope/방법/변경원인을 검사하고 자동 Momentum은 만들지 않는다. `audit`는 hash/참조/산술 검사이며 독립 해석 검토를 대체하지 않는다. 과거 엔진이 미등록이면 자료의 코드를 실행하지 말고 재현 미지원으로 보고한다.
 
 `report`는 request_id, judgment_ids, assessment_ids 선택, event_ids 선택, mode(report/weekly_brief/answer), title을 받는다. 고정 snapshot의 검토 내용을 인용 Markdown 초안으로 저장한다. `export-report`에 id와 새 destination을 주어 파일로 내보낸다. 심층 리서치 결과·사람이 검토한 해석은 별도 단계이며 이 템플릿 렌더러 자체가 연구를 수행한 것은 아니다. 요약에서는 원문의 scope/조건·반증·미확인을 생략하지 않는다.
+
+
+## 공급망 종합과 변경 요약 — 0.2.0-d3.3
+
+일반 `report`는 개별 기록의 인용 초안이다. 최초 공급망 종합·분야 간 비교와 후속 변경 요약에는 **synthesize**를 사용한다. 새 schema나 연구 이관이 필요하지 않으며 결과는 기존 report record로 저장되고 export-report/backup/restore로 재조회한다.
+
+먼저 연구자가 기존 judgment 입력에 다음 선택 필드를 추가한다. 자동으로 부족 점수나 추세 방향을 추론하는 필드가 아니다. 이미 검토한 판단을 구조화하는 단계다. 기존 judgment는 새 request_id로 추가 기록하여 원본을 보존한다.
+
+```json
+{
+  "bottleneck": {
+    "severity": "수요 대비 가용 공급의 부족을 근거 범위에서 설명",
+    "persistence": null,
+    "operational_impact": "관측된 일정 영향 또는 아직 확인하지 못한 부분"
+  },
+  "comparison": {
+    "prior_judgment_id": "이전 판단 ID",
+    "direction": "strengthening",
+    "change_cause": "new_observation",
+    "reason": "두 시점의 정합적인 근거로 검토한 변화 이유",
+    "evidence_ids": ["현재 판단에 채택된 새 관측 근거 ID"]
+  }
+}
+```
+
+comparison이 없으면 추세 미확인이다. direction은 strengthening/easing/unchanged/unknown이고 change_cause는 new_observation/data_recovery/correction/scope_change/method_change다. 같은 node/지역/규격/시나리오/horizon/방법, 과거→현재 기준일, 현재 judgment에 연결된 observation 근거의 `observed_at`과 공개일이 이전 기준일 이후·현재 기준일 이내인지 확인한다. observed_at은 원문에서 확인한 실제 관측일 YYYY-MM-DD이며 수집일로 채우지 않는다. 과거 공시와 최신 정정 vintage의 차이를 산업 변화로 바꾸지 않는다.
+
+조건이 부족하거나 계획/전망만 있으면 요청한 방향을 그대로 표시하지 않고 추세 미확인과 이유를 저장한다. 현재 자동 추세 gate는 실제 관측 비교를 지원하며 전망/계획 변경은 reasoning과 조건부 설명에 보존한다. 자연어 인과 판단 자체를 코드가 검증했다는 뜻은 아니다. 잘못된 범위·보류/정정 근거가 현재 판단에 연결되면 보고서 생성을 거부한다. 과거 정정된 근거는 역사 설명으로만 보존하고 새 관측 추세로 재사용하지 않는다.
+
+선택 `assessment_id`로 같은 scope의 중앙 계산을 연결할 수 있다. 평가의 근거도 현재 판단의 지지/반증에 포함해야 한다. 숫자 총점과 Tier는 기존 scoreability를 통과한 평가만 표시한다. 미식별 정성 필드는 null/미확인으로 남기며 engine 산식·기존 결과는 변경하지 않는다.
+
+synthesize action은 state_dir/project_id/request_id와 다음 data를 받는다:
+
+```json
+{
+  "title": "AI 인프라 공급망 병목 현황",
+  "as_of_date": "2026-09-14",
+  "coverage": [
+    {"segment": "검토한 공급망 구간", "status": "reviewed", "reason": "탐색과 심층 선정 이유", "judgment_ids": ["판단 A", "판단 B"]},
+    {"segment": "아직 검토하지 못한 구간", "status": "unreviewed", "reason": "남은 탐색과 필요 원출처", "judgment_ids": []}
+  ],
+  "synthesis_claims": [
+    {"text": "분야 간 관계를 검토한 종합 결론", "judgment_ids": ["판단 A", "판단 B"], "reasoning": "공통점·차이·중요성의 판단 이유", "limitations": ["범위별 해석과 비교 한계"]}
+  ],
+  "highlight_ids": ["판단 A", "판단 B"]
+}
+```
+
+예시 날짜/명칭/ID는 실제 연구에 맞게 치환한다. coverage는 의도한 탐색 범위를 먼저 선언하고 reviewed/unreviewed/missing/out_of_scope와 이유를 보존한다. reviewed는 연결된 scope에 검토 기록이 있다는 뜻이며 구간 전체의 전수 검증을 뜻하지 않는다. 새 ID 목록이나 익숙한 후보만으로 전체 공급망을 대표했다고 하지 않는다. 같은 평가 scope의 최신 판단 하나를 선택하고 이전 판단은 comparison으로 연결한다.
+
+둘 이상의 현재 판단을 묶을 때 synthesis_claims에 최소 하나의 분야 간 종합 판단을 작성한다. 각 문장은 실제 현재 판단 ID, reasoning, 명시적인 limitations를 가져야 한다. 코드가 결론을 창작하지 않는다. 모델은 원출처와 범위/반증을 검토하여 이 문장을 작성하고 코드가 동일 snapshot의 연결·형식·조건 보존을 담당한다. 다른 scope를 글로벌 순위나 실제 전파로 합치지 않는다. highlight_ids는 순위가 아니라 표시할 핵심 판단 선택이며 생략하면 모든 현재 판단을 요약한다.
+
+결과에는 핵심 종합/조건·반증, 위치별 강도/지속성/가동 영향/추세 비교표, 미검토 범위, 후보별 이전→현재 판단·경쟁 가설, 다음 추적 항목, 원문 위치/해시와 snapshot을 포함한다. next_actions에는 다음에 볼 지표·원출처·판단 변경 조건을 명시한다. 문자열을 넘겼다는 이유로 의미 적합성이 검증됐다고 하지 않는다.
+
+후속 종합에는 `previous_report_id`를 추가한다. 현재 행과 이전 행을 scope로 대응하고 추가/제외/범위 변경/판단 교체/검토된 추세를 구분한다. 새 행은 새 병목으로, 제외 행은 해소로, 같은 기록 재사용은 실제 안정으로 표시하지 않는다. 같은 request_id/동일 action은 최초 report/snapshot을 반환하며 데이터가 바뀌면 새 request_id를 쓴다. 과거 보고서 내용은 수정하지 않는다.

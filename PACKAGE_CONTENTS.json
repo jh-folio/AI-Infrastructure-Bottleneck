@@ -1,15 +1,15 @@
 [
   {
     "path": "plugin.json",
-    "sha256": "09597e83614ebaa8e5585a4599e44f27d8d1d4c54022c420111cf67caa18063a"
+    "sha256": "87bbfba81e9015bbcc0f8db23beb8c64df82cdc3c3dbd69167bf4e1827f8057e"
   },
   {
     "path": ".codex-plugin/plugin.json",
-    "sha256": "c1d49aaa67cdc0acb09761dff48624ad4997761a3346a5d80259278913416656"
+    "sha256": "81952e930ddbee86fd5f97513e61464c9da50afdd771668a56dbcf4de0afcb50"
   },
   {
     "path": "README.md",
-    "sha256": "d94d17dbf3563fb100372c6016e89a163b1de1f7aeb4c4e3040a81d7858f12b2"
+    "sha256": "45c6c6cf3dbfd64afaf21a6e6477e4cb01a6e1e9c7b5e6aa109a37303bb61e28"
   },
   {
     "path": ".gitignore",
@@ -65,7 +65,7 @@
   },
   {
     "path": "plugin/runtime/research_cli.py",
-    "sha256": "6e1c22e42749be6a066b17825ec55c77c8181b1a37fad2d2449b4b43aaf9e4ef"
+    "sha256": "1c907f0133269299bc3d8d7cc6280839cd44b98b0a50d8c4387fbf662f1b38fd"
   },
   {
     "path": "plugin/runtime/core/research_store.py",
@@ -84,6 +84,14 @@
     "sha256": "0e7aa6622d13e042882336f927b83e5b5d649731996e5e7315747f4f1a56606c"
   },
   {
+    "path": "plugin/runtime/core/synthesis.py",
+    "sha256": "313c62349412199cb44a2cffabdc77123ef49c36b016289b36ec4cb67779569a"
+  },
+  {
+    "path": "tests/test_synthesis.py",
+    "sha256": "8787513be2258433e169b00fd465e634eb6369df8280a2961a1bf50b7ec13351"
+  },
+  {
     "path": "plugin/runtime/core/engines/__init__.py",
     "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
   },
@@ -97,7 +105,7 @@
   },
   {
     "path": "plugin/workflows/RUNTIME_GUIDE.md",
-    "sha256": "2a5a999304703c538da781624d63d2c3f1cd1eeb9d817854c0d03ed8b05993d6"
+    "sha256": "ac07f7212b4878dcf28c55f02e3aa2976bbc27ce255272bc0f062e848cfb4348"
   },
   {
     "path": "plugin/methodology/research_rules.md",
@@ -121,7 +129,7 @@
   },
   {
     "path": "tests/D3_WORK_HANDOFF.md",
-    "sha256": "7b7242c197b03c197672c16cdc86cd8735fca9a888b3376fa790594248ff94f3"
+    "sha256": "9db38fcf17c6e42d495df48be466a4c3f43850d8a1d27daf0fd354a00bb9d2c2"
   },
   {
     "path": "skills/initialize-project/SKILL.md",
@@ -129,11 +137,11 @@
   },
   {
     "path": "skills/build-baseline/SKILL.md",
-    "sha256": "1fee37a1ffd0e2fff12b29cfbdf83da4eb5498c0819e5aff2f0b6c0f62a1b8c9"
+    "sha256": "272c1381e957e68360813ebedef33092a9ce623fabb79e1ac5cef8455fe0b67a"
   },
   {
     "path": "skills/monitor-update/SKILL.md",
-    "sha256": "df6c734a46273e529ae9ee3ec72f5648d37a03e71f0c40f8713769f3c64f1f41"
+    "sha256": "4a89a46e2415a6e7b88c430db9e995faf296d15e8917fafcc9dd3c4e47add897"
   },
   {
     "path": "skills/audit-research/SKILL.md",
