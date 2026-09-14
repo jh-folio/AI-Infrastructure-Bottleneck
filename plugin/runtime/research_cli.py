@@ -23,6 +23,18 @@ def execute(action):
     if op=='restore':
         return restore(action['backup_dir'],action['destination'])
     store=Store(action['state_dir'],action['project_id'])
+    if op in ('monitor-plan','monitor-run','schedule-packet'):
+        import monitoring
+        if op=='schedule-packet': return monitoring.schedule_packet(store,action['plan_id'])
+        return (monitoring.plan if op=='monitor-plan' else monitoring.run)(store,action['request_id'],action['data'])
+    if op in ('research-handoff','research-return'):
+        import research_handoff
+        return (research_handoff.prepare if op=='research-handoff' else research_handoff.receive)(store,action['request_id'],action['data'])
+    if op in ('relation','dashboard-data','export-dashboard'):
+        import dashboard
+        if op=='relation':return dashboard.relation(store,action['request_id'],action['data'])
+        if op=='dashboard-data':return dashboard.projection(store,action['report_id'])
+        return dashboard.export(store,action['report_id'],action['destination'])
     if op=='sec':
         return sec(store,action['cik'],action['dataset'])
     if op=='ir':

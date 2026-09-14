@@ -1,6 +1,6 @@
 {
   "name": "ai-infrastructure-bottleneck",
-  "version": "0.2.0-d3.4",
+  "version": "0.3.0-d5.1",
   "description": "AI infrastructure research preview: public sources, evidence lineage and reproducible scoring.",
   "author": {
     "name": "jh-folio"
@@ -10,9 +10,9 @@
   "extensions": {
     "com.openai": {
       "interface": {
-        "displayName": "AI Bottleneck · D3 Preview",
-        "shortDescription": "공개자료·근거 검토·인용 초안을 연결하는 연구 시험판",
-        "longDescription": "SEC·가격·IR 취득과 원문 조회, 범위별 근거 검토·물리 계산·수동 브리프를 지원합니다. 실제 Work 인수와 심층 리서치 연결은 확인이 필요합니다.",
+        "displayName": "AI Bottleneck · D5 Preview",
+        "shortDescription": "공급망 조사·반복 추적·대시보드와 지도",
+        "longDescription": "공개자료·근거 검토·보고서·반복 수집과 읽기 전용 대시보드·지도를 연결합니다. 실제 Work 심층 리서치 호출·예약·화면 인수는 별도입니다.",
         "developerName": "jh-folio",
         "category": "Productivity",
         "capabilities": [
@@ -20,7 +20,7 @@
           "Write"
         ],
         "defaultPrompt": [
-          "D3 실제 자료·연구 흐름 검증을 진행해줘. 먼저 버전과 실행 환경을 확인해줘."
+          "tests/D5_WORK_HANDOFF.md에 따라 기존 상태를 보존하며 공급망 조사·보고서·대시보드·갱신을 통합 점검해줘."
         ]
       }
     }

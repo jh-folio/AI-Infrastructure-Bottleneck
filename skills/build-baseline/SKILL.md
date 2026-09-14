@@ -18,3 +18,5 @@ description: AI 공급망의 최초·심층 연구, 특정 질문의 자료 보�
 5. judgment에 검토한 bottleneck(강도·지속성·가동 영향)과 필요한 comparison을 기록한다. 둘 이상의 분야 판단을 연결하는 synthesis_claims에는 결론·근거 판단 IDs·reasoning·limitations를 작성한다. runtime guide의 synthesize로 핵심 요약·위치별 비교·미검토 범위·추세·반증·추적 항목을 같은 snapshot에서 생성하고 export-report한다. 원문/표/요약의 조건과 반증이 일치하는지 검토한 뒤 audit/backup한다. 코드는 종합 결론을 창작하지 않으므로 검토된 분야 간 판단을 입력해야 한다. 독립 검토와 baseline 승인은 실제 수행 때만 기록한다.
 
 보고서 입력과 최종 읽기 검토에는 [runtime guide의 연구 검토·문체 계약](../../plugin/workflows/RUNTIME_GUIDE.md#연구-검토와-독자용-문체--d34)을 적용한다. 본문은 상황→근거→가동에 미치는 영향→한계 순서의 자연스러운 한국어로 쓴다. 내부 ID·해시를 자연어 입력에 섞지 않는다. 용어를 번역만 하지 말고 뜻과 영향을 설명한다. 최종 문서를 읽어 요약이 본문보다 강한 결론을 내리지 않는지 확인한다.
+
+실제 심층 리서치 인계는 research-handoff로 목적·자료·판단 참조를 고정한다. 호스트 기능을 실제 실행하고 반환된 결과와 수행 기록을 research-return에 별도로 등록한다. 반환 task의 research_execution을 사용하되 내용은 채택 후보로 재검토한다. 화면이 필요하면 해당 보고서를 build-dashboard로 전달한다. 관계를 포함하려면 관계 검토 기록이 보고서 생성 전에 있어야 한다.

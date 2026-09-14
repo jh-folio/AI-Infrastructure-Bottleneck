@@ -171,3 +171,52 @@ synthesize action은 state_dir/project_id/request_id와 다음 data를 받는다
 예: “C06 binding High, energization 제약” 대신 “전력 공급 준비가 늦어지면 서버 설치를 마쳐도 가동을 시작하지 못할 수 있습니다. 다만 이번 자료는 발전소의 접속 지연을 다루므로, 데이터센터에서 같은 지연이 발생했다고 단정할 수는 없습니다.”
 
 연구 결과 전체를 읽고 비교표·요약에도 같은 제한이 남아 있는지 확인한다. 미검토 구간, 반대 근거, 변화 미확인을 부록에만 숨기지 않는다.
+
+## D4 반복 추적·D5 화면 — 0.3.0-d5.1
+
+모든 action은 기존 research_cli.py --action 입력을 사용한다. 아래에는 공통 state_dir/project_id를 생략했다. 상태 폴더는 실제 사용자 프로젝트이며 배포 폴더와 분리한다. 같은 요청 재시도는 같은 request_id, 새 회차/정정은 새 request_id다.
+
+### 심층 리서치 자료 인계와 반환
+
+```json
+{"op":"research-handoff","request_id":"research-input-1","data":{"purpose":"AI 공급망 병목의 위치·심화도·추세 검토","document_ids":["원문 ID"],"record_ids":["판단/근거 ID"]}}
+```
+
+반환 task를 record로 읽으면 고정 snapshot과 자료 참조·작성 지침이 있다. 실제 호스트의 심층 리서치 스킬/도구를 이 자료와 연결한다. 코드가 호스트 기능을 대신 실행하지 않는다. 실제 기록과 결과를 별도 파일로 확보한 뒤 다음을 실행한다.
+
+```json
+{"op":"research-return","request_id":"research-result-1","data":{"handoff_id":"앞 task ID","entrypoint":"실제로 적용한 호스트 스킬/도구","execution_path":"실행 기록 파일의 실제 경로","result_path":"반환 보고서의 실제 경로"}}
+```
+
+반환 task의 research_execution을 synthesize에 전달한다. 결과의 주장은 채택 후보이며 원문/범위 검토와 정정·판단 절차를 거쳐야 한다. 호출 성공을 단지 스스로 선언한 문서를 진짜 실행 증거로 바꾸지 않는다. 접촉정보·토큰·비밀정보를 실행 기록에 넣지 않는다.
+
+### 반복 수집
+
+```json
+{"op":"monitor-plan","request_id":"monitor-plan-1","data":{"name":"등록 공개자료 추적","sources":[{"id":"issuer-filings","op":"sec","cik":"320193","dataset":"submissions"}]}}
+{"op":"monitor-run","request_id":"monitor-2026-09-14-1","data":{"plan_id":"계획 task ID","period":"2026-09-14"}}
+```
+
+예시 CIK는 API 형식 설명용이며 실제 연구 기본 대상이 아니다. 계획 sources에는 sec(cik/dataset), ir(url/producer/published_at 선택), prices(ticker/start/end)를 사용할 수 있다. 등록 호스트·연락처·의존성 조건은 기존 adapter와 동일하다. 전체 원문이 대화에 덤프되지 않으며 결과 task는 소스별 상태와 변경/실패 수를 보존한다.
+
+OS 잠금으로 같은 프로젝트의 수집 실행을 직렬화하고, 소스별 완료 기록으로 중단 후 재개한다. 네트워크 응답 저장 직후 기록 전에 종료되면 재취득할 수 있지만 원문은 중복 저장되지 않는다. 산업 변화는 자동 판정하지 않는다. 실패로 완료한 회차를 재수집할 때는 새 요청 ID를 사용한다. 같은 완료 회차의 재시도는 기존 결과를 반환한다. 가격의 기간은 계획에 고정되므로 다음 기간은 새 계획으로 명시한다.
+
+```json
+{"op":"schedule-packet","plan_id":"계획 task ID"}
+```
+
+위 결과는 호스트 예약에 전달할 실행 양식이고 registered=false다. 실제 예약 등록은 사용자 요청 주기/시간대와 실제 호스트 도구의 성공 기록이 있을 때만 수행·기록한다. 등록된 예약은 동일 회차의 안정된 요청 ID, 실제 상태 경로/프로젝트 ID, 수집 뒤 변경 근거 검토를 사용한다. 자동 점수 쓰기를 포함하지 않는다.
+
+### 관계와 읽기 전용 화면
+
+```json
+{"op":"relation","request_id":"relation-1","data":{"from_judgment_id":"출발 판단 ID","to_judgment_id":"영향받는 판단 ID","kind":"conditional","reason":"두 대상과 기간, 전파 조건을 원문으로 검토한 설명","evidence_ids":["채택 근거 ID"]}}
+{"op":"export-dashboard","report_id":"종합 보고서 ID","destination":"새 dashboard.html 경로"}
+{"op":"dashboard-data","report_id":"같은 보고서 ID"}
+```
+
+kind는 technical/observed/conditional이다. 관계는 점수에 영향을 주지 않는다. observed는 관측 근거가 필요하고 conditional은 조건을 설명한다. 단순히 두 대상이 기술적으로 연결된다는 자료를 실제 지연 전파 근거로 채택하지 않는다. 판단 단위 ID로 연결하므로 같은 노드라도 지역·규격·기간이 다르면 별개 대상이다.
+
+관계를 먼저 기록하고 그 뒤 보고서를 생성한다. 화면은 보고서가 참조한 고정 snapshot만 읽으므로 이후 관계·새 수집·점수를 과거 화면에 섞지 않는다. 관계 근거가 정정되면 새 관계와 새 보고서를 검토해서 만들며, 이전 화면은 당시 기록으로 보존한다. 조회/HTML export는 연구 DB에 쓰지 않는다. 목적 파일이 이미 있으면 덮어쓰지 않고 오류를 반환한다.
+
+HTML은 외부 네트워크 없이 필터·원문 탐색·지도 확대/이동·관계별 근거를 제공한다. 실제 Work에서 JavaScript 실행/파일 접근은 별도 인수다. 화면 출력 성공을 연구 승인·예약 성공으로 표현하지 않는다.

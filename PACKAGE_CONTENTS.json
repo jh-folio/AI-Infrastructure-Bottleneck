@@ -1,15 +1,15 @@
 [
   {
     "path": "plugin.json",
-    "sha256": "adbb7775056ef62e4c640173c57a6ae4186676927150012f677d1a994f080d13"
+    "sha256": "9d52da8bb80579cf5792051257c1f8bf0bc587fc04417bc61010ad226471e142"
   },
   {
     "path": ".codex-plugin/plugin.json",
-    "sha256": "b11f287479a74886924d4a63f2842c260a166aa5582659e2d24d574211354317"
+    "sha256": "f9e5f673a07ec85e86c26a08095c6349bf1cdc1e19f4535fbc29cd94a6ea7bff"
   },
   {
     "path": "README.md",
-    "sha256": "c388f52118e7c97235d9f5ceffa40c8c3b9907250c6fd0228df408512c28f88f"
+    "sha256": "2d6ca60ef8874dd9aa965adea30edd86f0116bde528e5c2d01cbf56994a9686b"
   },
   {
     "path": ".gitignore",
@@ -65,7 +65,7 @@
   },
   {
     "path": "plugin/runtime/research_cli.py",
-    "sha256": "1c907f0133269299bc3d8d7cc6280839cd44b98b0a50d8c4387fbf662f1b38fd"
+    "sha256": "a6986af092307fa93871fe7912ca6f890796a8d73637a025ccc808f46863e2d2"
   },
   {
     "path": "plugin/runtime/core/research_store.py",
@@ -100,6 +100,30 @@
     "sha256": "a6f666333fc63ebc05f8b1c98c39ba4163a45351082febfe674511d0cf679271"
   },
   {
+    "path": "plugin/runtime/core/monitoring.py",
+    "sha256": "0ef9b971a168edb1859a697ea3baea481b47c0b9459219f86124b0c9908cb032"
+  },
+  {
+    "path": "plugin/runtime/core/research_handoff.py",
+    "sha256": "f656294c6dc8b237c800232381c92022aef415bd5aeb51615c8966aee3f6657d"
+  },
+  {
+    "path": "plugin/runtime/core/dashboard.py",
+    "sha256": "932db8ce123621aed25e1c701376f40e3f4e2008244b46e3596e9f1f78eb7ff8"
+  },
+  {
+    "path": "plugin/runtime/ui/dashboard.html",
+    "sha256": "80a1cc1bdf57e2be9703a4ca29ee1d3e56c7c815f1835a9d23c632ea26aae974"
+  },
+  {
+    "path": "tests/test_d4_d5.py",
+    "sha256": "34762fdff6d68ca9b736c33179e4201b8e8a7643d70c875e38feaf208f5534e5"
+  },
+  {
+    "path": "tests/D5_WORK_HANDOFF.md",
+    "sha256": "8672bcdd57fa507ce507d31cb8feb0372dfe88fc7f73f4d7477465c7b0881ba5"
+  },
+  {
     "path": "plugin/runtime/core/engines/__init__.py",
     "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
   },
@@ -109,11 +133,11 @@
   },
   {
     "path": "plugin/runtime/adapters/research_sources.py",
-    "sha256": "e37c909e9a2a7fe75772c0f6515a7a7d2ca990e1f88f871dd39bdb8ce00db7e1"
+    "sha256": "f8027236b4d913c0791f7f9d72a4e011fb094398d21c00af0b31744305d26040"
   },
   {
     "path": "plugin/workflows/RUNTIME_GUIDE.md",
-    "sha256": "1f3cf43b64d0eee97f849f8753b8ed2c588bef5fa8754a4284c1471a2104f010"
+    "sha256": "084d29ac27cf8ebe874f929802ae0d65f06e0fe66bba7a6e6c81c77096182e2f"
   },
   {
     "path": "plugin/methodology/research_rules.md",
@@ -145,11 +169,11 @@
   },
   {
     "path": "skills/build-baseline/SKILL.md",
-    "sha256": "76d3f9dbf46da81175d7038e176e735dfd02dc82ad139aabe9534dcaba6d4e80"
+    "sha256": "cb842082d2b28cc24171106688cf072d7ee23107cec30c6c724bd6bdf377eb89"
   },
   {
     "path": "skills/monitor-update/SKILL.md",
-    "sha256": "4a89a46e2415a6e7b88c430db9e995faf296d15e8917fafcc9dd3c4e47add897"
+    "sha256": "5513b6289df37365d8417d3e97cb07f6b0d0fbc168c4b38676612666d5816aa4"
   },
   {
     "path": "skills/audit-research/SKILL.md",
@@ -157,6 +181,6 @@
   },
   {
     "path": "skills/build-dashboard/SKILL.md",
-    "sha256": "f774347a16f343608511d431f69b280f63c6adc372df6d9b65e8fd2d4a38e279"
+    "sha256": "0578fce04efc9e277dd32c6a952bfe7f97f79e4a0d93cf9e2b2fbdbf275521e2"
   }
 ]

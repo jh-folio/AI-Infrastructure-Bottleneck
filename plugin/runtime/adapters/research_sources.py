@@ -142,4 +142,7 @@ def capabilities():
             'yfinance':importlib.util.find_spec('yfinance') is not None,
             'pypdf':importlib.util.find_spec('pypdf') is not None,
             'work_storage':'must verify in target environment','deep_research':'host tool required',
-            'scheduled_execution':'not implemented','interactive_dashboard':'D5 pending'}
+            'scheduled_execution':'host registration and execution verification required',
+            'monitoring':'checkpointed source collection; judgments require review',
+            'interactive_dashboard':'standalone HTML export; Work rendering verification required',
+            'deep_research_handoff':'stored inputs and returned artifacts; host execution required'}
