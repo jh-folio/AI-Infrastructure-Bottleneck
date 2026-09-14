@@ -1,6 +1,6 @@
 # AI Infrastructure Bottleneck — D1 Preview
 
-AI 공급망 연구 플러그인의 **합성 저장 POC 시험판**입니다. 버전 `0.1.0-d1.1`.
+AI 공급망 연구 플러그인의 **합성 저장 POC 시험판**입니다. 버전 `0.1.0-d1.2`.
 
 ## ChatGPT Work에서 사용
 
@@ -18,15 +18,16 @@ https://github.com/jh-folio/AI-Infrastructure-Bottleneck
 - 프로젝트 식별·중복 요청 방지·내용 해시·참조 확인
 - 트랜잭션·잠금·중단/실패 복구 행동 테스트 9개
 - [Work 실행 A/B 안내](tests/D1_WORK_HANDOFF.md)
+- [SEC 공개 JSON 취득·원문 보존·항목 재조회 시험](tests/D1_SOURCE_HANDOFF.md)
 
-최종 설계는 설정·조사/보고서·업데이트/브리프·검토/설명·대시보드/지도 5개입니다. 이 D1 패키지는 그중 설정/저장 검증만 노출하며 최종 구성을 바꾸지 않습니다. SEC/yfinance 수집·연구 엔진·점수 계산·자동 추적·화면은 아직 포함하지 않습니다.
+최종 설계는 설정·조사/보고서·업데이트/브리프·검토/설명·대시보드/지도 5개입니다. 이 D1 패키지는 그중 설정/저장 검증만 노출하며 최종 구성을 바꾸지 않습니다. 정식 SEC/yfinance 수집·연구 엔진·점수 계산·자동 추적·화면은 아직 포함하지 않습니다.
 
 ## 로컬 검증
 
 Python 표준 라이브러리만 사용합니다. 저장소 루트에서:
 
 ```text
-python -X utf8 -m unittest discover -s tests -p test_persistence_poc.py -v
+python -X utf8 -m unittest discover -s tests -p "test_*.py" -v
 ```
 
 실제 연구 DB·원문·보고서·관심종목·비밀정보·로컬 백업은 포함하지 않습니다. 시험용 DB는 사용자가 선택한 별도 위치에 생성합니다. 프로젝트 ID 검사는 운영체제/플랫폼의 접근 제어를 대신하지 않습니다.
@@ -36,3 +37,5 @@ python -X utf8 -m unittest discover -s tests -p test_persistence_poc.py -v
 소유자는 오픈소스 라이선스를 아직 선택하지 않았습니다. 라이선스 권리를 임의로 부여하지 않으며 이 비공개 저장소는 개발 시험용입니다. 완성 제품 출시나 공개 플러그인 디렉터리 등록이 아닙니다.
 
 패키지 형식 참고: [OpenAI 공식 패키징 문서](https://developers.openai.com/plugins/build/plugins).
+
+2026-09-14: 사용자 확인 범위는 ZIP 생성까지입니다. 실제 설치·실행·재접근은 미확인입니다. 자료 취득의 로컬 SEC 표본은 HTTP403으로 기록했습니다. 저장9개+자료원7개 합성 테스트와 외부 접근 결과는 구분합니다.

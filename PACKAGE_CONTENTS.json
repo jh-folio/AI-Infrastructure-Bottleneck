@@ -1,15 +1,15 @@
 [
   {
     "path": "plugin.json",
-    "sha256": "35055e6fc3c8e49563cadf1856dce276daa8a8418facb4c165e43618dd01306f"
+    "sha256": "11caf3a6142fec1258d7f2541cba4949cf6ea7d060025287f4b3e51bc6e42811"
   },
   {
     "path": ".codex-plugin/plugin.json",
-    "sha256": "156d92e213caa05bb4d8bf2b1eb595c04076845c40572805c99f6ea40ce9bd1f"
+    "sha256": "e7b604270d90f3c395fcb9bd4a4f572aa9fd82ff96b3cce13c1a45c5b13e14bb"
   },
   {
     "path": "README.md",
-    "sha256": "712a8e14ec2b808e087c4adf07f110d8ed718bdcc6ebfb78bf6537bc8a6d825a"
+    "sha256": "135d2c460c04557af87a15d9c834be315e99c6c12446b48714a9d3499e85a583"
   },
   {
     "path": ".gitignore",
@@ -21,7 +21,7 @@
   },
   {
     "path": "skills/initialize-project/SKILL.md",
-    "sha256": "90e208c6ae884a5083add3174985173109ed44c18cea0732340cc735318a48f9"
+    "sha256": "1384e9b3688d4e92aa6d7867ec1e76bd52c27d2cc9843b13b0bd354101301599"
   },
   {
     "path": "plugin/runtime/core/persistence_poc.py",
@@ -42,5 +42,21 @@
   {
     "path": "LICENSE",
     "sha256": "84f84341a945cf712900a2ee6e3fc7d36b40a5d28138112ae964eb0302999016"
+  },
+  {
+    "path": "plugin/runtime/adapters/source_probe.py",
+    "sha256": "8814cda311477740024487395d9e2dd50716d00eee5e4c0eacac84f283c65275"
+  },
+  {
+    "path": "plugin/database/source_probe.sql",
+    "sha256": "7de94957e5548eed1154d924f94b64d90b00aef7b1a5550a4acf9efb59fff322"
+  },
+  {
+    "path": "tests/test_source_probe.py",
+    "sha256": "7df163c6429a02ae6e185072fad5fa1c3a5479d8c1e0c60aeef6dfd9809e3d5d"
+  },
+  {
+    "path": "tests/D1_SOURCE_HANDOFF.md",
+    "sha256": "2dfc26d6bf421f5df5eea076745e50adef87c64b0828a313c15924c1c05c4373"
   }
 ]
