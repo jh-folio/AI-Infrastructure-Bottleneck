@@ -1,15 +1,15 @@
 [
   {
     "path": "plugin.json",
-    "sha256": "d57c263db3190965ff2e690f41d915ad55fcb38443e3812e2c9fcd03cf29aca3"
+    "sha256": "09597e83614ebaa8e5585a4599e44f27d8d1d4c54022c420111cf67caa18063a"
   },
   {
     "path": ".codex-plugin/plugin.json",
-    "sha256": "2de6dce37724440a3da008950b1b8bd07dba583b9f1041451c668c8ce4156993"
+    "sha256": "c1d49aaa67cdc0acb09761dff48624ad4997761a3346a5d80259278913416656"
   },
   {
     "path": "README.md",
-    "sha256": "47025aad65a2c47f16edee349881320802d3fa318ea5abe969612942f30c688b"
+    "sha256": "d94d17dbf3563fb100372c6016e89a163b1de1f7aeb4c4e3040a81d7858f12b2"
   },
   {
     "path": ".gitignore",
@@ -101,11 +101,15 @@
   },
   {
     "path": "plugin/methodology/research_rules.md",
-    "sha256": "a9c9f2d5150f38083c37b4a8e794ecf4d4c14788ebdad9c6275767a167a93ac1"
+    "sha256": "fe0898e08fbf7f249b1641813b940cd4af9155680bbe84d84f1e192354acb8e9"
   },
   {
     "path": "plugin/methodology/scoring_v31_reference.md",
     "sha256": "25ad9fe9d4d8a820b8e04e3833d4b9000f56b75aa990f4a701062d7332fab514"
+  },
+  {
+    "path": "plugin/methodology/PRODUCT_CONTRACT.md",
+    "sha256": "ef210d5451236d7c1fa63153e28b8692418372d7236528648dd374892dbdcd77"
   },
   {
     "path": "plugin/ontology/node_ids_v1.json",
@@ -117,19 +121,19 @@
   },
   {
     "path": "tests/D3_WORK_HANDOFF.md",
-    "sha256": "041b1444f37bbb1d30527eb5a1dc487bf4543ce4eebc134b34e1c32db980ba45"
+    "sha256": "7b7242c197b03c197672c16cdc86cd8735fca9a888b3376fa790594248ff94f3"
   },
   {
     "path": "skills/initialize-project/SKILL.md",
-    "sha256": "919f056e25832145e0c3ca20168a20e6f5ad6177a6a3ff6a0f137bd81748d0e1"
+    "sha256": "d220a328843536fc092e48421220126adf66c63aa18f55528c0880f96d5a240a"
   },
   {
     "path": "skills/build-baseline/SKILL.md",
-    "sha256": "26ae9f513ac03cc694af3cfb5d5a9385663fa601286716637c97ef6b45e7a205"
+    "sha256": "1fee37a1ffd0e2fff12b29cfbdf83da4eb5498c0819e5aff2f0b6c0f62a1b8c9"
   },
   {
     "path": "skills/monitor-update/SKILL.md",
-    "sha256": "fb13d8bd4f47bc52f9b4d03bfc8a45a021ca9eecd90dc7d949a9c235edb2dfc3"
+    "sha256": "df6c734a46273e529ae9ee3ec72f5648d37a03e71f0c40f8713769f3c64f1f41"
   },
   {
     "path": "skills/audit-research/SKILL.md",

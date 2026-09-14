@@ -1,6 +1,6 @@
 {
   "name": "ai-infrastructure-bottleneck",
-  "version": "0.2.0-d3.1",
+  "version": "0.2.0-d3.2",
   "description": "AI infrastructure research preview: public sources, evidence lineage and reproducible scoring.",
   "author": {
     "name": "jh-folio"
