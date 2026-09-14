@@ -51,7 +51,7 @@ def make_report(store, request, value):
         from research_loop import resume
         campaign=resume(store,value['campaign_id'])
         if campaign['checkpoint_id']!=value['checkpoint_id'] or not campaign['ready_for_review']:
-            raise ValueError('Research incomplete or checkpoint stale; resume investigation or save interim report')
+            raise ValueError('Research incomplete or checkpoint stale; inspect research-next and continue investigation')
     required(value, 'title', 'as_of_date', 'coverage')
     date.fromisoformat(value['as_of_date'])
     if not isinstance(value['coverage'], list) or not value['coverage']:
@@ -237,6 +237,7 @@ def make_report(store, request, value):
     output = {'title': value['title'], 'as_of_date': value['as_of_date'], 'mode': 'synthesis',
               'research_stage':stage,'campaign_id':value.get('campaign_id'),
               'checkpoint_id':value.get('checkpoint_id'),
+              'research_quality_version':1 if campaign else None,
               'snapshot_id': snap['snapshot_id'], 'generation': FORMAT, 'action_sha256': digest(action),
               'coverage': coverage, 'rows': rows, 'highlight_ids': highlights, 'changes': changes,
               'previous_report_id': value.get('previous_report_id'), 'source_failures': failures, 'synthesis_claims': claims,

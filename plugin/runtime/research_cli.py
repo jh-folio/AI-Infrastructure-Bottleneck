@@ -23,6 +23,9 @@ def execute(action):
     if op=='restore':
         return restore(action['backup_dir'],action['destination'])
     store=Store(action['state_dir'],action['project_id'])
+    if op=='research-completion':
+        from research_quality import completion
+        return completion(store,action['campaign_id'],action.get('report_id'))
     if op=='node-change':
         from research_loop import change_nodes
         return change_nodes(store,action['request_id'],action['data'])

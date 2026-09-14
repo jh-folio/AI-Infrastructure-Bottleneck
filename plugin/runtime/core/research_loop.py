@@ -87,6 +87,11 @@ def checkpoint(store, request, value):
             if q['id'] in qids or q['node_id'] not in ids or q['dimension'] not in DIMENSIONS:
                 raise ValueError('Invalid question identity or dimension')
             qids.add(q['id'])
+            reviews=q.get('source_reviews',[])
+            if not isinstance(reviews,list):raise ValueError('Expected source review list')
+            for review in reviews:
+                required(review,'document_id','location','quote','finding','relevance','role')
+                docs.add(review['document_id'])
             if q['status'] not in ('open','resolved','bounded','blocked'):raise ValueError('Invalid question status')
             if not isinstance(q['attempts'],list):raise ValueError('Expected attempt list')
             for a in q['attempts']:
@@ -135,10 +140,14 @@ def resume(store,campaign_id):
     pending += [dict(question_id=q['id'],node_id=q['node_id'],action=q['next_action'],status=q['status'])
                 for q in v['questions'] if q['node_id'] in active_ids and q['status'] in ('open','blocked')]
     resolved=any(q['status']=='resolved' and q['node_id'] in selected for q in v['questions'])
+    from research_quality import inspect_questions
+    quality_work=inspect_questions(store,v['nodes'],v['questions'])
+    pending+=quality_work
     return {'campaign_id':campaign_id,'checkpoint_id':head,'nodes':v['nodes'],'questions':v['questions'],
             'pending':pending,'full_inventory_investigated':not pending,
             'ready_for_review':bool(selected) and resolved and not pending,
-            'meaning':'Structural research readiness only; source interpretation and user acceptance remain separate.'}
+            'quality_issues':quality_work,'research_quality_version':1,
+            'meaning':'Source locations and repeated reviews checked; interpretation and user acceptance remain separate.'}
 
 
 def change_nodes(store,request,value):

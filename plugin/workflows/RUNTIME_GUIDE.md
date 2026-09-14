@@ -243,3 +243,6 @@ Companies는 judgment의 선택적 companies 배열에서 name/role/evidence_ids
 
 
 0.3.0-d5.5: 프로젝트별 node-change(add/split/merge)는 [연구 실행 계약](RESEARCH_EXECUTION.md)의 노드 추가·분할·통합 절을 따른다. 기본 파일은 보존하며 원본 ID의 retired/새 ID의 active 대응과 새 연구 목록의 계승을 기록한다. 전수 조사는 현재 유효 노드 전체를 대상으로 하며 과거 보고서를 재작성하지 않는다.
+
+
+0.3.0-d5.6: 질문별 source_reviews의 실제 저장 원문·위치·인용을 확인하며 반복 결론/배경 자료/실패만으로 닫힌 질문을 다시 조사 대상으로 반환한다. research-completion은 campaign_id와 report_id를 받아 최초 요청의 검토본 제출 조건을 읽기 전용으로 확인한다. source_reviews 필드·단일 실행 순환·한계는 [연구 실행 계약](RESEARCH_EXECUTION.md)을 따른다. interim 저장 후에도 같은 실행에서 계속하며 여러 실행 분할은 별도 결정 전 도입하지 않는다.

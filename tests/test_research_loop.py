@@ -17,7 +17,7 @@ class ResearchLoopTests(unittest.TestCase):
         return {'campaign_id':self.cid,'previous_id':self.state['checkpoint_id'],
                 'nodes':copy.deepcopy(self.state['nodes']),'questions':copy.deepcopy(self.state['questions'])}
 
-    def investigated(self):
+    def investigated(self,verified=False):
         j=self.fx.judgment(node='A01')[0];d=research.data(self.store,j)
         doc=research.data(self.store,d['support_ids'][0])['document_id']
         v=self.checkpoint_input()
@@ -36,6 +36,26 @@ class ResearchLoopTests(unittest.TestCase):
                     why_more_search_unlikely='Synthetic fixture only; actual source availability was not assessed',
                     attempts=[dict(route=route,outcome='unavailable',finding='Synthetic access limit',document_ids=[])
                               for route in ('official archive','independent source')]))
+        if verified:
+            # Synthetic source-location coverage, not realistic research sufficiency.
+            # Keep the old paper-only fixture for the explicit regression below.
+            lines=[[f'Synthetic registry case {i+1000}: delivery information is not disclosed for this test item.'
+                    for i in range(len(v['questions']))],
+                   [f'Synthetic permit case {i+1000}: approval listed; operational schedule not reported.'
+                    for i in range(len(v['questions']))]]
+            docs=[self.store.capture({'url':f'https://example.com/registry-{i}','producer':f'Test registry {i}'},
+                 '\n'.join(lines[i]).encode(),'text/plain',{})['document_id'] for i in range(2)]
+            for i,q in enumerate(v['questions']):
+                if q['node_id']=='A01':
+                    q['answer']='Synthetic response for dimension '+q['dimension']
+                    q['source_reviews']=[dict(document_id=doc,location='block:1',quote='Demand exceeds usable supply.',
+                        role='direct',finding='Test support',relevance='Synthetic scope only')]
+                else:
+                    q['answer']=f'Registry case {i+1000} lacks delivery disclosure; no quantitative conclusion.'
+                    q['attempts']=[dict(route=f'registry-{a}',outcome='irrelevant',finding=lines[a][i],document_ids=[d])
+                                   for a,d in enumerate(docs)]
+                    q['source_reviews']=[dict(document_id=d,location=f'block:{i+1}',quote=lines[a][i],role='gap_probe',
+                        finding=lines[a][i],relevance='Test missing disclosure, not a physical shortage') for a,d in enumerate(docs)]
         return v,j
 
     def test_inventory_resume_and_idempotence(self):
@@ -68,7 +88,7 @@ class ResearchLoopTests(unittest.TestCase):
         self.assertIn('조사 중간 결과',research.data(self.store,rid)['markdown'])
 
     def test_checkpoints_preserve_work_and_reject_stale_writes(self):
-        v,j=self.investigated();rid=loop.checkpoint(self.store,'c1',v)['id']
+        v,j=self.investigated(verified=True);rid=loop.checkpoint(self.store,'c1',v)['id']
         self.assertFalse(loop.checkpoint(self.store,'c1',v)['inserted'])
         with self.assertRaisesRegex(ValueError,'Stale'):loop.checkpoint(self.store,'stale',v)
         self.state=loop.resume(self.store,self.cid);v=self.checkpoint_input();v['questions'].pop()
@@ -93,7 +113,7 @@ class ResearchLoopTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError,'history'):loop.checkpoint(self.store,'rewrite',v)
 
     def test_deep_execution_and_scope_required_for_review(self):
-        v,j=self.investigated();rid=loop.checkpoint(self.store,'ready',v)['id']
+        v,j=self.investigated(verified=True);rid=loop.checkpoint(self.store,'ready',v)['id']
         report=self.fx.action([j]);report.update(research_stage='baseline_review',campaign_id=self.cid,checkpoint_id=rid)
         with self.assertRaisesRegex(ValueError,'execution'):make_report(self.store,'not-run',report)
         report['research_execution']={'status':'excluded_by_user','reason':'Synthetic explicit exclusion fixture'}
@@ -121,7 +141,7 @@ class ResearchLoopTests(unittest.TestCase):
         self.assertTrue(any(p['node_id']==v['nodes'][1]['node_id'] and p['action']=='screen' for p in state['pending']))
 
     def test_gaps_after_every_node_investigated_are_allowed(self):
-        v,j=self.investigated();loop.checkpoint(self.store,'full',v)
+        v,j=self.investigated(verified=True);loop.checkpoint(self.store,'full',v)
         state=loop.resume(self.store,self.cid)
         self.assertTrue(state['full_inventory_investigated'])
         self.assertTrue(state['ready_for_review'])

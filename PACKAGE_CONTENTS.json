@@ -1,15 +1,15 @@
 [
   {
     "path": "plugin.json",
-    "sha256": "7a9fd972b583057f16636b76ff1b103b3468e52c5b2725652ecdd28b668d5048"
+    "sha256": "2e16c06b07cbf6388a3b6fecf8ce5253d2374ae880b70746bd0b17bbad584586"
   },
   {
     "path": ".codex-plugin/plugin.json",
-    "sha256": "4706d40b02ba358a3123e07d1999d0f5c447e58e4c8376e2db6922143c73a70c"
+    "sha256": "815c1260291310293b7d03b488475dc976d3cef5b79f79c002615ad820fe7914"
   },
   {
     "path": "README.md",
-    "sha256": "40ba67bd7605ead57db9cf3c4ad31f75799f4489158153bc4b6efed2107bb388"
+    "sha256": "38261c8d1cce6409ecacaae0e9641914b2b7916d7c5e05bead1dbdd2b9c7ab2f"
   },
   {
     "path": ".gitignore",
@@ -65,7 +65,7 @@
   },
   {
     "path": "plugin/runtime/research_cli.py",
-    "sha256": "d43a5c757b969642114dd8017b7c59bbf16cb357f891e751627f2e78f32e5b0e"
+    "sha256": "799da4e49157c97258f5358c6cf377edf90195dc6723ef65e50fa781208ddcd2"
   },
   {
     "path": "plugin/runtime/core/research_store.py",
@@ -85,7 +85,7 @@
   },
   {
     "path": "plugin/runtime/core/synthesis.py",
-    "sha256": "b47b3ecfbe0f6ba508579869e94db7a3288844a7cce0e46b4ea652bbade90696"
+    "sha256": "0dd4957ed8906709efdca1773f6fc3c9f88864a65909f5ae484c265ed8c433c5"
   },
   {
     "path": "tests/test_synthesis.py",
@@ -129,19 +129,27 @@
   },
   {
     "path": "tests/D5_WORK_HANDOFF.md",
-    "sha256": "599e8405933706e034ad5a533bf7a8273fbeefb7592ddd9e5ea4d3e823724ffc"
+    "sha256": "9c0ae789763a37fd2dc85a2801a6491d88702ab94952935cb0f91d9e53e3b9c6"
   },
   {
     "path": "tests/test_research_loop.py",
-    "sha256": "8e84b9ff4970f5185b1cbba41c2cd729912a345bb5cb6f4d87e75a7d4552bc7b"
+    "sha256": "08a85108fd5fc741ef7998b942daa5911d128fc08b97a387690fab1c4a8cb529"
   },
   {
     "path": "plugin/runtime/core/research_loop.py",
-    "sha256": "7355ea99560cdb054c8018b99bedaf2d982fcec9b2ba44feeed0349fd9e92a81"
+    "sha256": "47199dbaf3eeb3e996c081cc8184f212b184fe496df730f6a7c738980f174cf9"
   },
   {
     "path": "plugin/workflows/RESEARCH_EXECUTION.md",
-    "sha256": "77f94e2ef547d69b9645195edb6eab149d2bd84a7520485ab3f295d8225ed6a0"
+    "sha256": "d9b39bcd89150a15eb6db11d00d8aac9093da6d2d9255f953eb26b8bd022c86c"
+  },
+  {
+    "path": "plugin/runtime/core/research_quality.py",
+    "sha256": "fdbfdb831ce9da7733194af9d49a997a2f463734439baeba25cb48a712d57c4b"
+  },
+  {
+    "path": "tests/test_research_quality.py",
+    "sha256": "73714d29db6c9e5a89904ab384c6b4bd6b6d42b85e87576d6d4078c2c50463b0"
   },
   {
     "path": "plugin/runtime/core/engines/__init__.py",
@@ -157,7 +165,7 @@
   },
   {
     "path": "plugin/workflows/RUNTIME_GUIDE.md",
-    "sha256": "3df7d9b14ef5faf63a2e4a163f60afdb42791c7d05ef39a18e05a85a4c7c1d37"
+    "sha256": "b52a952d21fddc2a64fc6bbb8b2375ed9e2c9d8bb0c966930f6a4e5237a7d7d0"
   },
   {
     "path": "plugin/methodology/research_rules.md",
@@ -189,7 +197,7 @@
   },
   {
     "path": "skills/build-baseline/SKILL.md",
-    "sha256": "fae179297f988db9a9c1f54c22d185d891ef461b2c7c77cc0d4d13198bc73a37"
+    "sha256": "57cfcd82ee7dd30932a86283804ee70f0e025396f28c9560767858692f5de0d6"
   },
   {
     "path": "skills/monitor-update/SKILL.md",
@@ -197,7 +205,7 @@
   },
   {
     "path": "skills/audit-research/SKILL.md",
-    "sha256": "620abdf2e80e9d371eb8af632094032c41ecec7a7d4e984d6bfa09bfb3de399b"
+    "sha256": "bb010432977a20252b6c80bc68b140dbe090c4937f343c6ab56b457f78fb2b89"
   },
   {
     "path": "skills/build-dashboard/SKILL.md",
