@@ -51,10 +51,22 @@ class SynthesisTests(unittest.TestCase):
         data={'title':'Synthetic supply-chain review', 'as_of_date':'2026-09-14', 'coverage':[
             {'segment':'Test compute', 'status':'reviewed' if ids else 'unreviewed','reason':'Selected test coverage','judgment_ids':ids},
             {'segment':'Test power','status':'missing','reason':'No reviewed evidence yet','judgment_ids':[]}]}
+        data['research_execution'] = {'status':'not_run','reason':'Synthetic runtime test; no host research invoked.'}
+        data['judgment_reviews'] = []
+        for rid in ids:
+            j = research.data(self.store, rid, 'judgment')
+            data['judgment_reviews'].append(dict(judgment_id=rid, claim_level='constraint',
+                demand_supply='Synthetic demand versus qualified supply reviewed.',
+                operational_link='Actual schedule impact remains unknown.',
+                comparison_basis='Fixed calendar 2026; earlier and later observations reviewed separately.',
+                source_fit=[dict(evidence_id=eid, source_scope='Qualified test product in the stated test region',
+                    applicability='direct', nature=research.data(self.store,eid)['nature'],
+                    reason='Synthetic source explicitly describes this test scope.')
+                    for eid in j['support_ids']+j['counter_ids']]))
         if previous:data['previous_report_id']=previous
         if len(ids)>1:
             data['synthesis_claims']=[{'text':'Constraints appear in the reviewed test scopes with alternatives.',
-                'judgment_ids':ids,'reasoning':'Compare reviewed demand and usable supply, without a global ranking.',
+                'judgment_ids':ids,'comparison_scope':'reviewed_subset','reasoning':'Compare reviewed demand and usable supply, without a global ranking.',
                 'limitations':['Different scopes are not a common global severity ranking.']}]
         return data
 
@@ -203,6 +215,60 @@ class SynthesisTests(unittest.TestCase):
         _,r=self.report(self.action([new]))
         self.assertEqual(r['rows'][0]['trend']['direction'],'unknown')
         self.assertIn('이전 근거가 정정',r['markdown'])
+
+    def test_missing_review_cannot_silently_publish(self):
+        j,_=self.judgment(); a=self.action([j]); del a['judgment_reviews']
+        with self.assertRaisesRegex(ValueError, 'judgment_reviews'): self.report(a)
+
+    def test_missing_segments_block_global_comparison(self):
+        j,_=self.judgment(); k,_=self.judgment(node='SYNTH-B');a=self.action([j,k])
+        a['synthesis_claims'][0]['comparison_scope']='comprehensive'
+        with self.assertRaisesRegex(ValueError, 'comprehensive comparison'): self.report(a)
+
+    def test_generation_queue_cannot_establish_load_connection(self):
+        j,_=self.judgment(node='C06'); a=self.action([j])
+        review=a['judgment_reviews'][0]
+        review['source_fit'][0].update(source_scope='Generation interconnection queue', applicability='context',
+                                      reason='Does not measure large-load connection delays')
+        with self.assertRaisesRegex(ValueError, 'Context sources alone'): self.report(a)
+
+    def test_forecast_reclassification_requires_evidence_correction(self):
+        j,_=self.judgment(); a=self.action([j])
+        a['judgment_reviews'][0]['source_fit'][0]['nature']='external_forecast'
+        with self.assertRaisesRegex(ValueError, 'correct evidence'): self.report(a)
+
+    def test_planned_supply_cannot_prove_actual_operation(self):
+        j,_=self.judgment(nature='external_plan'); a=self.action([j]); review=a['judgment_reviews'][0]
+        review.update(claim_level='operational',operational_source_ids=[review['source_fit'][0]['evidence_id']])
+        with self.assertRaisesRegex(ValueError, 'directly applicable observations'): self.report(a)
+
+    def test_deep_research_completion_requires_stored_run_and_result(self):
+        j,_=self.judgment();a=self.action([j]);a['research_execution'].update(status='completed',entrypoint='test-host',
+            execution_document_id='missing-run',result_document_id='missing-result')
+        with self.assertRaisesRegex(ValueError, 'stored execution'): self.report(a)
+        docs=[]
+        for name in ('run','result'):
+            docs.append(self.store.capture({'url':'https://example.com/'+name,'producer':'Synthetic host'},
+                ('Synthetic '+name).encode(),'text/plain',{})['document_id'])
+        a['research_execution'].update(execution_document_id=docs[0],result_document_id=docs[1])
+        _,r=self.report(a); self.assertEqual(r['research_execution']['status'],'completed')
+        self.assertEqual(research.audit(self.store)['issues'],[])
+
+    def test_internal_identifiers_only_in_appendix_and_unknown_execution_visible(self):
+        j,data=self.judgment(); a=self.action([j]);a['research_execution']['status']='unknown'
+        _,r=self.report(a);body,appendix=r['markdown'].split('## 부록: 검증과 재조회')
+        for identifier in [j,*data['support_ids'],*data['counter_ids'],'SHA-256','snapshot:']:
+            self.assertNotIn(identifier,body);self.assertIn(identifier,appendix)
+        self.assertIn('실제 실행 여부를 확인할 자료가 없습니다',body)
+        self.assertIn('[자료 1](#source-1)',body)
+        self.assertIn(data['conclusion'],body.split('## 핵심 요약')[1].split('## 공급망 위치별 비교')[0])
+
+    def test_legacy_report_remains_comparable(self):
+        j,_=self.judgment();old,r=self.report(self.action([j]),'current')
+        r['generation']='supply-chain-synthesis-1'
+        legacy=self.store.append('report','legacy-synthesis',r)['id']
+        _,r=self.report(self.action([j],legacy),'new')
+        self.assertEqual(r['changes'][0]['previous_judgment_id'],j)
 
     def test_unrelated_previous_report_is_rejected(self):
         old=research.report(self.store,'legacy-report',[])['id']

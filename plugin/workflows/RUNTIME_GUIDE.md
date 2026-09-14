@@ -137,3 +137,37 @@ synthesize action은 state_dir/project_id/request_id와 다음 data를 받는다
 결과에는 핵심 종합/조건·반증, 위치별 강도/지속성/가동 영향/추세 비교표, 미검토 범위, 후보별 이전→현재 판단·경쟁 가설, 다음 추적 항목, 원문 위치/해시와 snapshot을 포함한다. next_actions에는 다음에 볼 지표·원출처·판단 변경 조건을 명시한다. 문자열을 넘겼다는 이유로 의미 적합성이 검증됐다고 하지 않는다.
 
 후속 종합에는 `previous_report_id`를 추가한다. 현재 행과 이전 행을 scope로 대응하고 추가/제외/범위 변경/판단 교체/검토된 추세를 구분한다. 새 행은 새 병목으로, 제외 행은 해소로, 같은 기록 재사용은 실제 안정으로 표시하지 않는다. 같은 request_id/동일 action은 최초 report/snapshot을 반환하며 데이터가 바뀌면 새 request_id를 쓴다. 과거 보고서 내용은 수정하지 않는다.
+
+## 연구 검토와 독자용 문체 — D3.4
+
+0.2.0-d3.4의 새 synthesize 입력에는 아래 필드가 필수다. 앞 절의 예시에 추가해서 사용한다. 기존 보고서의 export는 유지하며, 새 작성 요청에는 새 request_id를 사용한다. 과거 근거·판단을 덮어쓰지 않고 정정과 비교 이력으로 연결한다.
+
+```json
+{
+  "research_execution": {"status": "unknown", "reason": "실제 실행 자료를 확보하지 못함"},
+  "judgment_reviews": [{
+    "judgment_id": "현재 판단 ID",
+    "claim_level": "constraint",
+    "source_fit": [{"evidence_id": "해당 판단의 근거 ID", "source_scope": "원문이 실제 조사한 모집단·제품·지역·기간", "applicability": "direct", "nature": "observation", "reason": "평가 대상에 적용할 수 있는 이유"}],
+    "demand_supply": "동일 규격의 필요한 물량과 사용 가능한 공급, 미충족·배정의 관계. 증설 발표만이면 그 한계",
+    "operational_link": "목표 가동일과 필수 경로·대체 수단의 연결. 직접 영향 미확인이면 그대로 기록",
+    "comparison_basis": "실제 달력 기간과 비교 가능한 두 시점. 미확인 또는 정정이면 그 이유"
+  }]
+}
+```
+
+- source_fit은 현재 판단의 지지·반대 근거를 빠짐없이 한 번씩 검토한다. 원문의 범위를 scope 문자열에서 자동 복사하지 않는다. direct는 해당 주장을 직접 뒷받침하는 경우, context는 배경 참고만 가능한 경우다. 원래 근거의 nature와 재검토 결과가 다르면 먼저 adopt 정정 이력을 만든다. 문자열 분류 검사는 원문 의미의 독립 검토가 아니다.
+- claim_level=constraint는 해당 범위의 제약 설명이며 직접 지지 근거가 필요하다. operational은 실제 가동 영향까지 주장하는 경우로, operational_source_ids에 직접 적용되는 관측 근거를 지정한다. context_only는 배경만 확보한 상태이므로 확정 판단 행으로 발행할 수 없다. 범위를 좁혀 실제로 입증되는 판단을 만들거나 coverage에 검토 한계와 다음 조사를 기록한다. 모른다는 사실을 낮은 병목으로 바꾸지 않는다.
+- 각 synthesis_claims에 comparison_scope=reviewed_subset 또는 comprehensive를 추가한다. 미검토·미확보 구간이 있으면 comprehensive는 거부한다. reviewed_subset일 때도 문장에 전체 산업 순위나 검토 밖 비교를 넣지 않는다.
+- research_execution.status는 completed/unavailable/not_run/unknown/excluded_by_user다. completed는 실제 entrypoint와 execution_document_id·result_document_id가 모두 필요하다. 호스트 실행 흔적/인계·수행 기록과 반환 결과를 별도 원문 문서로 저장하여 참조한다. 호출 ID가 없는 스킬은 실제 적용·실행 과정과 결과 위치를 기록하며 가상의 호출 ID를 만들지 않는다. 문서 등록만으로 실행 진위를 자동 인증하는 것은 아니다. 일반 웹 조사나 렌더러 실행 로그를 심층 리서치 실행 증거로 쓰지 않는다.
+- 실제 Work 실행을 확인할 수 없는 상태를 unavailable로 추정하지 않는다. unknown은 미확인이고 unavailable은 도구 탐색·호출에서 확인된 사용 불가다. completed 외에는 심층 리서치 완료를 표시하지 않되 독립적으로 가능한 원문 취득·정리와 초안 작성은 계속한다.
+
+### 문장을 쓰고 읽는 기준
+
+한 문단은 무엇이 부족한지, 어떤 자료가 그렇게 말하는지, 실제 가동에 어떻게 영향을 주는지, 어디까지 알 수 있는지를 연결한다. 처음 나오는 HBM은 AI 칩에 붙는 고대역폭 메모리, energization은 전력 인입을 마쳐 전기를 공급하는 단계, COD는 상업운전 시작, lead time은 주문부터 인도까지 걸리는 기간처럼 문맥에 맞게 설명한다. 제품명이 판단에 필요하면 설명 뒤에 유지한다. 수치·단위·지역·기간·조건은 생략하지 않는다.
+
+본문 입력에 node_id, evidence ID, snapshot, binding, scoreability, 해시를 넣지 않는다. 일반 독자가 필요한 실제 가동 제약·확실성·평가 가능 여부는 한국어로 설명한다. 코드와 상세 계산·원문 재조회 위치는 자동 부록에 보존한다. 출처는 본문 자료 번호와 발행처 링크로 연결한다. 렌더러는 연구자가 작성한 문장을 번역하거나 판단을 고치지 않으므로, 어색한 명사 나열과 과도한 확정 표현은 입력 단계에서 수정한다.
+
+예: “C06 binding High, energization 제약” 대신 “전력 공급 준비가 늦어지면 서버 설치를 마쳐도 가동을 시작하지 못할 수 있습니다. 다만 이번 자료는 발전소의 접속 지연을 다루므로, 데이터센터에서 같은 지연이 발생했다고 단정할 수는 없습니다.”
+
+연구 결과 전체를 읽고 비교표·요약에도 같은 제한이 남아 있는지 확인한다. 미검토 구간, 반대 근거, 변화 미확인을 부록에만 숨기지 않는다.

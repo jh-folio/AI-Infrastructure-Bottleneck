@@ -8,8 +8,9 @@ import json
 
 from research_store import required, digest, dumps
 from research import SCOPE, scope_check, existing_action, display_result
+from report_review import validate_review
 
-FORMAT = 'supply-chain-synthesis-1'
+FORMAT = 'supply-chain-synthesis-2'
 DIMENSIONS = tuple(k for k in SCOPE if k != 'as_of_date')
 STATUS = {'reviewed': '연결 범위의 검토 기록 있음', 'unreviewed': '미검토', 'missing': '근거 미확보', 'out_of_scope': '대상 밖'}
 CONFIDENCE = {'Low': '낮음', 'Medium': '중간', 'High': '높음'}
@@ -157,6 +158,7 @@ def make_report(store, request, value):
                          'support_ids': j['support_ids'], 'counter_ids': j['counter_ids'],
                          'counter_search_limit': j.get('counter_search_limit'),
                          'alternatives': j['alternatives'], 'unknowns': j['unknowns'], 'next_actions': j['next_actions']})
+    execution, reviews, execution_docs = validate_review(value, rows, used_evidence, documents)
     highlights = value.get('highlight_ids', [r['judgment_id'] for r in rows])
     if not isinstance(highlights, list) or (rows and not highlights) or len(set(highlights)) != len(highlights) or not set(highlights) <= ids:
         raise ValueError('Highlights must refer to unique current rows')
@@ -164,7 +166,11 @@ def make_report(store, request, value):
     if not isinstance(claims, list) or (len(rows) > 1 and not claims):
         raise ValueError('Multiple rows require reviewed cross-scope synthesis claims')
     for claim in claims:
-        required(claim, 'text', 'judgment_ids', 'reasoning', 'limitations')
+        required(claim, 'text', 'judgment_ids', 'reasoning', 'limitations', 'comparison_scope')
+        if claim['comparison_scope'] not in ('reviewed_subset', 'comprehensive'):
+            raise ValueError('Declare the extent of the comparison')
+        if claim['comparison_scope'] == 'comprehensive' and any(c['status'] in ('unreviewed', 'missing') for c in coverage):
+            raise ValueError('Unreviewed coverage cannot support a comprehensive comparison')
         linked = claim['judgment_ids']
         if not isinstance(linked, list) or not linked or len(set(linked)) != len(linked) or not set(linked) <= ids:
             raise ValueError('Synthesis claims must cite current reviewed rows')
@@ -178,7 +184,7 @@ def make_report(store, request, value):
     changes = []
     if value.get('previous_report_id'):
         previous = get(value['previous_report_id'], 'report')
-        if previous.get('generation') != FORMAT or previous['as_of_date'] > value['as_of_date']:
+        if previous.get('generation') not in (FORMAT, 'supply-chain-synthesis-1') or previous['as_of_date'] > value['as_of_date']:
             raise ValueError('Previous report must be an earlier supply-chain synthesis')
         before = {key(r['scope']): r for r in previous['rows']}
         after = {key(r['scope']): r for r in rows}
@@ -204,83 +210,12 @@ def make_report(store, request, value):
               'snapshot_id': snap['snapshot_id'], 'generation': FORMAT, 'action_sha256': digest(action),
               'coverage': coverage, 'rows': rows, 'highlight_ids': highlights, 'changes': changes,
               'previous_report_id': value.get('previous_report_id'), 'source_failures': failures, 'synthesis_claims': claims,
+              'research_execution': execution, 'judgment_reviews': reviews,
               'approval': 'prepared_not_baseline_approved'}
     output['markdown'] = render(output, used_evidence, documents)
-    return store.append('report', request, output, sorted(refs), sorted({e['document_id'] for e in used_evidence.values()}))
+    return store.append('report', request, output, sorted(refs), sorted({e['document_id'] for e in used_evidence.values()} | set(execution_docs)))
 
 
 def render(value, evidence, documents):
-    t = text
-    numbers = {r['judgment_id']: i+1 for i, r in enumerate(value['rows'])}
-    lines = ['# ' + t(value['title']), '', '기준일: ' + value['as_of_date'], '',
-             '검토된 판단을 공급망 위치에 따라 정리했습니다. 표의 순서는 병목 순위가 아닙니다.',
-             '각 행의 판단 기준일을 확인하세요. 과거 판단을 포함했다고 보고 기준일에 재검토됐다는 뜻은 아닙니다.', '', '## 핵심 요약', '']
-    if not value['rows']:
-        lines += ['아직 검토된 판단이 없습니다. 아래 미검토·근거 공백을 먼저 확인해야 합니다.', '']
-    for c in value['synthesis_claims']:
-        linked = [r for r in value['rows'] if r['judgment_id'] in c['judgment_ids']]
-        lines += [t(c['text']), '종합 이유: ' + t(c['reasoning']), '조건·한계: ' + t(c['limitations']),
-                  '연결 범위·확신도: ' + ' / '.join(t(scope_label(r['scope'])) + ' (' + t(CONFIDENCE.get(r['confidence'], r['confidence'])) + ')' for r in linked),
-                  '근거 판단: ' + ' · '.join('판단 ' + str(numbers[rid]) for rid in c['judgment_ids']), '']
-    for r in value['rows']:
-        if r['judgment_id'] in value['highlight_ids']:
-            lines += [f"- **{t(r['segment'])}**: {t(r['conclusion'])} ({t(r['scope']['geography'])}, {t(r['scope']['product_spec'])}; 확신도 {t(CONFIDENCE.get(r['confidence'], r['confidence']))}).",
-                      '  범위: ' + t(scope_label(r['scope'])) + '. ' + r['trend']['label'] + ': ' + t(r['trend']['reason']),
-                      '  미확인: ' + t(r['unknowns']) + ' · 근거 판단 ' + str(numbers[r['judgment_id']])]
-            lines.append('  반증·대안: ' + t([evidence[e]['claim'] for e in r['counter_ids']] if r['counter_ids'] else r['counter_search_limit']))
-    lines += ['', '요약은 선택된 판단이며 검토 범위 전체와 미검토 구간은 아래에 표시합니다.', '',
-              '## 공급망 위치별 비교', '', '| 구간 / 적용 범위 | 부족의 강도 | 지속성 | 가동 영향 | 추세 / 확신도 |',
-              '|---|---|---|---|---|']
-    for r in value['rows']:
-        lines.append('| ' + ' | '.join([t(r['segment']) + '<br>' + t(scope_label(r['scope'])),
-                     t(r['severity']) if r['severity'] is not None else '미확인',
-                     t(r['persistence']) if r['persistence'] is not None else '미확인',
-                     t(r['operational_impact']) if r['operational_impact'] is not None else '미확인',
-                     r['trend']['label'] + '<br>' + t(r['trend']['reason']) + '<br>' + t(CONFIDENCE.get(r['confidence'], r['confidence'])) + '<br>미확인: ' + t(r['unknowns'])]) + ' |')
-    lines += ['', '## 탐색 범위와 남은 공백', '', '| 구간 | 검토 상태 | 선정·제외 / 남은 이유 |', '|---|---|---|']
-    for c in value['coverage']:
-        lines.append('| ' + ' | '.join([t(c['segment']), STATUS[c['status']], t(c['reason'])]) + ' |')
-    for r in value['rows']:
-        lines += ['', '## 판단 ' + str(numbers[r['judgment_id']]) + ': ' + t(r['segment']) + ' — 근거와 변화', '', t(r['conclusion']), '',
-                  '범위: ' + t(scope_label(r['scope'])), '판단: ' + t(r['reasoning']),
-                  '확신도: ' + t(CONFIDENCE.get(r['confidence'], r['confidence'])), '판단 ID: ' + r['judgment_id'], '']
-        for role, ids in [('지지', r['support_ids']), ('반증·대안', r['counter_ids'])]:
-            for eid in ids:
-                lines.append('- ' + role + ': ' + t(evidence[eid]['claim']) + ' · ' + eid)
-        if not r['counter_ids']:
-            lines.append('반증 탐색 한계: ' + t(r['counter_search_limit']))
-        if r['trend'].get('prior_conclusion'):
-            lines += ['이전 판단: ' + t(r['trend']['prior_conclusion']),
-                      '이전 범위: ' + t(scope_label(r['trend']['prior_scope'])),
-                      '변경 검토 이유: ' + t(r['trend']['review_reason'])]
-        lines += ['추세: ' + r['trend']['label'] + ' · ' + t(r['trend']['reason']),
-                  '경쟁 가설: ' + t(r['alternatives']), '미확인: ' + t(r['unknowns'])]
-        if r['assessment']:
-            a = r['assessment']['result']
-            lines += ['계산 적격성: ' + t(a['scoreability']) + ' · 실제 binding: ' + t(a['binding_status'])]
-            if a['scoreability'] in ('Fully Scorable', 'Provisionally Scorable'):
-                lines.append('근거한정 총점 범위: ' + t(a['overall']) + ' · 확정 Tier: ' + t(a['tier_confirmed']))
-            else:
-                lines.append('공통 총점·숫자 Tier는 제시하지 않습니다. 부분 축과 전체 입력은 평가 기록에서 조회합니다.')
-            lines.append('평가 ID: ' + r['assessment']['id'])
-    lines += ['', '## 이전 보고서에서 달라진 점', '']
-    if not value['previous_report_id']:
-        lines.append('첫 종합 기록입니다. 과거 대비 변화율이나 순위를 만들지 않았습니다.')
-    for c in value['changes']:
-        lines += ['- ' + t(scope_label(c['scope'])) + ': ' + t(c['status']),
-                  '  이전: ' + t(c['before']) + ' → 현재: ' + t(c['after'])]
-    lines += ['', '## 다음 추적 항목', '']
-    for r in value['rows']:
-        lines.append('- ' + t(r['segment']) + ' (' + t(scope_label(r['scope'])) + '): ' + t(r['next_actions']))
-    lines += ['', '## 원문과 재조회 위치', '']
-    for eid, e in sorted(evidence.items()):
-        d = documents[e['document_id']]
-        # Escape link syntax while retaining the original URL in the stored document.
-        url = d['url'].replace('(', '%28').replace(')', '%29').replace(' ', '%20')
-        label = t(d['producer']).replace('[', '&#91;').replace(']', '&#93;')
-        lines += [f"- {eid}: [{label}]({url}) · {t(e['location'])} · 공개일 {e['published_at']} · {e['nature']}",
-                  '  원문: ' + t(e['quote']), '  SHA-256: ' + d['sha256']]
-    lines += ['', '## 검증 범위', '', 'snapshot: ' + value['snapshot_id'],
-              '작성자 검토 입력을 결정론적으로 정리한 초안입니다. 독립 해석 검토·baseline 승인은 별도입니다.',
-              f"저장소 전체에서 이 snapshot까지의 미성공/부분 취득 기록: {len(value['source_failures'])}건. 본문 주장의 실패 수나 변화 없음 판정이 아닙니다."]
-    return '\n'.join(lines) + '\n'
+    from reader_report import render_reader
+    return render_reader(value, evidence, documents, text)
