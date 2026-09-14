@@ -6,6 +6,16 @@ from research import data, existing_action
 from monitoring import exclusive
 
 DIMENSIONS = ('demand_supply', 'history', 'alternatives', 'operational_impact', 'trend')
+DEFINITION_FIELDS = ('node_id','name','scope','lifecycle','predecessor_ids','replacement_ids','effective_date')
+
+
+def catalog_head(store):
+    changes=[r for r in store.records('task') if r['payload']['data'].get('type')=='node_change']
+    return changes[-1] if changes else None
+
+
+def active(node):
+    return node.get('lifecycle','active')=='active'
 
 
 def _save(store, request, action, value, refs=(), documents=()):
@@ -23,9 +33,16 @@ def start(store, request, value):
         ontology=json.loads((Path(__file__).resolve().parents[2]/'ontology/node_ids_v1.json').read_text(encoding='utf-8'))
         nodes=[{'node_id':n['Node_ID'],'name':n['Node_Name'],'disposition':'queued','reason':'',
                 'document_ids':[]} for n in ontology['nodes']]
+        latest=catalog_head(store)
+        if latest:
+            if date.fromisoformat(value['as_of_date'])<date.fromisoformat(latest['payload']['data']['change']['effective_date']):
+                raise ValueError('New campaign cutoff precedes current catalog; use the historical campaign')
+            nodes=[{**n,'disposition':'queued','reason':'','document_ids':[]} for n in latest['payload']['data']['catalog']]
         return _save(store,request,action,{'type':'research_campaign','objective':value['objective'],
             'as_of_date':value['as_of_date'],'nodes':nodes,'questions':[],
-            'note':'Investigation inventory only; no initialized judgments, scores or graph edges.'})
+            'catalog_revision':latest['id'] if latest else None,
+            'note':'Investigation inventory only; no initialized judgments, scores or graph edges.'},
+            [latest['id']] if latest else [])
 
 
 def current(store, campaign_id):
@@ -34,7 +51,7 @@ def current(store, campaign_id):
     head=campaign_id;value=root
     for record in store.records('task'):
         v=record['payload']['data']
-        if v.get('type')=='research_checkpoint' and v.get('campaign_id')==campaign_id:
+        if v.get('type') in ('research_checkpoint','node_change') and v.get('campaign_id')==campaign_id:
             if v['previous_id']!=head:raise ValueError('Research checkpoint fork')
             head=record['id'];value=v
     return head,value
@@ -54,6 +71,9 @@ def checkpoint(store, request, value):
         if len(set(ids))!=len(ids) or set(ids)!={n['node_id'] for n in previous['nodes']}:
             raise ValueError('Preserve the full investigation inventory')
         for n in nodes:
+            before=next(x for x in previous['nodes'] if x['node_id']==n['node_id'])
+            if {k:n[k] for k in DEFINITION_FIELDS if k in n}!={k:before[k] for k in DEFINITION_FIELDS if k in before}:
+                raise ValueError('Node definitions require node-change; do not edit checkpoint definitions')
             required(n,'disposition','document_ids')
             if n['disposition'] not in ('queued','scanned','selected','investigated'):
                 raise ValueError('All initial nodes require investigation; exclusion is not allowed')
@@ -97,26 +117,76 @@ def checkpoint(store, request, value):
             if any(new[k]!=q[k] for k in ('node_id','dimension','question')) or new['attempts'][:len(q['attempts'])]!=q['attempts']:
                 raise ValueError('Preserve question identity and attempt history')
         for doc in docs:store.document(doc)
-        return _save(store,request,action,{'type':'research_checkpoint',**value},refs,docs)
+        revision=head if previous['type']=='node_change' else previous.get('catalog_revision')
+        return _save(store,request,action,{**value,'type':'research_checkpoint','catalog_revision':revision},refs,docs)
 
 
 def resume(store,campaign_id):
     head,v=current(store,campaign_id)
     pending=[{'node_id':n['node_id'],'action':'screen','name':n.get('name',n['node_id'])}
-             for n in v['nodes'] if n['disposition'] in ('queued','excluded')]
-    selected={n['node_id'] for n in v['nodes'] if n['disposition']=='selected'}
-    investigated={n['node_id'] for n in v['nodes'] if n['disposition'] not in ('queued','excluded')}
+             for n in v['nodes'] if active(n) and n['disposition'] in ('queued','excluded')]
+    active_ids={n['node_id'] for n in v['nodes'] if active(n)}
+    selected={n['node_id'] for n in v['nodes'] if active(n) and n['disposition']=='selected'}
+    investigated={n['node_id'] for n in v['nodes'] if active(n) and n['disposition'] not in ('queued','excluded')}
     for node in sorted(investigated):
         for dim in DIMENSIONS:
             if not any(q['node_id']==node and q['dimension']==dim for q in v['questions']):
                 pending.append({'node_id':node,'action':'create_question','dimension':dim})
     pending += [dict(question_id=q['id'],node_id=q['node_id'],action=q['next_action'],status=q['status'])
-                for q in v['questions'] if q['status'] in ('open','blocked')]
+                for q in v['questions'] if q['node_id'] in active_ids and q['status'] in ('open','blocked')]
     resolved=any(q['status']=='resolved' and q['node_id'] in selected for q in v['questions'])
     return {'campaign_id':campaign_id,'checkpoint_id':head,'nodes':v['nodes'],'questions':v['questions'],
             'pending':pending,'full_inventory_investigated':not pending,
             'ready_for_review':bool(selected) and resolved and not pending,
             'meaning':'Structural research readiness only; source interpretation and user acceptance remain separate.'}
+
+
+def change_nodes(store,request,value):
+    """A single atomic record preserves catalog mapping and the campaign checkpoint."""
+    from datetime import date
+    from copy import deepcopy
+    required(value,'campaign_id','previous_id','operation','source_ids','new_nodes','reason','effective_date')
+    action={'type':'node_change','data':value}
+    with exclusive(store):
+        old=existing_action(store,'task',request,action)
+        if old:return old
+        head,prior=current(store,value['campaign_id'])
+        if head!=value['previous_id']:raise ValueError('Stale checkpoint')
+        latest=catalog_head(store)
+        revision=head if prior['type']=='node_change' else prior.get('catalog_revision')
+        if revision!=(latest['id'] if latest else None):raise ValueError('Catalog advanced in another campaign; start a new campaign from current catalog')
+        when=date.fromisoformat(value['effective_date'])
+        cutoff=date.fromisoformat(data(store,value['campaign_id'])['as_of_date'])
+        if when>cutoff:raise ValueError('Node change cannot take effect after campaign cutoff')
+        if latest and when<date.fromisoformat(latest['payload']['data']['change']['effective_date']):
+            raise ValueError('Do not backdate catalog changes')
+        op=value['operation'];sources=value['source_ids'];new=value['new_nodes']
+        if not isinstance(sources,list) or not isinstance(new,list):raise ValueError('Expected source and new node lists')
+        if not ((op=='add' and not sources and len(new)>=1) or (op=='split' and len(sources)==1 and len(new)>=2)
+                or (op=='merge' and len(sources)>=2 and len(new)==1)):
+            raise ValueError('Invalid add/split/merge cardinality')
+        nodes=deepcopy(prior['nodes']);byid={n['node_id']:n for n in nodes}
+        if len(set(sources))!=len(sources) or any(s not in byid or not active(byid[s]) for s in sources):
+            raise ValueError('Sources must be distinct active nodes')
+        newids=[]
+        for n in new:
+            required(n,'node_id','name','scope')
+            if not all(isinstance(n[k],str) and n[k].strip() for k in ('node_id','name','scope')):
+                raise ValueError('Node ID/name/scope must be nonempty text')
+            if n['node_id'] in byid or n['node_id'] in newids:raise ValueError('Never reuse a node ID')
+            newids.append(n['node_id'])
+        for sid in sources:
+            byid[sid].update(lifecycle='retired',replacement_ids=newids)
+        for n in new:
+            nodes.append({k:n[k] for k in ('node_id','name','scope')} | {
+                'lifecycle':'active','predecessor_ids':sources,'replacement_ids':[],
+                'effective_date':value['effective_date'],'disposition':'queued','reason':'','document_ids':[]})
+        catalog=[{k:n[k] for k in DEFINITION_FIELDS if k in n} for n in nodes]
+        docs=value.get('document_ids',[])
+        for doc in docs:store.document(doc)
+        return _save(store,request,action,{'type':'node_change','campaign_id':value['campaign_id'],
+            'previous_id':head,'nodes':nodes,'questions':prior['questions'],'catalog':catalog,
+            'change':value,'comparison_policy':'No automatic evidence, score, trend or edge transfer'},[head],docs)
 
 
 def next_work(store,campaign_id,limit=10):

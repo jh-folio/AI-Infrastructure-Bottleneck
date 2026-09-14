@@ -128,4 +128,60 @@ class ResearchLoopTests(unittest.TestCase):
         self.assertEqual(len({q['node_id'] for q in state['questions']}),87)
         self.assertTrue(any(q['status']=='bounded' for q in state['questions']))
 
+class NodeEvolutionTests(unittest.TestCase):
+    setUp=ResearchLoopTests.setUp
+    investigated=ResearchLoopTests.investigated
+    checkpoint_input=ResearchLoopTests.checkpoint_input
+    # Keep the shared fixture, without re-running inherited test methods.
+    def change(self,op,sources,new,request='change'):
+        state=loop.resume(self.store,self.cid)
+        return loop.change_nodes(self.store,request,dict(campaign_id=self.cid,previous_id=state['checkpoint_id'],
+            operation=op,source_ids=sources,new_nodes=[dict(node_id=i,name=i,scope='Synthetic differentiated scope') for i in new],
+            reason='Synthetic catalog change',effective_date='2026-09-14'))
+
+    def test_add_split_merge_preserves_history_and_restarts_research(self):
+        v,j=self.investigated();loop.checkpoint(self.store,'initial',v)
+        before=research.data(self.store,j)
+        self.change('add',[],['NEW-1'],'add')
+        self.change('split',['A01'],['A01-X','A01-Y'],'split')
+        self.change('merge',['A01-X','A01-Y'],['A01-Z'],'merge')
+        state=loop.resume(self.store,self.cid);nodes={n['node_id']:n for n in state['nodes']}
+        self.assertEqual(len(nodes),91)
+        self.assertEqual(sum(loop.active(n) for n in nodes.values()),88)
+        self.assertEqual(nodes['A01']['replacement_ids'],['A01-X','A01-Y'])
+        self.assertEqual(nodes['A01-Z']['predecessor_ids'],['A01-X','A01-Y'])
+        self.assertFalse(state['ready_for_review'])
+        self.assertEqual(research.data(self.store,j),before)
+        self.assertTrue(any(q['node_id']=='A01' for q in state['questions']))
+        self.assertTrue(any(p['node_id']=='A01-Z' for p in state['pending']))
+        cid=loop.start(self.store,'next-campaign',{'objective':'Next study','as_of_date':'2026-09-14'})['id']
+        self.assertEqual(len(loop.resume(self.store,cid)['nodes']),91)
+
+    def test_id_reuse_and_direct_retirement_rejected(self):
+        self.change('split',['A01'],['X','Y'])
+        with self.assertRaisesRegex(ValueError,'reuse'):self.change('add',[],['A01'],'reuse')
+        with self.assertRaisesRegex(ValueError,'active'):self.change('split',['A01'],['Q','R'],'retired')
+        self.state=loop.resume(self.store,self.cid);v=self.checkpoint_input()
+        v['nodes'][1]['lifecycle']='retired'
+        with self.assertRaisesRegex(ValueError,'definitions'):loop.checkpoint(self.store,'tamper',v)
+        v['nodes'][1]['lifecycle']=None
+        with self.assertRaisesRegex(ValueError,'definitions'):loop.checkpoint(self.store,'null-retire',v)
+
+    def test_retry_stale_and_cross_campaign_catalog_conflict(self):
+        value=dict(campaign_id=self.cid,previous_id=self.cid,operation='add',source_ids=[],
+            new_nodes=[dict(node_id='N',name='New',scope='Synthetic')],reason='Synthetic',effective_date='2026-09-14')
+        cid=loop.start(self.store,'parallel',{'objective':'Parallel','as_of_date':'2026-09-14'})['id']
+        r=loop.change_nodes(self.store,'once',value)
+        self.assertEqual(loop.change_nodes(self.store,'once',value)['id'],r['id'])
+        with self.assertRaisesRegex(ValueError,'Stale'):loop.change_nodes(self.store,'stale',value)
+        value.update(campaign_id=cid,previous_id=cid)
+        with self.assertRaisesRegex(ValueError,'Catalog advanced'):loop.change_nodes(self.store,'cross',value)
+
+    def test_bad_cardinality_and_future_effective_date(self):
+        with self.assertRaisesRegex(ValueError,'cardinality'):self.change('merge',['A01'],['N'])
+        with self.assertRaisesRegex(ValueError,'cardinality'):self.change('split',['A01'],['N'])
+        value=dict(campaign_id=self.cid,previous_id=self.cid,operation='add',source_ids=[],
+            new_nodes=[dict(node_id='N',name='New',scope='Synthetic')],reason='Synthetic',effective_date='2026-09-15')
+        with self.assertRaisesRegex(ValueError,'cutoff'):loop.change_nodes(self.store,'future',value)
+
 if __name__=='__main__':unittest.main()

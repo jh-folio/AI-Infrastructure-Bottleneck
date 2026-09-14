@@ -23,6 +23,9 @@ def execute(action):
     if op=='restore':
         return restore(action['backup_dir'],action['destination'])
     store=Store(action['state_dir'],action['project_id'])
+    if op=='node-change':
+        from research_loop import change_nodes
+        return change_nodes(store,action['request_id'],action['data'])
     if op in ('research-start','research-checkpoint','research-resume','research-next'):
         import research_loop
         if op=='research-next':return research_loop.next_work(store,action['campaign_id'],action.get('limit',10))

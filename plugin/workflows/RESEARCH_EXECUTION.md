@@ -40,3 +40,20 @@ node는 node_id/name/disposition/reason/document_ids다. investigated는 원문 
 긴 조사에서는 `{"op":"research-next","campaign_id":"시작 ID","limit":10}`으로 다음 질문 묶음만 읽는다. 원문과 전체 시도 이력을 매번 대화에 출력하지 않는다. research-resume의 전체 상태는 로컬 JSON 파일로 받아 코드로 수정·checkpoint하고, 대화에는 이번 묶음의 새 근거와 판단만 전달한다. research-next는 작업을 대신 실행하는 자동 수집기가 아니라 에이전트가 이어서 실행할 목록이다.
 
 기존 버전 원장의 excluded 노드는 재개 시 미조사 작업으로 돌려준다. 원본 이력은 삭제하지 않고 새 checkpoint에서 해당 노드를 queued 또는 실제 조사 상태로 전환한다. full_inventory_investigated는 모든 노드의 조사 질문이 해결 또는 조사 후 공백으로 정리되었는지 나타낸다. 전수 조사를 했더라도 전체 결과가 미확인뿐이면 연구 검토본의 적합성은 별도로 판단한다.
+
+
+## 노드 추가·분할·통합 — 0.3.0-d5.5
+
+87개 기본 정의 파일은 보존한다. 사용자 프로젝트에서 node-change로 변경 이력을 추가한다. 현재 연구의 최신 checkpoint와 현재 프로젝트 목록을 기준으로 원자적으로 변경하며, 기존 ID는 재사용하지 않는다. 원문·판단·점수·추세·관계는 이전 ID에 남기고 자동 이관/합산하지 않는다.
+
+`{"op":"node-change","state_dir":"실제 상태 폴더","project_id":"실제 프로젝트 ID","request_id":"고유 변경 요청","data":{"campaign_id":"연구 시작 ID","previous_id":"최신 checkpoint_id","operation":"split","source_ids":["A03"],"new_nodes":[{"node_id":"HBM-CUSTOM-1","name":"첫 번째 세부 범위","scope":"세대·고객·제품 범위와 포함/제외"},{"node_id":"HBM-CUSTOM-2","name":"두 번째 세부 범위","scope":"중복 없이 나눈 나머지 범위"}],"reason":"원문 검토에서 확인한 분리 필요성과 기존 범위 대응","effective_date":"실제 변경 적용일","document_ids":[]}}`
+
+위 ID와 분할 대상은 형식 예시이며 기본 분할 지시가 아니다. document_ids는 변경 근거가 있는 경우 실제 저장 원문을 참조한다. operation은 add/split/merge다. add는 source_ids 비어 있음+새 노드1개 이상, split은 현재 유효한 원본1개→새 노드2개 이상, merge는 현재 유효한 원본2개 이상→새 노드1개다. 새 노드는 node_id/name/scope가 필수다. 날짜는 연구 기준일 이후일 수 없고 이전 변경보다 과거로 소급할 수 없다.
+
+분할/통합 원본은 lifecycle=retired, 새 노드는 active/queued다. predecessor_ids/replacement_ids로 대응하며 원본·질문·시도 이력은 삭제하지 않는다. 유효 범위 전체의 조사 의무는 새 노드로 이어지고 기존 노드의 점수를 채우거나 완료 상태를 복사하지 않는다. 분할 범위가 원본을 빠뜨리지 않는지, 통합으로 중요한 차이를 숨기지 않는지는 실제 근거로 검토한다. 단순 자료 부족이나 조사 회피를 위한 변경은 하지 않는다.
+
+변경 뒤 research-resume/next로 새 노드를 조사한다. retired 질문은 역사 기록으로 보존하지만 현재 완료 대기열에서는 빼고 새 유효 노드의 모든 질문을 요구한다. 전체 최초 조사 대상은 기본87개 자체가 아니라 기본 목록의 각 범위를 계승한 현재 유효 노드 전부다. 추가 노드도 모두 조사 대상이다. baseline_review는 retired 노드와 후속 노드를 함께 현재 평가에 포함하지 못한다. 과거 보고서/지도는 고정 snapshot을 유지한다. 분할/통합 계보는 기술적 공급 연결선이 아니므로 지도 관계를 자동 생성하지 않는다.
+
+같은 프로젝트에서 다음 research-start는 마지막 변경 목록을 이어받아 새 조사를 시작한다. 기존 다른 campaign은 당시 목록에 고정된다. 다른 campaign에서 더 최신 변경이 발생했으면 오래된 campaign으로 목록 변경을 덮어쓸 수 없다. 최신 목록으로 새 campaign을 시작하고 이전 판단은 후보로 재검토한다. 최신 목록보다 과거 기준일의 새 연구는 거부되며 당시 campaign을 재조회한다. 다른 사용자 프로젝트나 원본87개 파일은 변경하지 않는다.
+
+일반 research-checkpoint로 node_id/name/scope/lifecycle/계보를 수정할 수 없다. 반드시 node-change를 사용한다. 취소/정정은 이미 기록한 변경을 지우는 대신 이유를 밝힌 후속 변경으로 남긴다.

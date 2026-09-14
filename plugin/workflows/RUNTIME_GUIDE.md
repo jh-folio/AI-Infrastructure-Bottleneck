@@ -240,3 +240,6 @@ Companies는 judgment의 선택적 companies 배열에서 name/role/evidence_ids
 
 
 0.3.0-d5.4: 첫 실행은 전수 조사다. research-resume은 선정 여부와 관계없이 모든 착수 노드에 다섯 차원의 질문을 요구한다. excluded 신규 저장은 거부하며 기존 excluded는 미조사 작업으로 반환한다. 조사 후 공백은 bounded로 기록하되 실제 시도와 대체 경로가 있어야 한다. full_inventory_investigated는 전수 조사 기록의 완료 상태이며 점수 적격성이나 연구 품질 승인이 아니다.
+
+
+0.3.0-d5.5: 프로젝트별 node-change(add/split/merge)는 [연구 실행 계약](RESEARCH_EXECUTION.md)의 노드 추가·분할·통합 절을 따른다. 기본 파일은 보존하며 원본 ID의 retired/새 ID의 active 대응과 새 연구 목록의 계승을 기록한다. 전수 조사는 현재 유효 노드 전체를 대상으로 하며 과거 보고서를 재작성하지 않는다.

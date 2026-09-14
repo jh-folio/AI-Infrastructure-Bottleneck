@@ -222,10 +222,14 @@ def make_report(store, request, value):
         if head!=value['checkpoint_id']:raise ValueError('Research advanced during rendering; retry latest checkpoint')
         campaign_root=get(value['campaign_id'],'task')
         if campaign_root['as_of_date']!=value['as_of_date']:raise ValueError('Campaign/report cutoff mismatch')
-        selected={n['node_id'] for n in campaign_state['nodes'] if n['disposition']=='selected'}
+        from research_loop import active
+        selected={n['node_id'] for n in campaign_state['nodes'] if active(n) and n['disposition']=='selected'}
+        retired={n['node_id'] for n in campaign_state['nodes'] if not active(n)}
+        if retired & {r['scope']['node_id'] for r in rows}:
+            raise ValueError('Retired nodes cannot be included in the current baseline; preserve historical reports')
         if not selected <= {r['scope']['node_id'] for r in rows}:
             raise ValueError('Baseline report must include selected research nodes')
-        conclusions={rid for q in campaign_state['questions'] if q['status']=='resolved' for rid in q['judgment_ids']}
+        conclusions={rid for q in campaign_state['questions'] if q['status']=='resolved' and q['node_id'] not in retired for rid in q['judgment_ids']}
         if not conclusions <= {r['judgment_id'] for r in rows}:
             raise ValueError('Report must carry the judgments used to resolve research questions')
         if execution['status'] not in ('completed','excluded_by_user'):
