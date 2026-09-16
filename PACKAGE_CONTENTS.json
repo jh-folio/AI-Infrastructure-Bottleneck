@@ -9,7 +9,7 @@
   },
   {
     "path": "README.md",
-    "sha256": "2e82d2e836b698b790e7358caa10908f5158344cdff35ec81368608186555a75"
+    "sha256": "72bd40130519032c545658f0577e770242113c6aecbbc838e306a93218b31bc7"
   },
   {
     "path": ".gitignore",
@@ -41,7 +41,7 @@
   },
   {
     "path": "LICENSE",
-    "sha256": "84f84341a945cf712900a2ee6e3fc7d36b40a5d28138112ae964eb0302999016"
+    "sha256": "e7b856355d9d2f7e4d66863f4c273f9e4e734109a05d4114c413fe09bfb59f79"
   },
   {
     "path": "plugin/runtime/adapters/source_probe.py",

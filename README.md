@@ -6,7 +6,7 @@ AI 인프라 공급망의 **어디가 막히는지, 얼마나 심각한지, 어�
 
 ## 설치하고 시작하기
 
-1. 배포자가 제공한 설치 링크나 계정의 공유 플러그인 목록에서 **AI Bottleneck**을 엽니다. 현재 배포 출처는 [GitHub 저장소](https://github.com/jh-folio/AI-Infrastructure-Bottleneck)이며 비공개 저장소 접근 권한이 필요합니다. 공개 디렉터리에 등록된 제품이라고 가정하지 마세요.
+1. 배포자가 제공한 설치 링크나 계정의 공유 플러그인 목록에서 **AI Bottleneck**을 엽니다. 현재 배포 출처는 [GitHub 저장소](https://github.com/jh-folio/AI-Infrastructure-Bottleneck)이며 비공개로 운영되는 경우 저장소 접근 권한이 필요합니다. 공개 디렉터리에 등록된 제품이라고 가정하지 마세요.
 2. 해당 환경이 제공하는 설치 버튼으로 설치하고 활성화합니다. GitHub 링크 설치 기능이 없는 환경에서는 배포자/관리자에게 계정에서 사용할 설치 링크 또는 가져온 플러그인 목록을 요청하세요. 임의 폴더에 파일을 복사해 설치를 대신할 필요는 없습니다.
 3. 새 **Work 대화**를 시작하고 이 플러그인을 선택합니다. 5개 스킬은 함께 포함되므로 하나씩 설치하지 않습니다. 이미 열려 있던 대화에서는 새 스킬이 보이지 않을 수 있습니다.
 4. 다음과 같이 요청하세요.
@@ -72,3 +72,7 @@ Codex에서도 제공된 플러그인 목록에서 설치한 뒤 새 작업을 �
 일반 사용자는 명령이나 스킬명을 외울 필요가 없습니다. 에이전트가 [사용자 흐름](plugin/workflows/USER_WORKFLOW.md), [명령 안내](plugin/workflows/RUNTIME_GUIDE.md), [자료와 질문 연결](plugin/workflows/SOURCE_QUESTION_FLOW.md), [검토와 제출](plugin/workflows/REVIEW_AND_DELIVERY.md)을 적용합니다.
 
 Python 3.10+와 SQLite를 사용합니다. PDF/가격 수집의 선택 의존성은 `requirements-optional.txt`에 고정되어 있으며 필요한 경로에만 설치하거나 실제 호스트 동등 도구를 사용합니다. 의존성 설치 자체를 연구 실행으로 기록하지 않습니다. Sites 통합 관리 공간은 후속 확장입니다.
+
+## 라이선스
+
+프로젝트는 [BSD 3-Clause License](LICENSE)를 따릅니다. 포함된 폰트는 [각 폰트의 별도 라이선스](plugin/runtime/ui/FONT_LICENSES.txt)를 따르며 외부 조사자료의 권리는 각 권리자에게 있습니다.
