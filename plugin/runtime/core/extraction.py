@@ -2,6 +2,7 @@
 from datetime import date
 from html.parser import HTMLParser
 import io
+import csv
 import json
 import re
 from research_store import digest
@@ -31,6 +32,21 @@ class HTMLText(HTMLParser):
 
 def segments(document):
     raw,mime = document['raw'],document['mime']
+    if mime == 'text/csv':
+        try:
+            rows = list(csv.reader(io.StringIO(raw.decode('utf-8-sig'))))
+            if not rows:
+                return [], ['empty:csv']
+            header = rows[0]
+            out = [{'location': 'row:1', 'text': ' | '.join(header)}]
+            for number, row in enumerate(rows[1:], 2):
+                if len(row) != len(header):
+                    return [], ['parse_failed:csv_column_count']
+                out.append({'location': 'row:' + str(number),
+                            'text': ' | '.join(f'{h}: {v}' for h, v in zip(header, row))})
+            return out, ['CSV candidates; verify codebook, units and missing-value definitions']
+        except (UnicodeError, csv.Error):
+            return [], ['parse_failed:csv']
     if mime=='application/pdf':
         try:
             from pypdf import PdfReader

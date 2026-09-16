@@ -15,7 +15,7 @@ def normalized(value, labels=()):
     return re.sub(r'[\W_]+','',value)
 
 
-def inspect_questions(store, nodes, questions):
+def inspect_questions(store, nodes, questions, cutoff=None):
     """Read referenced bytes. Preserve old ledgers; return work for invalid closures."""
     active={n['node_id'] for n in nodes if n.get('lifecycle','active')=='active'}
     labels=[str(n[k]) for n in nodes for k in ('node_id','name') if n.get(k)]
@@ -27,6 +27,8 @@ def inspect_questions(store, nodes, questions):
     closed=[q for q in questions if q['node_id'] in active and q['status'] in ('resolved','bounded')]
     for q in closed:
         qid=q['id'];reviews=q.get('source_reviews',[]);usable=[];routes=set();direct=[]
+        from semantic_review import inspect
+        issues[qid].update(inspect(q,document,cutoff))
         if not isinstance(reviews,list) or not reviews:
             issues[qid].add('missing_source_reviews');continue
         attempt_docs={d for a in q['attempts'] for d in a.get('document_ids',[])}
@@ -70,6 +72,10 @@ def inspect_questions(store, nodes, questions):
                     ev=record(eid)
                     if ev.get('decision')=='accepted' and ev.get('scope',{}).get('node_id')==q['node_id']:
                         supported.add((ev['document_id'],ev['location'],ev['quote']))
+                        for source in direct:
+                            if (source['document_id'],source['location'],source['quote']) == (ev['document_id'],ev['location'],ev['quote']):
+                                if source.get('application',{}).get('nature') != ev['nature']:
+                                    issues[qid].add('source_nature_differs_from_adopted_evidence')
             if not any((r['document_id'],r['location'],r['quote']) in supported for r in direct):
                 issues[qid].add('resolution_not_linked_to_reviewed_support')
         if usable:packets[tuple(sorted(set(usable)))].append(q)
@@ -82,7 +88,11 @@ def inspect_questions(store, nodes, questions):
     for groups,reason in ((packets,'reused_source_packet_across_nodes'),(prose,'repeated_conclusion_across_nodes')):
         for group in groups.values():
             if len({q['node_id'] for q in group})>1:
-                for q in group:issues[q['id']].add(reason)
+                for q in group:
+                    from semantic_review import justified_shared_source
+                    if reason == 'reused_source_packet_across_nodes' and justified_shared_source(q):
+                        continue
+                    issues[q['id']].add(reason)
     for group in dimension_reviews.values():
         if len({q['dimension'] for q in group})>1:
             for q in group:issues[q['id']].add('repeated_review_across_dimensions')
@@ -105,7 +115,7 @@ def completion(store,campaign_id,report_id=None):
             reasons.append('report_does_not_match_current_research')
         if report.get('research_execution',{}).get('status') not in ('completed','excluded_by_user'):
             reasons.append('research_execution_missing')
-        if report.get('research_quality_version')!=1:reasons.append('report_needs_current_quality_review')
+        if report.get('research_quality_version')!=2:reasons.append('report_needs_current_quality_review')
     ready=not reasons
     return {'campaign_id':campaign_id,'checkpoint_id':state['checkpoint_id'],'report_id':report_id,
             'ready_to_submit':ready,'reasons':reasons,'pending_count':len(state['pending']),

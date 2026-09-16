@@ -57,9 +57,9 @@ def current(store, campaign_id):
     return head,value
 
 
-def checkpoint(store, request, value):
+def checkpoint(store, request, value, _action=None):
     required(value,'campaign_id','previous_id','nodes','questions')
-    action={'type':'research_checkpoint',**value}
+    action=_action or {'type':'research_checkpoint',**value}
     with exclusive(store):
         old=existing_action(store,'task',request,action)
         if old:return old
@@ -126,6 +126,39 @@ def checkpoint(store, request, value):
         return _save(store,request,action,{**value,'type':'research_checkpoint','catalog_revision':revision},refs,docs)
 
 
+def question(store,campaign_id,question_id):
+    head,state=current(store,campaign_id)
+    item=next((q for q in state['questions'] if q['id']==question_id),None)
+    if item is None:raise ValueError('Question not found')
+    node=next(n for n in state['nodes'] if n['node_id']==item['node_id'])
+    return {'campaign_id':campaign_id,'checkpoint_id':head,'node':node,'question':item,
+            'read_only':True,'note':'One question record; fetch original source context separately.'}
+
+
+def patch(store,request,value):
+    """Small agent input; unchanged nodes/questions are copied by code, never regenerated."""
+    required(value,'campaign_id','previous_id')
+    action={'type':'research_patch','data':value}
+    prior=existing_action(store,'task',request,action)
+    if prior:return prior
+    head,state=current(store,value['campaign_id'])
+    if head!=value['previous_id']:raise ValueError('Stale checkpoint; read current question before patching')
+    nodes={n['node_id']:n for n in state['nodes']}
+    questions={q['id']:q for q in state['questions']}
+    for field,key,target in (('nodes','node_id',nodes),('questions','id',questions)):
+        updates=value.get(field,[])
+        if not isinstance(updates,list):raise ValueError('Patch updates must be lists')
+        seen=set()
+        for item in updates:
+            required(item,key)
+            if item[key] in seen:raise ValueError('Duplicate patch identity')
+            if field=='nodes' and item[key] not in nodes:raise ValueError('Use node-change to add nodes')
+            seen.add(item[key]);target[item[key]]=item
+    merged={'campaign_id':value['campaign_id'],'previous_id':head,'nodes':list(nodes.values()),'questions':list(questions.values())}
+    # The existing lock, append-only attempts and identity checks remain authoritative.
+    return checkpoint(store,request,merged,_action=action)
+
+
 def resume(store,campaign_id):
     head,v=current(store,campaign_id)
     pending=[{'node_id':n['node_id'],'action':'screen','name':n.get('name',n['node_id'])}
@@ -141,12 +174,12 @@ def resume(store,campaign_id):
                 for q in v['questions'] if q['node_id'] in active_ids and q['status'] in ('open','blocked')]
     resolved=any(q['status']=='resolved' and q['node_id'] in selected for q in v['questions'])
     from research_quality import inspect_questions
-    quality_work=inspect_questions(store,v['nodes'],v['questions'])
+    quality_work=inspect_questions(store,v['nodes'],v['questions'],data(store,campaign_id)['as_of_date'])
     pending+=quality_work
     return {'campaign_id':campaign_id,'checkpoint_id':head,'nodes':v['nodes'],'questions':v['questions'],
             'pending':pending,'full_inventory_investigated':not pending,
             'ready_for_review':bool(selected) and resolved and not pending,
-            'quality_issues':quality_work,'research_quality_version':1,
+            'quality_issues':quality_work,'research_quality_version':2,
             'meaning':'Source locations and repeated reviews checked; interpretation and user acceptance remain separate.'}
 
 
@@ -204,7 +237,8 @@ def next_work(store,campaign_id,limit=10):
     state=resume(store,campaign_id)
     # Small packets keep historical source excerpts out of the agent context.
     pending=state['pending']
+    from source_work import next_details
     return {k:state[k] for k in ('campaign_id','checkpoint_id','ready_for_review')} | {
-        'pending_count':len(pending),'next_actions':pending[:limit],
+        'pending_count':len(pending),'next_actions':next_details(store,campaign_id,state,pending[:limit]),
         'more_pending':len(pending)>limit,
         'instruction':'Execute this packet, persist source references and checkpoint; then request the next packet.'}

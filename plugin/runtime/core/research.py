@@ -65,6 +65,9 @@ def adopt(store, request, value):
     if isinstance(value['source_tier'],bool) or value['source_tier'] not in (1,2,3,4,5) or value['confidence'] not in ('Low','Medium','High'):
         raise ValueError('Invalid confidence or source tier')
     doc=store.document(value['document_id'])
+    if value['decision']=='accepted' and (doc['metadata'].get('capture_kind')=='search_trace' or
+            doc['url'].startswith(('web-search:', 'web-open:'))):
+        raise ValueError('Search/tool response is discovery evidence; capture and review the original source before adoption')
     excerpt=locate(doc,value['location'])
     if value['quote'] not in excerpt:
         raise ValueError('Quoted text not found at source location')
@@ -76,6 +79,10 @@ def adopt(store, request, value):
     date.fromisoformat(published)
     if published>value['scope']['as_of_date']:
         raise ValueError('Evidence unavailable at analysis as-of date')
+    if value.get('observed_at'):
+        date.fromisoformat(value['observed_at'])
+        if value['nature']=='observation' and value['observed_at']>value['scope']['as_of_date']:
+            raise ValueError('Future target is not an observed realization')
     refs=[]
     if value.get('supersedes'):
         old=data(store,value['supersedes'],'evidence')
@@ -102,6 +109,8 @@ def current_evidence(store, ids, scope):
 def judgment(store, request, value):
     required(value,'question','scope','conclusion','support_ids','counter_ids','alternatives','unknowns','next_actions','confidence','reasoning')
     scope_check(value['scope'])
+    if value.get('bottleneck',{}).get('state','unknown') not in ('constraint','watch','easing','adequate','unknown'):
+        raise ValueError('Invalid qualitative state; never convert qualitative judgments to invented scores')
     ids=value['support_ids']+value['counter_ids']
     if value['confidence'] not in ('Low','Medium','High'):
         raise ValueError('Invalid judgment confidence')
@@ -171,7 +180,10 @@ def event(store,request,value):
     scope_check(value['scope']);date.fromisoformat(value['event_date'])
     if not value['evidence_ids']:
         raise ValueError('Event requires evidence')
-    current_evidence(store,value['evidence_ids'],value['scope'])
+    evidence=current_evidence(store,value['evidence_ids'],value['scope'])
+    if value['event_type'] in ('observation','realization'):
+        if value['event_date']>value['scope']['as_of_date'] or any(e['nature']!='observation' for e in evidence):
+            raise ValueError('Realization events need dated observations, not future plans')
     return store.append('event',request,value,value['evidence_ids'])
 
 

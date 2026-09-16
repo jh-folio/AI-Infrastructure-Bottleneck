@@ -56,6 +56,18 @@ class ResearchLoopTests(unittest.TestCase):
                                    for a,d in enumerate(docs)]
                     q['source_reviews']=[dict(document_id=d,location=f'block:{i+1}',quote=lines[a][i],role='gap_probe',
                         finding=lines[a][i],relevance='Test missing disclosure, not a physical shortage') for a,d in enumerate(docs)]
+                # Structural declarations only; this fixture does not establish real research quality.
+                for source in q['source_reviews']:
+                    source['application']=dict(source_population='Synthetic test population',target_population=q['node_id'],
+                        scope_reason='Synthetic registry item mapping',time_reason='Fixture period only',fit='direct',
+                        nature='observation',time_use='historical',observation_date='2026-09-01')
+                q['semantic_review']=dict(scope='Synthetic '+q['node_id'],interpretation=q['answer'],
+                    counterargument='Synthetic alternative checked',residual_uncertainty='Real world research not performed',
+                    next_observation='Test next disclosure',chronology=[
+                        dict(date='2026-01-01',event='Synthetic prior point',state='observation',source_review_index=0),
+                        dict(date='2026-09-01',event='Synthetic current point',state='observation',source_review_index=0)],
+                    gap=dict(public_data_limit='Synthetic disclosure boundary',why_remaining_search_would_not_change_answer='Fixture only',
+                        reopen_when='Next test disclosure',leads=[dict(route=a['route'],disposition='investigated',reason=a['finding']) for a in q['attempts']]))
         return v,j
 
     def test_inventory_resume_and_idempotence(self):

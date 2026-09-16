@@ -23,14 +23,34 @@ def execute(action):
     if op=='restore':
         return restore(action['backup_dir'],action['destination'])
     store=Store(action['state_dir'],action['project_id'])
+    if op=='export-delivery':
+        import delivery
+        return delivery.export(store,action['report_id'],action['destination'])
+    if op=='node-relation':
+        import supply_view
+        return supply_view.relation(store,action['request_id'],action['data'])
+    if op in ('source-plan','source-acquire','source-import','source-context','question-packet'):
+        import source_work
+        if op=='source-context':
+            return source_work.context(store,action['document_id'],action['focus_terms'],action['counter_terms'],
+                                       action.get('max_chars',6000),action.get('cursors'))
+        if op=='question-packet':
+            return source_work.question_packet(store,action['campaign_id'],action['question_id'],
+                        action['focus_terms'],action['counter_terms'],action.get('offset',0),
+                        action.get('limit',3),action.get('max_chars',6000),action.get('route_offset',0))
+        handler={'source-plan':source_work.source_plan,'source-acquire':source_work.acquire,
+                 'source-import':source_work.import_source}[op]
+        return handler(store,action['request_id'],action['data'])
     if op=='research-completion':
         from research_quality import completion
         return completion(store,action['campaign_id'],action.get('report_id'))
     if op=='node-change':
         from research_loop import change_nodes
         return change_nodes(store,action['request_id'],action['data'])
-    if op in ('research-start','research-checkpoint','research-resume','research-next'):
+    if op in ('research-start','research-checkpoint','research-resume','research-next','research-question','research-patch'):
         import research_loop
+        if op=='research-question':return research_loop.question(store,action['campaign_id'],action['question_id'])
+        if op=='research-patch':return research_loop.patch(store,action['request_id'],action['data'])
         if op=='research-next':return research_loop.next_work(store,action['campaign_id'],action.get('limit',10))
         if op=='research-resume':return research_loop.resume(store,action['campaign_id'])
         return (research_loop.start if op=='research-start' else research_loop.checkpoint)(store,action['request_id'],action['data'])

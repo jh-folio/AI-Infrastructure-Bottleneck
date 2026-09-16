@@ -25,7 +25,7 @@ def history_for(row, records, as_of):
     superseded={rec['payload']['data'].get('supersedes') for rec in records.values() if rec['kind']=='evidence'}
     for rec in records.values():
         value=rec['payload']['data']
-        if rec['kind']=='report' and value.get('generation') in ('supply-chain-synthesis-1','supply-chain-synthesis-2'):
+        if rec['kind']=='report' and value.get('generation') in ('supply-chain-synthesis-1','supply-chain-synthesis-2','supply-chain-synthesis-3'):
             candidates.extend(value['rows'])
     by_date={}
     for r in candidates:
@@ -54,7 +54,7 @@ def relation(store, request, value):
 
 def projection(store, report_id):
     report=data(store,report_id,'report')
-    if report.get('generation') not in ('supply-chain-synthesis-1','supply-chain-synthesis-2'):
+    if report.get('generation') not in ('supply-chain-synthesis-1','supply-chain-synthesis-2','supply-chain-synthesis-3'):
         raise ValueError('Dashboard requires a supply-chain synthesis report')
     snap=store.read_snapshot(report['snapshot_id'])
     records={r['id']:r for r in snap['records']};docs={d['id']:d for d in snap['documents']}
@@ -65,16 +65,20 @@ def projection(store, report_id):
         sources=[]
         for eid in row['support_ids']+row['counter_ids']:
             e=records[eid]['payload']['data'];d=docs[e['document_id']]
-            sources.append({'role':'지지 근거' if eid in row['support_ids'] else '반대·대안 근거',
-                'claim':e['claim'],'quote':e['quote'],'nature':e['nature'],'producer':d['producer'],
-                'url':d['url'],'location':e['location'],'published_at':e['published_at']})
+            from supply_view import public_source
+            sources.append(public_source(e,d,'지지 근거' if eid in row['support_ids'] else '반대·대안 근거'))
         companies=[]
         for company in records[row['judgment_id']]['payload']['data'].get('companies',[]):
             if not isinstance(company,dict) or not company.get('name') or not company.get('role'):continue
             eids=company.get('evidence_ids',[])
             if not eids or not isinstance(eids,list) or not set(eids)<=set(row['support_ids']+row['counter_ids']):continue
             companies.append({'name':company['name'],'role':company['role']})
+        observations=sorted({records[e]['payload']['data']['observed_at'] for e in row['support_ids']
+                             if records[e]['payload']['data'].get('observed_at')})
+        publications=sorted({s['published_at'] for s in sources if s.get('published_at')})
         rows.append({**row,'sources':sources,'score':score_bounds(row),
+                     'observation_dates':observations,'publication_dates':publications,
+                     'binding_status':(row.get('assessment') or {}).get('result',{}).get('binding_status','NotDemonstrated'),
                      'history':history_for(row,records,report['as_of_date']),'companies':companies})
     ids={r['judgment_id'] for r in rows};relations=[]
     for record in records.values():
@@ -90,7 +94,13 @@ def projection(store, report_id):
             d=docs[e['document_id']]
             evidence.append({'claim':e['claim'],'url':d['url'],'producer':d['producer']})
         relations.append({**v,'label':KINDS[v['kind']],'sources':evidence})
+    from supply_view import expand
+    nodes, node_relations, events = expand(report,rows,records,docs,relations)
     result={'title':report['title'],'as_of_date':report['as_of_date'],'snapshot_id':report['snapshot_id'],
+        'view_version':2,'nodes':nodes,'node_relations':node_relations,'events':events,
+        'inventory_scope':report.get('map_catalog',{}).get('scope','legacy_subset'),
+        'research_stage':report.get('research_stage','interim'),
+        'highlight_ids':report.get('highlight_ids',[]),
         'report_id':report_id,'rows':rows,'relations':relations,'coverage':report['coverage'],
         'changes':report['changes'],'claims':report['synthesis_claims'],
         'research_execution':report.get('research_execution',{'status':'unknown','reason':'과거 보고서에 실행 기록이 없습니다.'}),
@@ -101,11 +111,17 @@ def projection(store, report_id):
 
 def export(store, report_id, destination):
     value=projection(store,report_id)
-    template=Path(__file__).resolve().parents[1]/'ui/dashboard.html'
-    raw=json.dumps(value,ensure_ascii=False,allow_nan=False).replace('<','\\u003c').replace('>','\\u003e').replace('&','\\u0026')
-    html=template.read_text(encoding='utf-8').replace('__FONT_CSS__',(template.parent/'fonts.css').read_text(encoding='utf-8'))
-    html=html.replace('__RESEARCH_DATA__',raw)
+    html=render_html(value)
     path=Path(destination).resolve()
     with path.open('x',encoding='utf-8') as f:f.write(html)
     return {'path':str(path),'snapshot_id':value['snapshot_id'],'projection_sha256':value['projection_sha256'],
             'read_only':True,'report_id':report_id}
+
+
+def render_html(value):
+    template=Path(__file__).resolve().parents[1]/'ui/dashboard.html'
+    raw=json.dumps(value,ensure_ascii=False,allow_nan=False).replace('<','\\u003c').replace('>','\\u003e').replace('&','\\u0026')
+    html=template.read_text(encoding='utf-8').replace('__FONT_CSS__',(template.parent/'fonts.css').read_text(encoding='utf-8'))
+    html=html.replace('__UI_SCRIPT__',(template.parent/'dashboard.js').read_text(encoding='utf-8'))
+    html=html.replace('__RESEARCH_DATA__',raw)
+    return html

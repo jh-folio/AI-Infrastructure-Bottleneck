@@ -1,5 +1,7 @@
 # D3 runtime 사용법
 
+현재 추가 계약은 [원문 의미 검토와 동일 상태 결과 제출](REVIEW_AND_DELIVERY.md)이다. source_reviews.application/semantic_review, synthesize의 전체 campaign/checkpoint 고정, node-relation, event 이력, export-delivery를 적용한다. 아래 과거 버전별 명령 예시는 이 계약과 함께 읽는다. 최종 제출은 `{"op":"export-delivery","state_dir":"실제 경로","project_id":"실제 ID","report_id":"실제 보고서 ID","destination":"새 결과 폴더"}`로 생성한다.
+
 이 문서는 패키지 내부 실행 계약이다. Python 3.10 이상과 SQLite가 필요하다. SEC에는 환경의 SEC_USER_AGENT(앱 식별과 실제 연락처)가 필요하며 값은 보고서·Git에 출력하지 않는다. yfinance와 pypdf는 선택 의존성이다. `requirements-optional.txt` 설치 또는 host에서 제공된 동등 도구 사용 여부를 기록한다. 의존성/네트워크 실패를 성공으로 대체하지 않는다. SEC는 순차 요청하고 요청 사이 0.2초 이상 간격을 둔다. 403/429 우회나 무한 재시도는 하지 않는다.
 
 아래 경로는 패키지 루트 기준이다. 개발 저장소에서도 같은 runtime 경로를 쓴다. 사용자의 실제 state_dir를 확인한다. `STATE`/`PROJECT_ID`는 설명용 placeholder이며 실행 전에 실제값으로 치환한다.
@@ -9,6 +11,8 @@ python -X utf8 plugin/runtime/research_cli.py --action action.json
 ```
 
 한 번에 한 action JSON 파일을 작성한다. 재시도에는 동일 request_id와 동일 내용을 사용한다. 내용이 달라지면 새 request_id와 supersedes를 사용한다. CLI의 종료 코드와 반환 status를 모두 검사한다. 수집 실패도 attempt 기록을 만들므로 종료 코드 0만으로 성공이라고 하지 않는다.
+
+자료 경로를 조사 큐에 연결하는 `source-plan / source-acquire / source-import / question-packet / source-context`는 [자료와 질문 연결 계약](SOURCE_QUESTION_FLOW.md)을 따른다. 기존 저장 상태에 불변 task/document 기록을 추가하며 자동 채택·채점·질문 종결은 수행하지 않는다.
 
 ## 시작·복구
 

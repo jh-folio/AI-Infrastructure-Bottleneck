@@ -34,18 +34,30 @@ def public_url(url, hosts, resolve=True):
     return parsed
 
 
-def fetch(store, url, producer, kind, published_at=None, opener=None):
-    hosts = {'data.sec.gov', 'www.sec.gov'} if kind.startswith('sec_') else set(store.config.get('ir_hosts', []))
+def source_hosts(store, kind):
+    return ({'data.sec.gov', 'www.sec.gov'} if kind.startswith('sec_') else
+            set(store.config.get('ir_hosts', [])) | set(store.config.get('source_hosts', [])))
+
+
+def fetch(store, url, producer, kind, published_at=None, opener=None, registered_hosts=None):
+    hosts = source_hosts(store, kind)
+    if kind == 'public_document' and registered_hosts is not None:
+        hosts = set(registered_hosts)
     public_url(url, hosts, resolve=False)
-    if kind not in ('sec_submissions', 'sec_companyfacts', 'ir'):
+    if kind not in ('sec_submissions', 'sec_companyfacts', 'sec_filing', 'ir', 'public_document'):
         raise ValueError('Unsupported source kind')
     if published_at:
         date.fromisoformat(published_at)
     source = {'url': url, 'producer': producer}
-    metadata = {'adapter': kind, 'parser_version': '1.0', 'published_at': published_at}
+    metadata = {'adapter': kind, 'parser_version': '1.0', 'published_at': published_at,
+                'capture_kind': 'original_bytes'}
+    attempted = False
+    def capture(raw, mime, status='success', detail=None):
+        result = store.capture(source, raw, mime, metadata, status, detail)
+        return {**result, 'network_performed': attempted, 'detail': detail or {}}
     agent = os.environ.get('SEC_USER_AGENT') if kind.startswith('sec_') else 'AI-Bottleneck-Research/0.2'
     if not agent:
-        return store.capture(source, None, '', metadata, 'configuration_required', {'reason':'SEC_USER_AGENT required'})
+        return capture(None, '', 'configuration_required', {'reason':'SEC_USER_AGENT required'})
     try:
         if opener is None:
             public_url(url,hosts)
@@ -53,15 +65,17 @@ def fetch(store, url, producer, kind, published_at=None, opener=None):
                 global _SEC_LAST
                 time.sleep(max(0,0.2-(time.monotonic()-_SEC_LAST)))
                 _SEC_LAST=time.monotonic()
-        req = Request(url, headers={'User-Agent':agent,'Accept':'application/json' if kind.startswith('sec_') else 'text/html,application/pdf'})
+        sec_json = kind in ('sec_submissions', 'sec_companyfacts')
+        req = Request(url, headers={'User-Agent':agent,'Accept':'application/json' if sec_json else 'text/html,application/pdf,text/csv,application/json'})
+        attempted = True
         with (opener or build_opener(NoRedirect()).open)(req, timeout=30) as response:
             if response.geturl() != url:
                 raise ValueError('redirect_not_supported')
             mime = response.headers.get('Content-Type','').split(';')[0].strip().lower()
             raw = response.read(LIMIT+1)
             if not raw or len(raw)>LIMIT:
-                return store.capture(source,None,mime,metadata,'partial',{'reason':'empty_or_oversize'})
-            if kind.startswith('sec_'):
+                return capture(None,mime,'partial',{'reason':'empty_or_oversize'})
+            if sec_json:
                 value = json.loads(raw, parse_constant=lambda x: (_ for _ in ()).throw(ValueError('nonfinite')))
                 if mime != 'application/json' or not isinstance(value,dict) or not value.get('cik'):
                     raise ValueError('invalid_SEC_document')
@@ -72,18 +86,20 @@ def fetch(store, url, producer, kind, published_at=None, opener=None):
             elif mime == 'application/pdf':
                 if not raw.startswith(b'%PDF-'):
                     raise ValueError('invalid_pdf')
-            elif mime not in ('text/html','application/xhtml+xml','text/plain'):
+            elif mime == 'application/json' and kind == 'public_document':
+                json.loads(raw, parse_constant=lambda x: (_ for _ in ()).throw(ValueError('nonfinite')))
+            elif mime not in ('text/html','application/xhtml+xml','text/plain','text/csv'):
                 raise ValueError('unsupported_content_type')
-            return store.capture(source,raw,mime,metadata,detail={'http_status':response.status})
+            return capture(raw,mime,detail={'http_status':response.status})
     except HTTPError as exc:
         status = {401:'auth_required',403:'forbidden',404:'not_found',429:'rate_limited'}.get(exc.code,'http_error')
         code = exc.code
         exc.close()
-        return store.capture(source,None,'',metadata,status,{'http_status':code})
+        return capture(None,'',status,{'http_status':code})
     except (URLError,TimeoutError,OSError):
-        return store.capture(source,None,'',metadata,'network_error',{'reason':'network_request_failed'})
+        return capture(None,'','network_error',{'reason':'network_request_failed'})
     except (ValueError,UnicodeError):
-        return store.capture(source,None,'',metadata,'parse_failed',{'reason':'unexpected_or_invalid_response'})
+        return capture(None,'','parse_failed',{'reason':'unexpected_or_invalid_response'})
 
 
 def sec(store, cik, dataset, opener=None):
@@ -141,8 +157,9 @@ def capabilities():
     return {'python':True,'sqlite':True,'SEC_USER_AGENT_configured':bool(os.environ.get('SEC_USER_AGENT')),
             'yfinance':importlib.util.find_spec('yfinance') is not None,
             'pypdf':importlib.util.find_spec('pypdf') is not None,
-            'work_storage':'must verify in target environment','deep_research':'host tool required',
+            'work_storage':'must verify in target environment','deep_research':'available skill may be performed directly; no separate API is required',
             'scheduled_execution':'host registration and execution verification required',
             'monitoring':'checkpointed source collection; judgments require review',
             'interactive_dashboard':'standalone HTML export; Work rendering verification required',
-            'deep_research_handoff':'stored inputs and returned artifacts; host execution required'}
+            'deep_research_handoff':'stored inputs and returned artifacts; actual skill/tool work must be recorded',
+            'source_question_flow':'registered source plans, cached acquisition, host import and paginated question context'}

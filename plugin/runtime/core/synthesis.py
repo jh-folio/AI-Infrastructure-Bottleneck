@@ -10,7 +10,7 @@ from research_store import required, digest, dumps
 from research import SCOPE, scope_check, existing_action, display_result
 from report_review import validate_review
 
-FORMAT = 'supply-chain-synthesis-2'
+FORMAT = 'supply-chain-synthesis-3'
 DIMENSIONS = tuple(k for k in SCOPE if k != 'as_of_date')
 STATUS = {'reviewed': '연결 범위의 검토 기록 있음', 'unreviewed': '미검토', 'missing': '근거 미확보', 'out_of_scope': '대상 밖'}
 CONFIDENCE = {'Low': '낮음', 'Medium': '중간', 'High': '높음'}
@@ -56,12 +56,18 @@ def make_report(store, request, value):
     date.fromisoformat(value['as_of_date'])
     if not isinstance(value['coverage'], list) or not value['coverage']:
         raise ValueError('Declare the intended coverage, including unreviewed segments')
+    if value.get('campaign_id'):
+        from research_loop import current
+        head, _ = current(store,value['campaign_id'])
+        if value.get('checkpoint_id') and value['checkpoint_id'] != head:
+            raise ValueError('Research checkpoint stale')
+        value = dict(value, checkpoint_id=head)
     snap = store.snapshot()
     records = {r['id']: r for r in snap['records']}
     documents = {d['id']: d for d in snap['documents']}
     superseded = {r['payload']['data'].get('supersedes') for r in records.values() if r['kind'] == 'evidence'}
     refs, used_evidence = set(), {}
-    if campaign:refs.add(campaign['checkpoint_id'])
+    if value.get('checkpoint_id'):refs.add(value['checkpoint_id'])
 
     def get(rid, kind):
         r = records.get(rid)
@@ -164,11 +170,15 @@ def make_report(store, request, value):
             rows.append({'segment': c['segment'], 'judgment_id': rid, 'scope': j['scope'],
                          'conclusion': j['conclusion'], 'reasoning': j['reasoning'], 'confidence': j['confidence'],
                          'severity': b.get('severity'), 'persistence': b.get('persistence'),
+                         'qualitative_state': b.get('state','unknown'),
                          'operational_impact': b.get('operational_impact'), 'trend': trend(j), 'assessment': assessment,
                          'support_ids': j['support_ids'], 'counter_ids': j['counter_ids'],
                          'counter_search_limit': j.get('counter_search_limit'),
                          'alternatives': j['alternatives'], 'unknowns': j['unknowns'], 'next_actions': j['next_actions']})
     execution, reviews, execution_docs = validate_review(value, rows, used_evidence, documents)
+    for row in rows:
+        if row['qualitative_state']=='easing' and row['trend']['direction']!='easing':
+            raise ValueError('Qualitative easing needs a comparable, reviewed easing trend')
     highlights = value.get('highlight_ids', [r['judgment_id'] for r in rows])
     if not isinstance(highlights, list) or (rows and not highlights) or len(set(highlights)) != len(highlights) or not set(highlights) <= ids:
         raise ValueError('Highlights must refer to unique current rows')
@@ -194,7 +204,7 @@ def make_report(store, request, value):
     changes = []
     if value.get('previous_report_id'):
         previous = get(value['previous_report_id'], 'report')
-        if previous.get('generation') not in (FORMAT, 'supply-chain-synthesis-1') or previous['as_of_date'] > value['as_of_date']:
+        if previous.get('generation') not in (FORMAT, 'supply-chain-synthesis-1','supply-chain-synthesis-2') or previous['as_of_date'] > value['as_of_date']:
             raise ValueError('Previous report must be an earlier supply-chain synthesis')
         before = {key(r['scope']): r for r in previous['rows']}
         after = {key(r['scope']): r for r in rows}
@@ -237,12 +247,14 @@ def make_report(store, request, value):
     output = {'title': value['title'], 'as_of_date': value['as_of_date'], 'mode': 'synthesis',
               'research_stage':stage,'campaign_id':value.get('campaign_id'),
               'checkpoint_id':value.get('checkpoint_id'),
-              'research_quality_version':1 if campaign else None,
+              'research_quality_version':2 if campaign else None,
               'snapshot_id': snap['snapshot_id'], 'generation': FORMAT, 'action_sha256': digest(action),
               'coverage': coverage, 'rows': rows, 'highlight_ids': highlights, 'changes': changes,
               'previous_report_id': value.get('previous_report_id'), 'source_failures': failures, 'synthesis_claims': claims,
               'research_execution': execution, 'judgment_reviews': reviews,
               'approval': 'prepared_not_baseline_approved'}
+    from supply_view import freeze_catalog
+    output['map_catalog'] = freeze_catalog(store,value,rows)
     output['markdown'] = render(output, used_evidence, documents)
     return store.append('report', request, output, sorted(refs), sorted({e['document_id'] for e in used_evidence.values()} | set(execution_docs)))
 

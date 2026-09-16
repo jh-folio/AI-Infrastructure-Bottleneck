@@ -61,6 +61,18 @@ def render_reader(value, evidence, documents, text):
     status = {'reviewed': '검토 기록 있음', 'unreviewed': '미검토', 'missing': '근거 미확보', 'out_of_scope': '대상 밖'}
     for c in value['coverage']:
         lines.append('| ' + t(c['segment']) + ' | ' + status[c['status']] + ': ' + t(c['reason']) + ' |')
+    catalog=value.get('map_catalog',{})
+    if catalog.get('scope')=='full_active_catalog':
+        lines += ['', '### 전체 조사 목록', '', '아래 목록은 공급망 지도의 노드와 같습니다. 판단 범위가 여러 개이면 각각 보존하며, 미확인을 낮은 병목으로 해석하지 않습니다.', '',
+                  '| 구간 | 조사 상태 | 확인한 내용 또는 남은 공백 |', '|---|---|---|']
+        for node in catalog['nodes']:
+            if node.get('lifecycle','active')!='active':continue
+            qs=node.get('questions',[])
+            from research_loop import DIMENSIONS
+            state='미조사' if not qs else ('조사 진행 중' if any(q['status'] in ('open','blocked') for q in qs) or node.get('review_issues') or set(DIMENSIONS)-{q['dimension'] for q in qs} else '검토 기록 있음')
+            linked=[r for r in value['rows'] if r['scope']['node_id']==node['node_id']]
+            explanation=' / '.join(r['conclusion'] for r in linked) or ' / '.join(dict.fromkeys(q.get('answer','') for q in qs if q.get('answer')))
+            lines.append('| '+t(node['name'])+' | '+state+' | '+t(explanation or '자료 탐색과 검토가 필요합니다.')+' |')
     lines += ['', '## 이전 보고서에서 달라진 점', '']
     if not value['previous_report_id']:
         lines += ['첫 종합 기록입니다. 이전 보고서와의 변화는 아직 비교하지 않았습니다.', '']

@@ -5,6 +5,8 @@ description: 연구 기록의 해시·참조·계산 이력·인용과 범위 �
 
 # 기록 감사와 설명
 
+최초 연구에는 [의미 검토·공백 종결·결과 인계](../../plugin/workflows/REVIEW_AND_DELIVERY.md)를 함께 적용한다. 공개일/관측일/목표일, 직접/맥락 적용과 미처리 유력 경로를 원문으로 확인한다. 필드 충족이나 같은 에이전트의 재검토를 독립 검증으로 표시하지 않는다.
+
 [공통 규칙](../../plugin/methodology/research_rules.md), [실행 계약](../../plugin/workflows/RUNTIME_GUIDE.md), 점수 감사면 [계산 기준](../../plugin/methodology/scoring_v31_reference.md)을 적용한다.
 
 사용자 scope/프로젝트 ID와 audit 대상 snapshot을 확인한다. audit는 hash/참조/산술 검사를 수행하며 감사 snapshot을 저장한다. 엄격한 읽기 전용 요청이면 record/read-document를 사용하고 snapshot/audit/backup 쓰기 여부를 사전에 구분한다. replay는 등록된 당시 엔진과 hash 일치 시만 재현한다. 연구 DB에 담긴 source를 코드로 실행하지 않는다.
