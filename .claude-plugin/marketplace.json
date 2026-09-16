@@ -1,0 +1,13 @@
+{
+  "name": "ai-infrastructure-bottleneck-marketplace",
+  "owner": {
+    "name": "jh-folio"
+  },
+  "plugins": [
+    {
+      "name": "ai-infrastructure-bottleneck",
+      "source": "./",
+      "description": "AI infrastructure research preview: public sources, evidence lineage and reproducible scoring."
+    }
+  ]
+}
