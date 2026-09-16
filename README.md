@@ -4,6 +4,18 @@ AI 인프라 공급망의 **어디가 막히는지, 얼마나 심각한지, 어�
 
 현재는 사용자 워크플로우 검증용 Preview입니다. 실제 계정 설치·Work 연구 품질·장기 저장·예약 인수는 별도입니다. 설치 버전은 플러그인 상세 또는 “설치 버전을 확인해줘”로 확인하세요.
 
+## ChatGPT Work 개인 설치 방법
+
+GitHub 플러그인 설치를 사용할 수 없는 개인 환경에서는 [통합 스킬 ZIP 다운로드](https://github.com/jh-folio/AI-Infrastructure-Bottleneck/releases/download/v0.3.0-d5.9-work.1/ai-infrastructure-bottleneck-work-0.3.0-d5.9-work.1.zip)를 사용하세요.
+
+1. ZIP을 다운로드하고 ChatGPT Skills 관리 화면에서 계정에 제공된 가져오기/업로드 기능으로 등록합니다. 압축 해제를 요구하면 안의 `ai-infrastructure-bottleneck` 폴더를 사용합니다. 일반 대화 첨부만으로 설치 완료로 판단하지 않습니다.
+2. 새 Work 작업에서 `ai-infrastructure-bottleneck`을 선택하거나 “AI Bottleneck으로 무엇을 할 수 있는지 알려줘”라고 요청합니다.
+3. “AI Bottleneck으로 처음 시작해줘”라고 요청하면 설정부터 조사·검토·보고서와 화면까지 연결합니다. 기존 연구는 “이어서 조사해줘”로 재개합니다.
+
+ZIP에는 통합 SKILL.md와 다섯 내부 INSTRUCTIONS.md, 공통 연구 코드가 포함됩니다. 자세한 설치·업데이트·백업 안내는 ZIP 안의 README.md에 있습니다. 업데이트 전 연구 상태를 백업하고 새 ZIP 적용 후 같은 프로젝트에 재접근하세요. 플러그인 전용 upgrade 명령은 Work판에서 지원하지 않습니다.
+
+Python·SQLite 실행과 자료 검색이 필요합니다. 실제 개인 계정 설치·장기 저장·호스트 병렬·예약/자동 재개는 미검증이며 계정의 지원 기능을 확인해야 합니다. 기존 플러그인 설치 방식은 아래 안내를 따릅니다.
+
 ## 설치하고 시작하기
 
 1. 배포자가 제공한 설치 링크나 계정의 공유 플러그인 목록에서 **AI Bottleneck**을 엽니다. 현재 배포 출처는 [GitHub 저장소](https://github.com/jh-folio/AI-Infrastructure-Bottleneck)이며 비공개로 운영되는 경우 저장소 접근 권한이 필요합니다. 공개 디렉터리에 등록된 제품이라고 가정하지 마세요.

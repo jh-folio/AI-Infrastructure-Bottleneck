@@ -9,7 +9,7 @@
   },
   {
     "path": "README.md",
-    "sha256": "72bd40130519032c545658f0577e770242113c6aecbbc838e306a93218b31bc7"
+    "sha256": "2a7985912034e3f6afe3b47a6d91664c8204748e4c7e1970c51740c8d0ae7110"
   },
   {
     "path": ".gitignore",
@@ -290,5 +290,9 @@
   {
     "path": "skills/build-dashboard/SKILL.md",
     "sha256": "4a1926d202a3cb7567b52fe7d49420dcb6d41c3bd704651a24eba357beb74226"
+  },
+  {
+    "path": ".claude-plugin/marketplace.json",
+    "sha256": "09bec2bc92d949bd86274e077f9b3093c80de38f4181f26d58b61d1309e2f433"
   }
 ]
