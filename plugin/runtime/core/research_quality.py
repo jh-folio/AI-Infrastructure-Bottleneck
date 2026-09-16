@@ -10,6 +10,8 @@ from research import data
 
 def normalized(value, labels=()):
     value=unicodedata.normalize('NFKC', str(value)).casefold()
+    # Administrative numbering is not distinct research. Preserve actual quantities.
+    value=re.sub(r'(?:원장\s*행|행\s*번호|ledger\s*row|row\s*(?:id|number)?)\s*[#:]?\s*\d+\s*[:.\-–]?\s*', ' ', value)
     for label in sorted(labels,key=len,reverse=True):
         value=value.replace(str(label).casefold(),' ')
     return re.sub(r'[\W_]+','',value)
@@ -90,7 +92,7 @@ def inspect_questions(store, nodes, questions, cutoff=None):
             if len({q['node_id'] for q in group})>1:
                 for q in group:
                     from semantic_review import justified_shared_source
-                    if reason == 'reused_source_packet_across_nodes' and justified_shared_source(q):
+                    if reason == 'reused_source_packet_across_nodes' and justified_shared_source(q, group, labels):
                         continue
                     issues[q['id']].add(reason)
     for group in dimension_reviews.values():
@@ -115,7 +117,7 @@ def completion(store,campaign_id,report_id=None):
             reasons.append('report_does_not_match_current_research')
         if report.get('research_execution',{}).get('status') not in ('completed','excluded_by_user'):
             reasons.append('research_execution_missing')
-        if report.get('research_quality_version')!=2:reasons.append('report_needs_current_quality_review')
+        if report.get('research_quality_version')!=3:reasons.append('report_needs_current_quality_review')
     ready=not reasons
     return {'campaign_id':campaign_id,'checkpoint_id':state['checkpoint_id'],'report_id':report_id,
             'ready_to_submit':ready,'reasons':reasons,'pending_count':len(state['pending']),

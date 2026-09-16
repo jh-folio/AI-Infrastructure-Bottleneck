@@ -1,0 +1,9 @@
+{
+  "format": "ai-bottleneck-research-v1",
+  "read_schema_versions": [1],
+  "write_schema_versions": [1],
+  "protocol_version": "3.1",
+  "methodology_version": "3.1",
+  "research_quality_version": 3,
+  "migration_policy": "No implicit migration or rescoring. Unsupported schemas require a separately verified migration."
+}

@@ -5,6 +5,8 @@ description: 저장된 공급망 보고서에서 읽기 전용 대시보드와 �
 
 # 저장 결과 표시 요청
 
+[사용자 워크플로우](../../plugin/workflows/USER_WORKFLOW.md)에 따라 workflow intent=show로 기존 결과를 선택한다. 대화에서 선택한 report_id가 있으면 우선한다. no_project/no_report면 현재 상태와 시작·재개 방법을 안내하고 새 조사·초기화를 수행하지 않는다. 과거 단순 보고서는 export-report로 열고 화면을 지원하는 종합보고서는 export-dashboard로 연다. 중간 결과를 완료된 연구로 표시하지 않는다.
+
 [실행 계약](../../plugin/workflows/RUNTIME_GUIDE.md)의 D5 절을 읽고 실제 report_id를 확인한다. export-dashboard로 새 HTML을 내보내고 실제 파일을 열어 준다. 화면에는 해당 보고서의 snapshot에 포함된 근거·관계만 표시한다. 이후 자료를 과거 화면에 끼워 넣지 않는다. 화면 요청 자체로 새로운 연구를 시작하지 않는다.
 
 [전체 목록·관계·이력 인계](../../plugin/workflows/REVIEW_AND_DELIVERY.md)를 따른다. campaign/checkpoint의 전체 유효 노드를 표시하고 판단·점수 없이도 숨기지 않는다. 기본 Dependencies는 확인 전 참고 연결이다. 실제 관계는 node-relation으로 노드 사이에 근거·범위를 연결하고 새 보고서에 포함한다. 기술 의존·관측 전파·조건부 전파를 구별하고 연결 수를 점수에 더하지 않는다. 새 관계를 창작하거나 새 ID로 자동 상속하지 않는다. 화면 요청만으로 연구·채점·baseline 승격을 하지 않는다.

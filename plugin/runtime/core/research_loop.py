@@ -1,5 +1,6 @@
 """Persistent agent research queue. Records work; never generates research or scores."""
 import json
+from contextlib import nullcontext
 from pathlib import Path
 from research_store import required, digest
 from research import data, existing_action
@@ -57,15 +58,18 @@ def current(store, campaign_id):
     return head,value
 
 
-def checkpoint(store, request, value, _action=None):
+def checkpoint(store, request, value, _action=None, _locked=False):
     required(value,'campaign_id','previous_id','nodes','questions')
     action=_action or {'type':'research_checkpoint',**value}
-    with exclusive(store):
+    with (nullcontext() if _locked else exclusive(store)):
         old=existing_action(store,'task',request,action)
         if old:return old
         head,previous=current(store,value['campaign_id'])
         if value['previous_id']!=head:raise ValueError('Stale checkpoint; resume current research first')
         nodes=value['nodes'];questions=value['questions'];docs=set();refs={head,value['campaign_id']}
+        event=value.get('coordination_event')
+        if event:
+            refs.update([event['job_id'],event['submission_id']])
         if not isinstance(nodes,list) or not isinstance(questions,list):raise ValueError('Expected lists')
         ids=[n['node_id'] for n in nodes]
         if len(set(ids))!=len(ids) or set(ids)!={n['node_id'] for n in previous['nodes']}:
@@ -179,7 +183,7 @@ def resume(store,campaign_id):
     return {'campaign_id':campaign_id,'checkpoint_id':head,'nodes':v['nodes'],'questions':v['questions'],
             'pending':pending,'full_inventory_investigated':not pending,
             'ready_for_review':bool(selected) and resolved and not pending,
-            'quality_issues':quality_work,'research_quality_version':2,
+            'quality_issues':quality_work,'research_quality_version':3,
             'meaning':'Source locations and repeated reviews checked; interpretation and user acceptance remain separate.'}
 
 

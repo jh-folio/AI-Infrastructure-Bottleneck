@@ -5,6 +5,8 @@ description: 연구 기록의 해시·참조·계산 이력·인용과 범위 �
 
 # 기록 감사와 설명
 
+[사용자 워크플로우](../../plugin/workflows/USER_WORKFLOW.md)에 따라 설명 요청은 workflow intent=explain으로 기존 상태를 확인한다. 없는 근거나 보고서는 없다고 안내하며 새 조사를 시작하지 않는다. 명시적 감사 요청은 아래 감사 절차를 적용하되 읽기 전용 요청에는 snapshot을 저장하지 않는다. 다른 스킬에서 판단 이유를 물으면 이 진입점으로 연결한다.
+
 최초 연구에는 [의미 검토·공백 종결·결과 인계](../../plugin/workflows/REVIEW_AND_DELIVERY.md)를 함께 적용한다. 공개일/관측일/목표일, 직접/맥락 적용과 미처리 유력 경로를 원문으로 확인한다. 필드 충족이나 같은 에이전트의 재검토를 독립 검증으로 표시하지 않는다.
 
 [공통 규칙](../../plugin/methodology/research_rules.md), [실행 계약](../../plugin/workflows/RUNTIME_GUIDE.md), 점수 감사면 [계산 기준](../../plugin/methodology/scoring_v31_reference.md)을 적용한다.

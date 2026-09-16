@@ -1,9 +1,13 @@
 ---
 name: monitor-update
-description: 기존 연구의 공개자료를 반복 수집하고 변경 근거 검토·보고서 갱신을 연결한다. 기존 판단 설명은 저장 근거를 읽고, 예약은 명시적 요청과 실제 호스트 도구로 연결한다.
+description: 기존 연구를 새 자료로 갱신하거나 저장된 내용으로 주간·월간 요약을 만든다. 미완료 연구 재개와 새 기간 갱신을 구분하며 예약은 명시적 요청과 실제 호스트 도구로 연결한다. 판단 이유 설명은 audit-research로 연결한다.
 ---
 
-# 수동 갱신·브리프·기존 판단 설명
+# 갱신·브리프·기존 판단 설명
+
+미완료 최초 연구의 자동 후속 실행은 [병렬 조사·자동 재개](../../plugin/workflows/AUTOMATIC_RESEARCH.md)를 따른다. 정기 갱신과 최초 연구 완료까지의 자동 재개를 구분하고, 기존 coordination 상태가 paused/completed이면 새 작업을 시작하지 않는다.
+
+[사용자 워크플로우](../../plugin/workflows/USER_WORKFLOW.md)를 먼저 적용한다. 새 자료 갱신은 workflow intent=update, 기존 내용만 요약은 brief, 이어서 조사는 resume다. 현재 실행일/사용자가 지정한 새 기준일은 as_of_date에 전달하고 좁은 갱신은 scope_mode=focused로 유지한다. 같은 기간의 미완료 최초 연구는 build-baseline으로 바로 이어간다. 판단 이유 설명은 audit-research로 인계한다. 새 기간은 이전 원장·보고서를 남기고 새 campaign에서 비교한다. 반환된 다음 단계를 같은 실행에서 수행한다.
 
 [제품 목적과 기본 실행 계약](../../plugin/methodology/PRODUCT_CONTRACT.md)을 먼저 적용한다.
 

@@ -114,8 +114,9 @@ class WorkRetestTests(unittest.TestCase):
     def test_shared_quote_can_support_distinct_nodes_with_application_review(self):
         v,_=self.investigated(verified=True);a,b=v['questions'][5],v['questions'][10]
         b['source_reviews']=copy.deepcopy(a['source_reviews'])
-        for q in (a,b):q['semantic_review']['shared_source_review']=dict(node_specific_application=q['node_id']+' applicability',
-            different_from_other_nodes=q['node_id']+' different scope',limitations='Common source not independent corroboration')
+        for q,scope in ((a,'wafer start capacity'),(b,'stack bonding throughput')):
+            q['semantic_review']['shared_source_review']=dict(node_specific_application='Reviewed '+scope,
+                different_from_other_nodes='This claim concerns '+scope,limitations='Common source not independent corroboration')
         self.assertEqual(inspect_questions(self.store,v['nodes'],[a,b]),[])
         b['answer']=a['answer']
         self.assertIn('repeated_conclusion_across_nodes',inspect_questions(self.store,v['nodes'],[a,b])[0]['reasons'])

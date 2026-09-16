@@ -1,15 +1,15 @@
 [
   {
     "path": "plugin.json",
-    "sha256": "f26676cea45125067ad07e9de8f81dd164a9421daa3c98a3ba2f7d44bbcadf84"
+    "sha256": "54656529c515d086b1519a0cac32f35227795e82519b9c0e5748c5bbd1e1a44a"
   },
   {
     "path": ".codex-plugin/plugin.json",
-    "sha256": "7ac87a6cb08018ae24c4753b98a521f91f60aeec92cd9d274fd39cdba0ac93b0"
+    "sha256": "2ba622ea667e885acc1f0a278313dd681fc4fafd87202055834f0b29261545e1"
   },
   {
     "path": "README.md",
-    "sha256": "766bcfc294f1f55874bf693ccd724be03d2244d13b23068fdc21e5fe631d1d70"
+    "sha256": "2e82d2e836b698b790e7358caa10908f5158344cdff35ec81368608186555a75"
   },
   {
     "path": ".gitignore",
@@ -60,12 +60,56 @@
     "sha256": "2dfc26d6bf421f5df5eea076745e50adef87c64b0828a313c15924c1c05c4373"
   },
   {
+    "path": "plugin/runtime/core/research_coordination.py",
+    "sha256": "848a7046a4a963fd45d9736c098ebbaf034aca56803c09f9f5ef4de7c54a70d8"
+  },
+  {
+    "path": "tests/test_research_coordination.py",
+    "sha256": "5f884cec8181d74d42a94df12658a48cb6181e99d1af6b0999ef7c5ae06a2199"
+  },
+  {
+    "path": "plugin/workflows/AUTOMATIC_RESEARCH.md",
+    "sha256": "72a13a50f7dcd0cac99a3bff39e6913214f2d5260691c79e3c4f0b8683453f17"
+  },
+  {
+    "path": "tests/STAGED_WORK_HANDOFF.md",
+    "sha256": "3a88d912b1a7b55d24d1028c65dc2091e61056ab03120fac150ef2ef98655e36"
+  },
+  {
+    "path": "VERSION",
+    "sha256": "b3268687a813732529042f17e9751e60da65ac5cf14164cbdf216b3dc3b721e5"
+  },
+  {
+    "path": "plugin/runtime/compatibility.json",
+    "sha256": "c4fae679f45d0bec9cd122f0daf33fa8ebc11e797c361428a4f2827654ed7658"
+  },
+  {
+    "path": "plugin/runtime/core/package_integrity.py",
+    "sha256": "aaeb212ffb6d5e52ef324b98877d0238a3be1eaaaacfeeabc08793e895c62aab"
+  },
+  {
+    "path": "plugin/runtime/core/user_workflow.py",
+    "sha256": "e0c5cbed7434de5daf7c7d5afb7a2e89d0c84fcda541b1d94b91af39030d1f8c"
+  },
+  {
+    "path": "plugin/workflows/USER_WORKFLOW.md",
+    "sha256": "a5b87b3d8cfbf193f376e914ebc38042925ef56c60a45654257240eeca8db3cd"
+  },
+  {
+    "path": "tests/test_user_workflow.py",
+    "sha256": "1a7e0945af1f5c41b3373ff32f9f8d2535119c4b4899e29fc0b3bccfebdce47e"
+  },
+  {
+    "path": "tests/USER_WORKFLOW_ACCEPTANCE.md",
+    "sha256": "f96f2815dcde40e472b6d7b29cd630491ae7966f9dfb268dc83e1b0c751afb63"
+  },
+  {
     "path": "plugin/database/research_v1.sql",
     "sha256": "4e15c6a2c7e5e7d6c29bbb8f519671a6aee5f3274e995f39533abeb9e4d0f16b"
   },
   {
     "path": "plugin/runtime/research_cli.py",
-    "sha256": "325a294f59a4eff80b774657ff25a8527d0bf56d33293f7ad637cdf1a2aa2f53"
+    "sha256": "1ceab263dc0304d8a387eb736d4d29ac7d06a82b96823d0da12f4f13020456f2"
   },
   {
     "path": "plugin/runtime/core/research_store.py",
@@ -85,7 +129,7 @@
   },
   {
     "path": "plugin/runtime/core/synthesis.py",
-    "sha256": "d298f4bd67b0612c4ea30f7d1f442798c0504c6de117229c84018b9301613e1d"
+    "sha256": "0ed5498a200080463aeca1a21827310600a20e6e391be65e32078ffb882d728a"
   },
   {
     "path": "tests/test_synthesis.py",
@@ -129,7 +173,7 @@
   },
   {
     "path": "tests/D5_WORK_HANDOFF.md",
-    "sha256": "6c5c336819a212c2fa5dfb4f42120564d73cff4325a31fbcc48cdb139a7269f5"
+    "sha256": "465fad3934c3c3de318df9824da105a8f562f9064171c8ef87e2bf759cead9a9"
   },
   {
     "path": "tests/test_research_loop.py",
@@ -137,19 +181,19 @@
   },
   {
     "path": "plugin/runtime/core/research_loop.py",
-    "sha256": "7e634b3846423d073fb4b549778dd48091917acd283a518b346e11449edf4b35"
+    "sha256": "71939b8863db338ac01a84a528700a5b1d71b42fc1c3b7fb9316aae9f181e72c"
   },
   {
     "path": "plugin/workflows/RESEARCH_EXECUTION.md",
-    "sha256": "8b6d57d0460d5c60ef74e58d0673d129609044360e37b6641ff30210f670a9b0"
+    "sha256": "6a4c19640ac1df58f951c9acca381e68153887b80744e1757c615a153dcfe82f"
   },
   {
     "path": "plugin/runtime/core/research_quality.py",
-    "sha256": "7304959bc72ef870ee776494b73cbf0869819b4aa4062583eff0a2b5bc4c8a41"
+    "sha256": "d4bd1911d1044a318c372e6905cd7ae3f432255047a21dd363bb6e5147963210"
   },
   {
     "path": "tests/test_research_quality.py",
-    "sha256": "73714d29db6c9e5a89904ab384c6b4bd6b6d42b85e87576d6d4078c2c50463b0"
+    "sha256": "9a47d0c4ca10a87e3039c89b97a3c366f5d87887359c901daff6d4c0cbc20be7"
   },
   {
     "path": "plugin/runtime/core/source_work.py",
@@ -165,7 +209,7 @@
   },
   {
     "path": "plugin/runtime/core/semantic_review.py",
-    "sha256": "5631d1a2ade0a5f07ddbc85b325024296401b86588b819505bde0f497cd57d58"
+    "sha256": "9178340d4a4da1b85d0b2260b0cdbb08825acf2152d78131fe1eee200d2e82ee"
   },
   {
     "path": "plugin/runtime/core/supply_view.py",
@@ -181,7 +225,7 @@
   },
   {
     "path": "tests/test_work_retest.py",
-    "sha256": "c917684f8b9964826d034107df815ddfe82dd50908c976299a5c4fd62f237d10"
+    "sha256": "9019b585f95b923443857f6f99f1231fefd990bafd5fd8c921e86a4babc5e46d"
   },
   {
     "path": "plugin/workflows/REVIEW_AND_DELIVERY.md",
@@ -201,7 +245,7 @@
   },
   {
     "path": "plugin/workflows/RUNTIME_GUIDE.md",
-    "sha256": "773be045078325a53d6c82ad7f68d38a160bd54c21112dc0c80668d2280ebe05"
+    "sha256": "c38fd1980f8117597561018862a6ebdd768eec9532c442912dde50b4fe57986a"
   },
   {
     "path": "plugin/methodology/research_rules.md",
@@ -229,22 +273,22 @@
   },
   {
     "path": "skills/initialize-project/SKILL.md",
-    "sha256": "d220a328843536fc092e48421220126adf66c63aa18f55528c0880f96d5a240a"
+    "sha256": "2d324600f9e5be45094d6f442a951d91ebcbe8638c070e073a1ed151916934fe"
   },
   {
     "path": "skills/build-baseline/SKILL.md",
-    "sha256": "c0cf0a8c5be76dbe6369179f78387531c0b9e19736089d62fc3be3db760c4890"
+    "sha256": "db02f78889bb52c18297b1480b42e2f460a62e219395e7e643705508e511a439"
   },
   {
     "path": "skills/monitor-update/SKILL.md",
-    "sha256": "d7cb059b659e02c083cd311c3424a31b7f9c88c6a7ba70346b3cc90fb8b6bc26"
+    "sha256": "f78bfb9ea0ba9ff61a86c4a0e83f476fedbd1e2211e4224804bf441685194aa2"
   },
   {
     "path": "skills/audit-research/SKILL.md",
-    "sha256": "5c60637587e4246d8bb034238276b846a0987b4cde0a12467f206ec15fc4ea0f"
+    "sha256": "a67ceb7a2465501955b5aa90feb7df0c31cb032889fc2331b793cd286b3e753c"
   },
   {
     "path": "skills/build-dashboard/SKILL.md",
-    "sha256": "922df62f38add47553d428aa4f3544fdbc60158b822e18d7d9c9fa06e72c2ef3"
+    "sha256": "4a1926d202a3cb7567b52fe7d49420dcb6d41c3bd704651a24eba357beb74226"
   }
 ]

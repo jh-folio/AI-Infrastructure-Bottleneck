@@ -27,6 +27,10 @@ def inspect(question, document, cutoff=None):
             continue
         if app.get('fit') not in ('direct', 'context', 'outside'):
             issues.add('invalid_source_population_fit')
+        if source.get('role') == 'direct' and app.get('fit') != 'direct':
+            issues.add('context_population_cannot_resolve_target')
+        if app.get('document_kind') in ('index', 'overview', 'search_result') and source.get('role') == 'direct':
+            issues.add('discovery_page_is_not_direct_evidence')
         nature = app.get('nature')
         if nature not in ('observation', 'external_plan', 'external_forecast', 'inference', 'scenario'):
             issues.add('invalid_source_time_nature')
@@ -77,6 +81,9 @@ def inspect(question, document, cutoff=None):
             if len(dates) < 2:
                 issues.add('history_or_trend_needs_distinct_dated_events')
     if question['status'] == 'bounded':
+        if not any(s.get('role') == 'gap_probe' and s.get('application', {}).get('fit') == 'direct'
+                   for s in question.get('source_reviews', [])):
+            issues.add('gap_needs_target_specific_probe')
         gap = review.get('gap', {})
         if not isinstance(gap, dict) or not all(nonempty(gap.get(k)) for k in
                 ('public_data_limit', 'why_remaining_search_would_not_change_answer', 'reopen_when')):
@@ -99,9 +106,18 @@ def inspect(question, document, cutoff=None):
     return issues
 
 
-def justified_shared_source(question):
+def justified_shared_source(question, peers=(), labels=()):
     """A reuse review permits common bytes, never duplicate conclusions."""
     semantic = question.get('semantic_review', {})
     reuse = semantic.get('shared_source_review', {}) if isinstance(semantic,dict) else {}
-    return isinstance(reuse, dict) and all(nonempty(reuse.get(k)) for k in
-            ('node_specific_application', 'different_from_other_nodes', 'limitations'))
+    fields = ('node_specific_application', 'different_from_other_nodes', 'limitations')
+    if not isinstance(reuse, dict) or not all(nonempty(reuse.get(k)) for k in fields):
+        return False
+    from research_quality import normalized
+    key = normalized(' '.join(reuse[k] for k in fields), labels)
+    for peer in peers:
+        if peer['node_id'] == question['node_id']: continue
+        other = peer.get('semantic_review', {}).get('shared_source_review', {})
+        if isinstance(other, dict) and key == normalized(' '.join(str(other.get(k,'')) for k in fields), labels):
+            return False
+    return bool(key)

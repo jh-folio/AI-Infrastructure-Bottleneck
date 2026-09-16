@@ -247,7 +247,7 @@ def make_report(store, request, value):
     output = {'title': value['title'], 'as_of_date': value['as_of_date'], 'mode': 'synthesis',
               'research_stage':stage,'campaign_id':value.get('campaign_id'),
               'checkpoint_id':value.get('checkpoint_id'),
-              'research_quality_version':2 if campaign else None,
+              'research_quality_version':3 if campaign else None,
               'snapshot_id': snap['snapshot_id'], 'generation': FORMAT, 'action_sha256': digest(action),
               'coverage': coverage, 'rows': rows, 'highlight_ids': highlights, 'changes': changes,
               'previous_report_id': value.get('previous_report_id'), 'source_failures': failures, 'synthesis_claims': claims,

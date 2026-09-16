@@ -1,5 +1,11 @@
 # D3 runtime 사용법
 
+## 사용자 진입·업데이트 보호
+
+일반 요청은 [공통 사용자 워크플로우](USER_WORKFLOW.md)를 먼저 적용한다. `workflow`는 intent=help/start/research/resume/update/show/explain/brief를 받아 읽기 전용 상태와 다음 행동을 반환한다. 기존 상태는 state_dir/project_id, 선택한 campaign_id/report_id, 새 기간은 as_of_date, 좁은 질문/갱신은 scope_mode=focused를 전달한다. 미설정이면 경로를 생략한다. 누락된 기존 경로를 신규 초기화 요청으로 대체하지 않는다.
+
+`project-discover`는 호스트가 발견한 project_files 목록만 읽는다. `upgrade-check`는 target_package/state_dir/project_id를 받아 패키지와 schema 호환성을 검사한다. `upgrade-prepare`는 새 destination 백업 폴더에 쓰고, `upgrade-verify`는 backup_dir와 업데이트된 동일 프로젝트/패키지를 읽어 원본 이력 보존을 검증한다. schema 변환·호스트 설치·연구 수행은 이 명령이 대신하지 않는다. 전체 필드와 후속 실행은 사용자 워크플로우 계약을 따른다.
+
 현재 추가 계약은 [원문 의미 검토와 동일 상태 결과 제출](REVIEW_AND_DELIVERY.md)이다. source_reviews.application/semantic_review, synthesize의 전체 campaign/checkpoint 고정, node-relation, event 이력, export-delivery를 적용한다. 아래 과거 버전별 명령 예시는 이 계약과 함께 읽는다. 최종 제출은 `{"op":"export-delivery","state_dir":"실제 경로","project_id":"실제 ID","report_id":"실제 보고서 ID","destination":"새 결과 폴더"}`로 생성한다.
 
 이 문서는 패키지 내부 실행 계약이다. Python 3.10 이상과 SQLite가 필요하다. SEC에는 환경의 SEC_USER_AGENT(앱 식별과 실제 연락처)가 필요하며 값은 보고서·Git에 출력하지 않는다. yfinance와 pypdf는 선택 의존성이다. `requirements-optional.txt` 설치 또는 host에서 제공된 동등 도구 사용 여부를 기록한다. 의존성/네트워크 실패를 성공으로 대체하지 않는다. SEC는 순차 요청하고 요청 사이 0.2초 이상 간격을 둔다. 403/429 우회나 무한 재시도는 하지 않는다.
@@ -250,3 +256,8 @@ Companies는 judgment의 선택적 companies 배열에서 name/role/evidence_ids
 
 
 0.3.0-d5.6: 질문별 source_reviews의 실제 저장 원문·위치·인용을 확인하며 반복 결론/배경 자료/실패만으로 닫힌 질문을 다시 조사 대상으로 반환한다. research-completion은 campaign_id와 report_id를 받아 최초 요청의 검토본 제출 조건을 읽기 전용으로 확인한다. source_reviews 필드·단일 실행 순환·한계는 [연구 실행 계약](RESEARCH_EXECUTION.md)을 따른다. interim 저장 후에도 같은 실행에서 계속하며 여러 실행 분할은 별도 결정 전 도입하지 않는다.
+
+
+## 분야별 조율 — d5.9
+
+[병렬 조사·자동 재개](AUTOMATIC_RESEARCH.md)에 coordination-configure/status/claim/packet/renew/submit/apply/release/assign/schedule-packet/schedule/run/control/finish의 입력과 실행 절차를 정리했다. 실제 위임·예약은 호스트 도구로 수행하며 packet/영수증 저장이 실행 증명은 아니다.

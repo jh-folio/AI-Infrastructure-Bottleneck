@@ -17,6 +17,32 @@ class ResearchQualityTests(unittest.TestCase):
     investigated=fixtures.ResearchLoopTests.investigated
     checkpoint_input=fixtures.ResearchLoopTests.checkpoint_input
 
+    def test_administrative_row_numbers_do_not_hide_repeated_conclusions(self):
+        v,_=self.investigated(verified=True);qs=v['questions'][5:15]
+        for i,q in enumerate(qs):
+            q.update(answer=f'원장 행 {i:03}: 동일한 제품 공백 설명',closure_reason='동일 종결',
+                     remaining_uncertainty='동일 미확인',why_more_search_unlikely='동일 이유')
+        issues=inspect_questions(self.store,v['nodes'],qs)
+        self.assertEqual(sum('repeated_conclusion_across_nodes' in x['reasons'] for x in issues),10)
+
+    def test_shared_source_exception_rejects_node_label_only_explanation(self):
+        v,_=self.investigated(verified=True);a,b=v['questions'][5],v['questions'][10]
+        b['source_reviews']=copy.deepcopy(a['source_reviews'])
+        for q in (a,b):
+            q['semantic_review']['shared_source_review']=dict(node_specific_application=q['node_id']+' applicability',
+                different_from_other_nodes=q['node_id']+' different scope',limitations='Same limits')
+        issues=inspect_questions(self.store,v['nodes'],[a,b])
+        self.assertEqual(sum('reused_source_packet_across_nodes' in x['reasons'] for x in issues),2)
+
+    def test_background_population_and_index_cannot_close_product_gap(self):
+        v,_=self.investigated(verified=True);q=v['questions'][5]
+        for source in q['source_reviews']:source['application']['fit']='context'
+        issues=inspect_questions(self.store,v['nodes'],[q])
+        self.assertIn('gap_needs_target_specific_probe',issues[0]['reasons'])
+        q['source_reviews'][0].update(role='direct')
+        q['source_reviews'][0]['application']['document_kind']='index'
+        self.assertIn('discovery_page_is_not_direct_evidence',inspect_questions(self.store,v['nodes'],[q])[0]['reasons'])
+
     def test_old_435_answer_template_no_longer_completes_research(self):
         v,j=self.investigated()
         loop.checkpoint(self.store,'paper-only',v)

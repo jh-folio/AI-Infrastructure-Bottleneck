@@ -16,6 +16,11 @@ from research_sources import sec,fetch,prices,capabilities
 
 def execute(action):
     op=action['op']
+    if op in ('workflow', 'project-discover', 'upgrade-check', 'upgrade-prepare', 'upgrade-verify'):
+        import user_workflow
+        if op == 'workflow': return user_workflow.route(action)
+        if op == 'project-discover': return user_workflow.discover(action['project_files'])
+        return getattr(user_workflow, op.replace('-', '_'))(action)
     if op=='capabilities':
         return capabilities()
     if op=='init':
@@ -23,6 +28,13 @@ def execute(action):
     if op=='restore':
         return restore(action['backup_dir'],action['destination'])
     store=Store(action['state_dir'],action['project_id'])
+    if op.startswith('coordination-'):
+        import research_coordination as coordinator
+        subop=op.removeprefix('coordination-')
+        if subop=='status':return coordinator.status(store,action['campaign_id'])
+        if subop=='schedule-packet':return coordinator.schedule_packet(store,action['campaign_id'])
+        if subop=='packet':return coordinator.packet(store,action['campaign_id'],action['job_id'])
+        return coordinator.execute(store,subop,action['request_id'],action['data'])
     if op=='export-delivery':
         import delivery
         return delivery.export(store,action['report_id'],action['destination'])

@@ -5,6 +5,10 @@ description: AI 공급망 전반 탐색·과거 이력 복원·반증과 공백 
 
 # 최초 연구·심층 조사·질문 보강
 
+전체 연구는 [분야별 병렬 조사·자동 재개](../../plugin/workflows/AUTOMATIC_RESEARCH.md)를 적용한다. 주 에이전트가 실제 하위 에이전트 위임과 가능한 다음 묶음 수행을 조율한다. 자동 진행을 요청한 경우 실제 호스트 예약과 저장 상태를 연결하며, 분야마다 다음 진행 요청을 받지 않는다.
+
+[사용자 워크플로우](../../plugin/workflows/USER_WORKFLOW.md)의 공통 진입을 먼저 적용한다. workflow intent=research에 기존 state_dir/project_id와 대화에서 선택한 campaign을 전달한다. 좁은 질문은 scope_mode=focused다. 상태가 없으면 initialize-project의 필요한 설정을 같은 작업 안에서 수행하고 즉시 돌아온다. 기존 미완료 연구는 새 원장 대신 반환된 checkpoint부터 재개한다. steps를 안내하는 것만으로 요청을 완료하지 않는다. 새 기간 요청은 as_of_date를 전달하고 이전 campaign을 보존한다.
+
 질문 종결과 제출은 [원문 의미 검토·결과 인계](../../plugin/workflows/REVIEW_AND_DELIVERY.md)를 적용한다. source_reviews.application과 semantic_review는 읽은 내용·범위·시점·남은 유력 경로를 기록하며 템플릿으로 채우지 않는다. research-question으로 한 질문을 읽고 research-patch로 변경한 묶음만 저장해 전체 원장을 매번 대화에 복사하지 않는다. 현재 campaign/checkpoint를 synthesize에 연결하고 export-delivery로 전체 노드·보고서·HTML·검토 원장을 같은 상태에서 생성한다. 기본 목록의 참고 연결은 검토한 지연 전파가 아니다.
 
 [제품 목적](../../plugin/methodology/PRODUCT_CONTRACT.md), [공통 판단 규칙](../../plugin/methodology/research_rules.md), [연구 실행과 재개](../../plugin/workflows/RESEARCH_EXECUTION.md)를 적용한다. CLI 필드는 [실행 계약](../../plugin/workflows/RUNTIME_GUIDE.md), 계산 시에만 [Scoring 3.1](../../plugin/methodology/scoring_v31_reference.md)을 읽는다.
@@ -25,7 +29,7 @@ description: AI 공급망 전반 탐색·과거 이력 복원·반증과 공백 
 
 최초 보고서 요청을 목록 검토나 중간 기준선으로 임의 축소하지 않는다. research-next → 실제 원문 조사·질문별 source_reviews → checkpoint → research-next를 같은 실행에서 이어간다. 중간 파일 저장은 내부 작업이며 사용자의 완료 요청에 대한 최종 응답이 아니다. pending의 누락/반복/인용 문제를 실제 추가 조사로 해결한다. state를 일괄 resolved/bounded로 바꾸거나 다수 노드에 산업군 설명을 복사하지 않는다. 자료 하나는 여러 질문에 사용해도 되지만 원문에서 각 질문에 답하는 부분과 범위 적합성을 확인한다.
 
-제출 직전 research-completion에 최신 campaign_id/report_id를 전달한다. ready_to_submit=false면 같은 실행에서 계속한다. 시간·문서 개수·점수 개수로 종료하지 않는다. interim은 내부 중간 결과다. baseline_review는 최신 원장과 실제 연구 수행 기록을 연결하고 종료 기준 및 원문 의미 검토를 충족한 뒤에만 제출한다. 실제 호스트/도구 제한 또는 사용자 중지로 계속할 수 없을 때는 미완료와 관측된 원인을 알린다. 이번 실행을 임의로 여러 실행으로 분할하거나 예약하지 않는다. 코드 통과만으로 연구 품질·사용자 인수를 선언하지 않는다.
+제출 직전 research-completion에 최신 campaign_id/report_id를 전달한다. ready_to_submit=false면 같은 실행에서 계속한다. 시간·문서 개수·점수 개수로 종료하지 않는다. interim은 내부 중간 결과다. baseline_review는 최신 원장과 실제 연구 수행 기록을 연결하고 종료 기준 및 원문 의미 검토를 충족한 뒤에만 제출한다. 실제 호스트/도구 제한 또는 사용자 중지로 계속할 수 없을 때는 미완료와 관측된 원인을 알린다. 실행 사이에는 공통 자동 재개 절차를 따르고, 실제 호스트 등록 없이 예약됐다고 안내하지 않는다. 코드 통과만으로 연구 품질·사용자 인수를 선언하지 않는다.
 
 보고서는 상황→근거→영향→남은 불확실성을 자연스러운 한국어로 연결한다. 동일한 미확인 문구를 구간마다 복사하지 않는다. 요약은 연구 과정 설명 대신 무엇이 어디에서 막히고 어떻게 변하는지 답한다. 내부 ID와 실행 감사는 부록/별도 기록에 둔다. 보고서와 같은 snapshot으로 화면을 생성한다. 기존 데이터와 이력은 보존한다.
 

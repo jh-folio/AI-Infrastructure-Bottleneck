@@ -1,3 +1,5 @@
+최신 분야별 병렬·자동 재개 시험은 [STAGED_WORK_HANDOFF](STAGED_WORK_HANDOFF.md)를 따른다. 아래 단일 실행 절차는 d5.7의 과거 시험 범위다.
+
 # 실제 최초 연구 인수 — 0.3.0-d5.7
 
 이번 재시험은 자료·질문 연결, 의미/공백 검토, 전체 유효 노드·관계·이력의 같은 상태 출력과 실제 HTML 사용성을 확인한다. [검토·인계 계약](../plugin/workflows/REVIEW_AND_DELIVERY.md)을 먼저 읽는다. 기존 DB를 backup한 뒤 새 버전으로 열고, 이전 질문·시도·원문은 보존하면서 최신 checkpoint를 추가한다. schema migration은 필요 없다. 이전 quality version1의 종결은 자동 승인하지 않고 필요한 원문 의미 검토를 보완한다. DB를 찾지 못하면 첨부 요약을 기존 원장으로 가장하지 말고 복원 가능한 자료와 한계를 구분한다.
