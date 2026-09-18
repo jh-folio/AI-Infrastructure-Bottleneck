@@ -9,7 +9,7 @@
   },
   {
     "path": "README.md",
-    "sha256": "0d67a0699d374293917c75dcc8eb9a4a3d45239725dc1613422605f29659d900"
+    "sha256": "e60ff9c732c91d04c5c8d9b0148c0dc22cf47c3a1cf6a3601ef453ea17360b07"
   },
   {
     "path": ".gitignore",
@@ -302,5 +302,9 @@
   {
     "path": ".agents/plugins/marketplace.json",
     "sha256": "1758bc7a2581cd0340c9ab4116e992f8ece2a11e77a3fe9c59587c8f1a5935d3"
+  },
+  {
+    "path": "docs/plans/RESEARCH_EFFICIENCY_PLAN_20260918.md",
+    "sha256": "c5c535e120ee85498063fcfb0970151a85af60ea82b0dba098a79cefb9b98208"
   }
 ]

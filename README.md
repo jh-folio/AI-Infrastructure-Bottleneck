@@ -90,3 +90,7 @@ Python 3.10+와 SQLite를 사용합니다. PDF/가격 수집의 선택 의존성
 ## 라이선스
 
 프로젝트는 [BSD 3-Clause License](LICENSE)를 따릅니다. 포함된 폰트는 [각 폰트의 별도 라이선스](plugin/runtime/ui/FONT_LICENSES.txt)를 따르며 외부 조사자료의 권리는 각 권리자에게 있습니다.
+
+## 다음 개선 계획
+
+[조사 비용 절감과 기본 범위 조정 계획](docs/plans/RESEARCH_EFFICIENCY_PLAN_20260918.md)을 공개했습니다. 사용량 계측·중복 문맥 절감과 인력/인허가의 독립 조사 제외를 계획하며, **현재 버전에 적용된 기능은 아닙니다.**
