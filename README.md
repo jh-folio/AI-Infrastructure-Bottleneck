@@ -6,7 +6,7 @@ AI 인프라 공급망의 **어디가 막히는지, 얼마나 심각한지, 어�
 
 ## ChatGPT Work 개인 설치 방법
 
-GitHub 플러그인 설치를 사용할 수 없는 개인 환경에서는 [통합 스킬 ZIP 다운로드](https://github.com/jh-folio/AI-Infrastructure-Bottleneck/releases/download/v0.3.0-d5.9-work.1/ai-infrastructure-bottleneck-work-0.3.0-d5.9-work.1.zip)를 사용하세요.
+GitHub 플러그인 설치를 사용할 수 없는 개인 환경에서는 [통합 스킬 ZIP 다운로드](https://github.com/jh-folio/AI-Infrastructure-Bottleneck/releases/download/v0.3.0-d5.11-work.1/ai-infrastructure-bottleneck-work-0.3.0-d5.11-work.1.zip)를 사용하세요.
 
 1. ZIP을 다운로드하고 ChatGPT Skills 관리 화면에서 계정에 제공된 가져오기/업로드 기능으로 등록합니다. 압축 해제를 요구하면 안의 `ai-infrastructure-bottleneck` 폴더를 사용합니다. 일반 대화 첨부만으로 설치 완료로 판단하지 않습니다.
 2. 새 Work 작업에서 `ai-infrastructure-bottleneck`을 선택하거나 “AI Bottleneck으로 무엇을 할 수 있는지 알려줘”라고 요청합니다.
