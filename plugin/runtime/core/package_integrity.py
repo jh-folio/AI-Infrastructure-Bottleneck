@@ -44,7 +44,7 @@ def verify_package(folder):
     if actual != names | {'PACKAGE_CONTENTS.json'}:
         raise ValueError('Package has missing or unlisted files')
     required = {'plugin.json', '.codex-plugin/plugin.json', '.claude-plugin/plugin.json',
-                '.claude-plugin/marketplace.json', 'VERSION', 'README.md',
+                '.claude-plugin/marketplace.json', '.agents/plugins/marketplace.json', 'VERSION', 'README.md',
                 'plugin/runtime/compatibility.json', 'plugin/workflows/USER_WORKFLOW.md'}
     if not required <= names:
         raise ValueError('Package entrypoints missing')
@@ -52,6 +52,7 @@ def verify_package(folder):
     overlay = read_json(root/'.codex-plugin/plugin.json')
     claude_manifest = read_json(root/'.claude-plugin/plugin.json')
     marketplace = read_json(root/'.claude-plugin/marketplace.json')
+    codex_marketplace = read_json(root/'.agents/plugins/marketplace.json')
     version = (root/'VERSION').read_text(encoding='utf-8').strip()
     if manifest['name'] != 'ai-infrastructure-bottleneck' or overlay['name'] != manifest['name'] \
             or claude_manifest['name'] != manifest['name']:
@@ -64,6 +65,9 @@ def verify_package(folder):
     listed = {p['name'] for p in marketplace.get('plugins', [])}
     if manifest['name'] not in listed:
         raise ValueError('Marketplace listing does not include the plugin')
+    codex_listed = {p['name'] for p in codex_marketplace.get('plugins', [])}
+    if overlay['name'] not in codex_listed:
+        raise ValueError('Codex marketplace listing does not include the plugin')
     skills = {p.split('/')[1] for p in names if p.startswith('skills/') and p.endswith('/SKILL.md')}
     if skills != SKILLS or overlay.get('skills') != './skills/':
         raise ValueError('Expected the five workflow skills')

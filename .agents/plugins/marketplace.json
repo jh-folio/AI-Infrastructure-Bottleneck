@@ -1,0 +1,20 @@
+{
+  "name": "ai-infrastructure-bottleneck-marketplace",
+  "interface": {
+    "displayName": "AI Bottleneck · Preview"
+  },
+  "plugins": [
+    {
+      "name": "ai-infrastructure-bottleneck",
+      "source": {
+        "source": "local",
+        "path": "./"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity"
+    }
+  ]
+}

@@ -9,7 +9,7 @@
   },
   {
     "path": "README.md",
-    "sha256": "efff9984727b5405ca5b5458e1980384c5f85a9a92a45ff988586aa36afb70c6"
+    "sha256": "0d67a0699d374293917c75dcc8eb9a4a3d45239725dc1613422605f29659d900"
   },
   {
     "path": ".gitignore",
@@ -85,7 +85,7 @@
   },
   {
     "path": "plugin/runtime/core/package_integrity.py",
-    "sha256": "bea90d56925720320ee6b6e82e1145cf6ba9ac7dda1b618e9b9e89a24ca554e0"
+    "sha256": "c17b7be600b2c3797cfb0e179348e1f647ffb8f23f57aa4ca744c8be891dc7c1"
   },
   {
     "path": "plugin/runtime/core/user_workflow.py",
@@ -97,7 +97,7 @@
   },
   {
     "path": "tests/test_user_workflow.py",
-    "sha256": "20dffa6ef4bfc3c4c4e44613dce1f53808ee1c82b843db20920d3178e2910b14"
+    "sha256": "997a6648e8b053268240fdcf0934807103501fcbb777710dba898f0131caa855"
   },
   {
     "path": "tests/USER_WORKFLOW_ACCEPTANCE.md",
@@ -298,5 +298,9 @@
   {
     "path": ".claude-plugin/marketplace.json",
     "sha256": "09bec2bc92d949bd86274e077f9b3093c80de38f4181f26d58b61d1309e2f433"
+  },
+  {
+    "path": ".agents/plugins/marketplace.json",
+    "sha256": "1758bc7a2581cd0340c9ab4116e992f8ece2a11e77a3fe9c59587c8f1a5935d3"
   }
 ]

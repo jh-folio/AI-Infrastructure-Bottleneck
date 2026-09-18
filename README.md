@@ -29,7 +29,7 @@ Python·SQLite 실행과 자료 검색이 필요합니다. 실제 개인 계정 
 
 먼저 기능만 알아보려면 **“이 플러그인으로 무엇을 할 수 있는지 알려줘”**라고 요청하세요. 도움말은 긴 연구를 시작하지 않습니다. 최초 전체 연구는 기존87개와 이후 추가·분할된 유효 노드를 실제로 조사하므로 짧은 기능 점검과 다릅니다.
 
-Codex에서도 제공된 플러그인 목록에서 설치한 뒤 새 작업을 시작합니다. Work Cloud와 로컬 Codex의 파일 접근·저장 위치는 다르며 같은 파일이 자동 공유된다고 가정하지 않습니다. 호스트마다 메뉴·설치 경로가 다를 수 있습니다. [공식 설치 안내](https://learn.chatgpt.com/docs/plugins), [배포 방식 안내](https://developers.openai.com/plugins/build/plugins).
+Codex에서도 제공된 플러그인 목록에서 설치한 뒤 새 작업을 시작합니다. 저장소 루트의 `.agents/plugins/marketplace.json`으로 Codex가 이 저장소를 marketplace로 인식하므로 `plugin marketplace add`류 명령이나 설정 화면에서 저장소를 등록하면 됩니다. Work Cloud와 로컬 Codex의 파일 접근·저장 위치는 다르며 같은 파일이 자동 공유된다고 가정하지 않습니다. 호스트마다 메뉴·설치 경로가 다를 수 있습니다. [공식 설치 안내](https://learn.chatgpt.com/docs/plugins), [배포 방식 안내](https://developers.openai.com/codex/plugins/build).
 
 Claude Code에서는 `/plugin marketplace add jh-folio/AI-Infrastructure-Bottleneck` 후 `/plugin install ai-infrastructure-bottleneck`으로 설치합니다. Claude Cowork는 Claude Code와 같은 플러그인 포맷을 사용하므로 같은 저장소를 marketplace로 연결하거나 Customize 메뉴에서 이 패키지의 zip을 직접 업로드해 설치할 수 있습니다. 두 환경 모두 새 세션에서 5개 스킬이 함께 로드되는지 확인하세요. [Claude Code 플러그인 문서](https://code.claude.com/docs/en/plugins-reference).
 
