@@ -10,6 +10,7 @@ from monitoring import exclusive
 from research import data, existing_action
 from research_store import digest, required
 import research_loop as loop
+import research_scope
 
 DOMAINS = (
     ('semiconductors', '반도체·메모리·패키징·제조장비', [('A',1,11)]),
@@ -19,6 +20,7 @@ DOMAINS = (
     ('generation', '발전원·연료·저장', [('C',10,18)]),
     ('process_materials', '반도체 소재·가스', [('D',5,14)]),
     ('bulk_materials', '금속·전기강판·광학 소재', [('D',1,4),('D',15,22)]),
+    ('model_supply', 'AI 모델 개발·공급사', [('F',1,1)]),
     ('delivery', '인력·인허가·EPC·입지·자원', [('E',1,13)]),
 )
 DOMAIN_IDS = {d[0] for d in DOMAINS}
@@ -106,7 +108,7 @@ def live_jobs(s):
 
 
 def status(store,cid):
-    s=state(store,cid); research=loop.resume(store,cid);owners=mapping(research['nodes'],s['assignments'])
+    s=state(store,cid); research=loop.resume(store,cid);owners={n:d for n,d in mapping(research['nodes'],s['assignments']).items() if n in research['scope_profile']['included_node_ids']}
     pending={p['node_id'] for p in research['pending']};jobs=live_jobs(s)
     groups=[]
     for key,name,_ in DOMAINS:
@@ -125,7 +127,7 @@ def status(store,cid):
     elif not research['pending']:action='review_and_synthesize'
     else:action='claim'
     return {'campaign_id':cid,'project_id':store.project_id,'checkpoint_id':research['checkpoint_id'],
-            'as_of_date':data(store,cid)['as_of_date'],'mode':s['mode'],'config':cfg,
+            'scope_profile':research['scope_profile'],'as_of_date':data(store,cid)['as_of_date'],'mode':s['mode'],'config':cfg,
             'domains':groups,'unmapped_node_ids':[n for n,d in owners.items() if d is None],
             'active_jobs':[{'job_id':j['id'],'domain_id':j['domain_id'],'node_ids':j['node_ids'],
                             'status':j['status'],'expires_at':j['expires_at'],
@@ -184,7 +186,7 @@ def execute(store,op,request,value):
                 raise ValueError('Execution limit reached; preserve incomplete research')
             live=live_jobs(s);capacity=s['config']['concurrency'] if s['config']['parallel_supported'] else 1
             if len(live)>=capacity:raise ValueError('Concurrency occupied; do not duplicate active work')
-            owners=mapping(current['nodes'],s['assignments'])
+            owners={n:d for n,d in mapping(current['nodes'],s['assignments']).items() if n in research_scope.included(current)}
             if None in owners.values():raise ValueError('Assign unmapped active nodes before proceeding')
             domain=value['domain_id']
             if domain not in DOMAIN_IDS:raise ValueError('Invalid domain')
@@ -237,7 +239,7 @@ def execute(store,op,request,value):
                     review=value['review'];required(review,'reviewer','source_checks','scope_checks','counterargument_checks')
                     for k in ('reviewer','source_checks','scope_checks','counterargument_checks'):text(review[k],k)
                     if review['reviewer']==job['worker_id']:raise ValueError('Coordinator review must be separate from worker authoring')
-                    owners=mapping(current['nodes'],s['assignments'])
+                    owners={n:d for n,d in mapping(current['nodes'],s['assignments']).items() if n in research_scope.included(current)}
                     if any(owners.get(n)!=job['domain_id'] for n in job['node_ids']):raise ValueError('Assigned scope changed; review and reclaim')
                     if fingerprint(current['nodes'],current['questions'],job['node_ids'])!=job['base_fingerprint']:
                         raise ValueError('Assigned questions changed; review and reclaim')

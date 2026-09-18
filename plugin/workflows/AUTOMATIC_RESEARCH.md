@@ -1,10 +1,16 @@
 # 분야별 병렬 조사와 자동 재개
 
+조회·재개·원문 재사용·묶음 인계는 [효율적인 조사](EFFICIENT_RESEARCH.md)를 적용한다. 새 연구는 기본78개/맥락10개이며 기존 campaign은 저장된 범위를 유지한다. 상세 이력의 반복 출력 대신 compact 조회와 변경분 저장을 기본으로 한다.
+
 전체 연구의 실행 조율 절차다. [연구 실행](RESEARCH_EXECUTION.md)의 전수 조사·원문 검토·완료 조건을 유지한다. Python은 상태와 충돌을 관리하며, 실제 조사·위임·예약 도구 호출은 Work의 주 에이전트가 수행한다. CLI 응답을 안내하는 것만으로 연구를 끝내지 않는다.
 
 ## 시작과 역할
 
 최초 전체 연구를 시작하면 기존 project/campaign을 발견하고 `coordination-status`로 상태를 읽는다. 미설정이면 아래 configure를 한 번 저장한다. 병렬·예약 도구의 실제 가용성과 사용자의 자동 진행 의사를 확인한다. 기존에 정한 내용을 반복해서 묻지 않는다. 지원하지 않는 기능을 사용 가능으로 선언하지 않는다. 조사 기준일은 고정한다.
+
+해당 campaign에 이 결정이 아직 없는 상태에서 "처음 시작해줘"류 전체 조사 요청을 받으면, 호스트가 세션 내 구조화 질문 도구(예: Claude의 AskUserQuestion, Codex의 동등 기능)를 제공하는 경우 그 도구로 분야별 서브에이전트 병렬 진행 여부를 한 번만 묻는다. "서브에이전트로 분야별 병렬 진행 시도" vs "이 대화에서 순차로 직접 진행" 두 선택지면 충분하다. 답을 받으면 같은 턴에서 바로 이어간다 — 다음 사용자 메시지를 기다리지 않고 그 답을 `coordination-configure`의 `parallel_supported`/`automatic_resume_requested`에 저장한 뒤 research-start로 진행한다. 이 결정은 campaign당 한 번만 저장하며 이어서 조사해줘/재개에서는 다시 묻지 않고 저장된 값을 그대로 쓴다. 구조화 질문 도구가 없는 호스트에서는 이 단계를 생략하고 아래 실제 위임 시도 결과로만 판단한다.
+
+`parallel_supported`는 호스트 이름만으로 true로 두지 않는다. 사용자가 병렬을 선택했더라도 그대로 true로 확정하지 않는다. 첫 분야를 실제로 하위 에이전트에 위임 시도하고 응답을 확인한 뒤에만 true로 설정한다. 위임 호출 자체가 발생하지 않거나(도구가 보이지 않거나 에이전트가 호출을 시도하지 않음), 호출은 되지만 오류·거부로 실패하면 즉시 false로 전환하고 남은 분야는 같은 대화에서 순차 처리한다. 같은 실행 안에서 이미 확인된 가용성 결과를 재시도마다 다시 추측하지 않는다. (2026-09-18: Claude Cowork에서 서브에이전트 위임이 시도조차 되지 않는 사례가 사용자 보고와 외부 이슈 트래커[anthropics/claude-code#55712, #81441]로 확인됐다. 호스트가 Cowork라는 이유만으로 병렬을 가정하지 않는다.)
 
 공통 CLI는 `python -X utf8 plugin/runtime/research_cli.py --action ACTION.json`이다. 모든 action에 실제 `state_dir`, `project_id`를 넣는다. 쓰기는 고유 `request_id`와 `data`를 사용하며 data에 `campaign_id`를 넣는다. 같은 요청 재시도에는 동일 ID/내용을 사용한다.
 
@@ -18,7 +24,7 @@
 
 ## 작은 묶음 배정과 원문 인계
 
-1. `coordination-status`는 전체8개 분야·유효 노드·미조사·진행 중인 작업을 반환한다. 새 노드가 한 분야의 계보를 계승하면 그 분야로 배정된다. 신규/분야 간 통합 노드는 `coordination-assign`의 `assignments:{"NODE_ID":"domain_id"}`로 책임 분야를 정한다. 목록에서 제외하지 않는다.
+1. `coordination-status`는 전체9개 분야·유효 노드·미조사·진행 중인 작업을 반환한다. 새 노드가 한 분야의 계보를 계승하면 그 분야로 배정된다. 신규/분야 간 통합 노드는 `coordination-assign`의 `assignments:{"NODE_ID":"domain_id"}`로 책임 분야를 정한다. 목록에서 제외하지 않는다.
 2. `coordination-claim` data에 `domain_id`, `worker_id`, 선택적 `node_ids`를 전달한다. 결과 id가 job_id다. 중복 분야/동시 수 초과는 대기하고 이미 수행 중인 조사를 다시 시작하지 않는다. `coordination-packet`은 campaign_id/job_id를 최상위에 넣어 배정된 노드·질문만 읽는다.
 3. 담당자는 [자료 취득·재조회](SOURCE_QUESTION_FLOW.md)의 실제 자료 경로로 원문을 탐색한다. 읽기 전용 DB 접근이 가능하면 question-packet/source-context를 사용한다. 불가능하면 주 에이전트가 관련 원문·위치·질문 묶음을 분리 파일로 전달한다. 전체435개 원장을 각 담당자에게 복사하지 않는다.
 4. 담당자는 분리 산출물에 원문 bytes 또는 호스트 발췌의 캡처 종류·URL·제작자·해시·위치, 노드별 적용 범위/시점, 반증, 미해결 질문, 후속 경로를 남긴다. 자료 index에서 실제 문서를 따라가며 대체 자료 탐색을 수행한다. 모델 요약을 원문 인용으로 제출하지 않는다.

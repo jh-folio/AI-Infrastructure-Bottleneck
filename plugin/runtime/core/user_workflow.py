@@ -5,7 +5,13 @@ from pathlib import Path
 import sqlite3
 
 from research_store import Store, FORMAT, digest
-from package_integrity import read_json, verify_package
+def read_json(path):
+    return json.loads(Path(path).read_text(encoding='utf-8-sig'))
+
+
+def is_work_skill():
+    return (Path(__file__).resolve().parents[3]/'WORK_SKILL.json').is_file()
+
 
 INTENTS = {'help', 'start', 'research', 'resume', 'update', 'show', 'explain', 'brief'}
 HELP = [
@@ -73,11 +79,15 @@ def route(action):
            'guide': 'plugin/workflows/USER_WORKFLOW.md', 'research_executed': False}
 
     def result(status, skill, steps, message, **extra):
-        return {**out, 'status': status, 'skill': skill, 'steps': steps, 'message': message, **extra}
+        value = {**out, 'status': status, 'skill': skill, 'steps': steps, 'message': message, **extra}
+        if is_work_skill():
+            value['distribution'] = 'chatgpt-work-skill'
+            value['instructions'] = f'skills/{skill}/INSTRUCTIONS.md'
+        return value
 
     if intent == 'help':
         return result('help', 'initialize-project', ['explain_features'],
-                      '할 수 있는 작업과 요청 예시를 안내합니다. 도움말만으로 연구를 시작하지 않습니다.', examples=HELP)
+                      '할 수 있는 작업과 요청 예시를 안내합니다. 도움말만으로 연구를 시작하지 않습니다.', examples=HELP[:-1] + [{'request': '스킬 ZIP 업데이트 방법을 알려줘', 'purpose': '기존 연구를 백업하고 새 ZIP으로 갱신한 뒤 동일 상태에 재접근합니다.'}] if is_work_skill() else HELP)
     state_dir = action.get('state_dir')
     if not state_dir and action.get('project_files'):
         projects = discover(action['project_files'])['projects']
@@ -146,7 +156,7 @@ def route(action):
         associated = [r for r in reports if r['payload']['data'].get('campaign_id') == cid]
         rid = associated[-1]['id'] if associated else None
         gate = completion(store, cid, rid)
-        out.update(campaign_id=cid, checkpoint_id=packet['checkpoint_id'],
+        out.update(campaign_id=cid, checkpoint_id=packet['checkpoint_id'], scope_profile=packet.get('scope_profile'),
                    pending_count=packet['pending_count'], ready_to_submit=gate['ready_to_submit'],
                    completion_reasons=gate['reasons'], next_actions=packet['next_actions'])
         # An explicit new cutoff is a different investigation, not a rewrite of old history.
@@ -206,6 +216,9 @@ def inventory(store):
 
 
 def upgrade_check(action):
+    if is_work_skill():
+        raise ValueError('Work skill ZIP: plugin upgrade commands are unavailable; follow README.md backup and skill update steps')
+    from package_integrity import verify_package
     package = verify_package(action['target_package'])
     store = open_project(action['state_dir'], action.get('project_id'))
     contract = package['compatibility']

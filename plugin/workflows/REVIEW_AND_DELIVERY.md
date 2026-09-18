@@ -1,5 +1,7 @@
 # 원문 의미 검토와 같은 상태의 결과 제출
 
+조회·재개·원문 재사용·묶음 인계는 [효율적인 조사](EFFICIENT_RESEARCH.md)를 적용한다. 새 연구는 기본78개/맥락10개이며 기존 campaign은 저장된 범위를 유지한다. 상세 이력의 반복 출력 대신 compact 조회와 변경분 저장을 기본으로 한다.
+
 ## 질문을 닫기 전에
 
 긴 조사에서는 전체 원장을 매번 대화에 넣지 않는다. `research-question`에 campaign_id/question_id를 전달하면 해당 질문과 노드만 읽는다. `research-patch`는 request_id와 data의 campaign_id/previous_id 및 변경한 nodes/questions 목록만 받는다. 각 항목은 그 노드/질문의 완전한 최신 값이며 기존 attempts는 유지하고 추가한다. 코드가 나머지 원장을 보존한다. 새 질문을 추가할 수 있지만 새 노드는 node-change로만 추가한다. 같은 request_id 재시도는 중복 저장하지 않고 오래된 previous_id는 거부한다. 연구 시작 시 전체 목록은 확인하되 이후에는 research-next→research-question/question-packet→실제 검토→research-patch를 반복한다.

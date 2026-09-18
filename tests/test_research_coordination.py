@@ -41,7 +41,7 @@ class CoordinationTests(unittest.TestCase):
 
     def test_default_mapping_is_exact_and_status_read_only(self):
         self.configure();before=self.store.path.read_bytes();s=coord.status(self.store,self.cid)
-        self.assertEqual([len(d['node_ids']) for d in s['domains']],[11,9,14,9,9,10,12,13])
+        self.assertEqual([len(d['node_ids']) for d in s['domains']],[11,9,14,9,9,10,12,0,13])
         self.assertFalse(s['unmapped_node_ids']);self.assertEqual(s['pending_count'],87)
         self.assertEqual(before,self.store.path.read_bytes())
 

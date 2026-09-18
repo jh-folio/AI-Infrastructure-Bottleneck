@@ -1,0 +1,16 @@
+{
+  "version": "model-providers-v1",
+  "base_version": "legacy-id-map-1.0",
+  "effective_date": "2026-09-18",
+  "nodes": [
+    {
+      "Node_ID": "F01",
+      "Module": "F",
+      "Node_Name": "AI Model Developers / Suppliers",
+      "Primary_Archetype": "Technology / Capacity Platform",
+      "Dependencies": "A01 B02",
+      "Parent_Node_ID": "",
+      "scope": "Developers supplying their own general-purpose AI models through APIs, managed services or model weights; provider-level differences stay within this node."
+    }
+  ]
+}

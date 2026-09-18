@@ -188,8 +188,11 @@ def import_source(store, request, value):
         return {**saved, **result}
 
 
-def context(store, document_id, focus_terms, counter_terms, max_chars=6000, cursors=None):
+def context(store, document_id, focus_terms, counter_terms, max_chars=6000, cursors=None, known_segments=None):
     """Two separately budgeted retrieval lanes, with exact continuation positions."""
+    known_segments=known_segments or []
+    if not isinstance(known_segments,list) or len(known_segments)>1000 or any(not isinstance(x,str) or len(x)!=64 for x in known_segments):
+        raise ValueError('Invalid known segment hashes')
     terms_check(focus_terms)
     terms_check(counter_terms)
     bounded_int(max_chars, 400, 24000, 'context text budget')
@@ -238,6 +241,12 @@ def context(store, document_id, focus_terms, counter_terms, max_chars=6000, curs
             char = 0
         lanes[name] = {'terms': terms, 'segments': output, 'matching_context_blocks': len(indices),
                        'next_cursor': next_cursor, 'no_match_is_not_absence': True}
+    for lane in lanes.values():
+        for segment in lane['segments']:
+            sid=digest({'document_sha256':doc['sha256'],**segment})
+            segment['segment_id']=sid
+            if sid in known_segments:
+                segment.pop('text');segment['text_omitted']='Previously supplied segment; re-fetch without known_segments if not retained'
     capture = doc['metadata'].get('capture_kind', 'legacy_unspecified')
     return {'document_id': document_id, 'source_url': doc['url'], 'producer': doc['producer'],
             'sha256': doc['sha256'], 'published_at': doc['metadata'].get('published_at'),
@@ -247,7 +256,7 @@ def context(store, document_id, focus_terms, counter_terms, max_chars=6000, curs
 
 
 def question_packet(store, campaign_id, question_id, focus_terms, counter_terms,
-                    offset=0, limit=3, max_chars=6000, route_offset=0):
+                    offset=0, limit=3, max_chars=6000, route_offset=0, known_segments=None):
     bounded_int(offset, 0, 1000000, 'source offset')
     bounded_int(limit, 1, 6, 'source limit')
     bounded_int(max_chars, 400, 10000, 'per-document text budget')
@@ -293,7 +302,7 @@ def question_packet(store, campaign_id, question_id, focus_terms, counter_terms,
         if published and published > cutoff:
             excerpts.append({'document_id': did, 'plan_ids': pids, 'excluded': 'after_campaign_cutoff', 'published_at': published})
             continue
-        excerpts.append({**context(store, did, focus_terms, counter_terms, max_chars), 'plan_ids': pids,
+        excerpts.append({**context(store, did, focus_terms, counter_terms, max_chars, known_segments=known_segments), 'plan_ids': pids,
                          'date_review_required': not bool(published)})
     return {'campaign_id': campaign_id, 'checkpoint_id': head, 'question_id': question_id,
             'node_id': q['node_id'], 'dimension': q['dimension'], 'question': q['question'],

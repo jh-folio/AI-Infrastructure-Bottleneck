@@ -1,3 +1,5 @@
+> 계획 원문 기록입니다. d5.10에서 범위 프로필·작은 조회·변경분 저장·원문 참조·묶음 인계·계측을 구현했습니다. 현행 실행은 [효율적인 조사](../../plugin/workflows/EFFICIENT_RESEARCH.md)를 따릅니다. 실제 호스트 비용/품질 인수는 별도입니다.
+
 <!-- Published planning snapshot; not runtime instructions. -->
 
 # 조사 비용 절감과 기본 범위 조정 계획 — 2026-09-18

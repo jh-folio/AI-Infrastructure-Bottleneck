@@ -99,12 +99,16 @@ def projection(store, report_id):
     result={'title':report['title'],'as_of_date':report['as_of_date'],'snapshot_id':report['snapshot_id'],
         'view_version':2,'nodes':nodes,'node_relations':node_relations,'events':events,
         'inventory_scope':report.get('map_catalog',{}).get('scope','legacy_subset'),
+        'scope_profile':report.get('map_catalog',{}).get('scope_profile'),
         'research_stage':report.get('research_stage','interim'),
         'highlight_ids':report.get('highlight_ids',[]),
         'report_id':report_id,'rows':rows,'relations':relations,'coverage':report['coverage'],
         'changes':report['changes'],'claims':report['synthesis_claims'],
         'research_execution':report.get('research_execution',{'status':'unknown','reason':'과거 보고서에 실행 기록이 없습니다.'}),
         'monitor_runs':[r['payload']['data'] for r in records.values() if r['kind']=='task' and r['payload']['data'].get('type')=='monitor_run']}
+    if result['scope_profile']:
+        included=set(result['scope_profile']['included_node_ids'])
+        result['rows']=[r for r in rows if r['scope']['node_id'] in included]
     result['projection_sha256']=digest(result)
     return result
 

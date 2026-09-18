@@ -6,7 +6,9 @@ from research import data
 
 
 def freeze_catalog(store, value, rows):
-    ontology = json.loads((Path(__file__).resolve().parents[2]/'ontology/node_ids_v1.json').read_text(encoding='utf-8'))
+    from research_catalog import load,BASE_VERSION,CURRENT_VERSION
+    version=data(store,value['campaign_id']).get('catalog_version',BASE_VERSION) if value.get('campaign_id') else CURRENT_VERSION
+    ontology=load(version)
     byid = {n['Node_ID']: n for n in ontology['nodes']}
     checkpoint_id = value.get('checkpoint_id')
     if value.get('campaign_id'):
@@ -23,10 +25,14 @@ def freeze_catalog(store, value, rows):
                    for nid in dict.fromkeys(r['scope']['node_id'] for r in rows)]
         questions = []
     from research_quality import inspect_questions
-    quality = inspect_questions(store,catalog,questions,value['as_of_date'])
+    import research_scope
+    profile = research_scope.resolve(state) if value.get('campaign_id') else None
+    included = set(profile['included_node_ids']) if profile else {n['node_id'] for n in catalog}
+    quality = inspect_questions(store,[n for n in catalog if n['node_id'] in included],questions,value['as_of_date'])
     nodes = []
     for original in catalog:
         n = dict(original)
+        n['scope_role'] = 'included' if n['node_id'] in included else 'context_only'
         n['module'] = byid.get(n['node_id'], {}).get('Module', 'Other')
         n['lifecycle'] = n.get('lifecycle', 'active')
         n['questions'] = [q for q in questions if q['node_id'] == n['node_id']]
@@ -43,7 +49,7 @@ def freeze_catalog(store, value, rows):
                                           'location': nid + '/Dependencies'},
                     'review_status': 'definition_unreviewed', 'evidence_ids': []})
     return {'version': 1, 'checkpoint_id': checkpoint_id, 'scope': 'full_active_catalog' if value.get('campaign_id') else 'declared_subset',
-            'ontology_version': ontology['version'], 'nodes': nodes, 'reference_edges': edges}
+            'scope_profile':profile,'ontology_version': ontology['version'], 'nodes': nodes, 'reference_edges': edges}
 
 
 def relation(store, request, value):
@@ -101,7 +107,7 @@ def expand(report, rows, records, docs, relations):
             continue
         events.append({'event_id': rec['id'], **v, 'sources': [public_source(e, docs[e['document_id']]) for e in linked]})
     for n in frozen['nodes']:
-        if n['lifecycle'] != 'active':
+        if n['lifecycle'] != 'active' or n.get('scope_role') == 'context_only':
             continue
         scoped = [r for r in rows if r['scope']['node_id'] == n['node_id']]
         reviews = [public_source(review, docs[review['document_id']], '조사 자료')
@@ -113,7 +119,7 @@ def expand(report, rows, records, docs, relations):
         status = 'uninvestigated' if not q or n['disposition'] in ('queued', 'excluded', 'untracked') else (
             'in_progress' if any(x['status'] in ('open', 'blocked') for x in q) or n.get('review_issues') or set(DIMENSIONS)-dimensions else 'review_recorded')
         nodes.append({**n, 'judgments': scoped, 'sources': list(unique.values()), 'research_status': status,
-            'events': [e for e in events if e['scope']['node_id'] == n['node_id']],
+            'context_factors': [], 'events': [e for e in events if e['scope']['node_id'] == n['node_id']],
             'summary': scoped[0]['conclusion'] if len(scoped) == 1 else (
                 f'{len(scoped)}개 범위의 판단이 있습니다. 범위를 선택해 확인하세요.' if scoped else
                 ('; '.join(dict.fromkeys(x.get('answer', '') for x in q if x.get('answer'))) or '아직 조사 결과가 없습니다.'))})
@@ -132,12 +138,17 @@ def expand(report, rows, records, docs, relations):
         v = rec['payload']['data']
         if rec['kind'] != 'task' or v.get('type') != 'node_relation' or v.get('campaign_id') != report.get('campaign_id'):
             continue
-        if v['from_node_id'] not in ids or v['to_node_id'] not in ids or v['as_of_date'] > report['as_of_date']:
-            continue
+        if v['as_of_date'] > report['as_of_date']:continue
         if any(eid in superseded for eid in v['evidence_ids']):
             continue
         ev = [records[eid]['payload']['data'] for eid in v['evidence_ids']]
-        mapped.append({**v, 'review_status': 'reviewed', 'sources': [public_source(e, docs[e['document_id']]) for e in ev]})
+        entry={**v, 'review_status':'reviewed','sources':[public_source(e,docs[e['document_id']]) for e in ev]}
+        context=set((frozen.get('scope_profile') or {}).get('context_node_ids',[]))
+        endpoints={v['from_node_id'],v['to_node_id']}
+        if endpoints & context:
+            for node in nodes:
+                if node['node_id'] in endpoints:node['context_factors'].append(entry)
+        elif endpoints<=ids:mapped.append(entry)
     reviewed = {(e['from_node_id'], e['to_node_id']) for e in mapped if e['kind'] == 'technical'}
-    mapped += [e for e in frozen['reference_edges'] if (e['from_node_id'], e['to_node_id']) not in reviewed]
+    mapped += [e for e in frozen['reference_edges'] if e['from_node_id'] in ids and e['to_node_id'] in ids and (e['from_node_id'], e['to_node_id']) not in reviewed]
     return nodes, mapped, events

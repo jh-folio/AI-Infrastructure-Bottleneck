@@ -1,15 +1,31 @@
 [
   {
     "path": "plugin.json",
-    "sha256": "54656529c515d086b1519a0cac32f35227795e82519b9c0e5748c5bbd1e1a44a"
+    "sha256": "0f03b61bcaab6ca8088f9b4f202857d732cbe075f9df613e93d787389662819f"
   },
   {
     "path": ".codex-plugin/plugin.json",
-    "sha256": "2ba622ea667e885acc1f0a278313dd681fc4fafd87202055834f0b29261545e1"
+    "sha256": "c4fdcdeacf8f16174aca5e271614e276857ed4debc9b7042a49e6e8a5a693ec3"
+  },
+  {
+    "path": ".claude-plugin/plugin.json",
+    "sha256": "4c9d59beac89ddda9b5b902213b8ebb1e694ba52700fd603cc924eebdc7a33bf"
+  },
+  {
+    "path": ".claude-plugin/marketplace.json",
+    "sha256": "09bec2bc92d949bd86274e077f9b3093c80de38f4181f26d58b61d1309e2f433"
+  },
+  {
+    "path": ".agents/plugins/marketplace.json",
+    "sha256": "1758bc7a2581cd0340c9ab4116e992f8ece2a11e77a3fe9c59587c8f1a5935d3"
+  },
+  {
+    "path": "docs/plans/RESEARCH_EFFICIENCY_PLAN_20260918.md",
+    "sha256": "be4dab722c01a103506eee9f0fe1fd05bd86767480d52c4329547b81abefa47f"
   },
   {
     "path": "README.md",
-    "sha256": "e60ff9c732c91d04c5c8d9b0148c0dc22cf47c3a1cf6a3601ef453ea17360b07"
+    "sha256": "a310742153d4abafa945f80c4f696fe702f7fc6de40c6c872f693cdb705ff510"
   },
   {
     "path": ".gitignore",
@@ -60,28 +76,56 @@
     "sha256": "2dfc26d6bf421f5df5eea076745e50adef87c64b0828a313c15924c1c05c4373"
   },
   {
+    "path": "plugin/runtime/core/research_catalog.py",
+    "sha256": "4fc13f0cf267d195975f1b82e953b3922d1c615ea82e7c5a78bde5b904af4234"
+  },
+  {
+    "path": "plugin/ontology/node_extensions_v1.json",
+    "sha256": "dd68b02575088bec760df0ef96da990442e130514d637aae957a91ce68a5efab"
+  },
+  {
+    "path": "plugin/methodology/MODEL_SUPPLIERS.md",
+    "sha256": "0798b63289502771686d7827da3a597095bdb2b79cc03e70943930ed776ee162"
+  },
+  {
+    "path": "plugin/workflows/EFFICIENT_RESEARCH.md",
+    "sha256": "bd16cf002f27dd92987061bfff2247a57e8db6ec71cafa301088ca10931c1fd6"
+  },
+  {
+    "path": "plugin/runtime/core/research_scope.py",
+    "sha256": "0730eb5fc83868d60905fc360c8cb1010137799bdd72750a22e47d424e5c18e3"
+  },
+  {
+    "path": "plugin/runtime/core/research_efficiency.py",
+    "sha256": "a7c5ef2ead2caf54be0a159eba0aeaa4c3a62c40206b356f8ae79d1b8d446ff4"
+  },
+  {
+    "path": "tests/test_research_efficiency.py",
+    "sha256": "79535f848b77193699dedd3ad4d87212418cb3096273b72fe6b5bf56962f5754"
+  },
+  {
     "path": "plugin/runtime/core/research_coordination.py",
-    "sha256": "848a7046a4a963fd45d9736c098ebbaf034aca56803c09f9f5ef4de7c54a70d8"
+    "sha256": "79988dc59076d344aac354e242c62b6e5abd6f693e5ac49073a5d533661f56a4"
   },
   {
     "path": "tests/test_research_coordination.py",
-    "sha256": "5f884cec8181d74d42a94df12658a48cb6181e99d1af6b0999ef7c5ae06a2199"
+    "sha256": "3299b45404b9387f876dfc362442f7e86316ee3b971f11a50d3a5fbfe3d3e492"
   },
   {
     "path": "plugin/workflows/AUTOMATIC_RESEARCH.md",
-    "sha256": "72a13a50f7dcd0cac99a3bff39e6913214f2d5260691c79e3c4f0b8683453f17"
+    "sha256": "c2a69409c74a1142416ea3761e2801626336260d6555a999a5e058be381497f3"
   },
   {
     "path": "tests/STAGED_WORK_HANDOFF.md",
-    "sha256": "3a88d912b1a7b55d24d1028c65dc2091e61056ab03120fac150ef2ef98655e36"
+    "sha256": "3ffcbb0870c789b505f6ee6f26ebf5c471b262d91262f0f4fb33bc4dd3005de9"
   },
   {
     "path": "VERSION",
-    "sha256": "b3268687a813732529042f17e9751e60da65ac5cf14164cbdf216b3dc3b721e5"
+    "sha256": "6b4f03d83cf4cb2613b915bbce778842ed1d6f68a8230cce61957ef6a4271134"
   },
   {
     "path": "plugin/runtime/compatibility.json",
-    "sha256": "c4fae679f45d0bec9cd122f0daf33fa8ebc11e797c361428a4f2827654ed7658"
+    "sha256": "20a74cb5078690a54c5987ac4f2173e55c1d81929549cc53ee218b2b288f0417"
   },
   {
     "path": "plugin/runtime/core/package_integrity.py",
@@ -89,11 +133,11 @@
   },
   {
     "path": "plugin/runtime/core/user_workflow.py",
-    "sha256": "e0c5cbed7434de5daf7c7d5afb7a2e89d0c84fcda541b1d94b91af39030d1f8c"
+    "sha256": "71c0f9dd0fd30779935227ecbcbaaf6c8ff9da66050c1b5c6914f170b95d47b4"
   },
   {
     "path": "plugin/workflows/USER_WORKFLOW.md",
-    "sha256": "a5b87b3d8cfbf193f376e914ebc38042925ef56c60a45654257240eeca8db3cd"
+    "sha256": "4fcceaac45d4a0df82aa14f1dff5bbcaef1a22852827ba9096d9a58350148672"
   },
   {
     "path": "tests/test_user_workflow.py",
@@ -109,7 +153,7 @@
   },
   {
     "path": "plugin/runtime/research_cli.py",
-    "sha256": "1ceab263dc0304d8a387eb736d4d29ac7d06a82b96823d0da12f4f13020456f2"
+    "sha256": "282fd2cf312a21f110b1042f202b10adb1c9c391bf62ef1789cc4646ffec1e6d"
   },
   {
     "path": "plugin/runtime/core/research_store.py",
@@ -129,7 +173,7 @@
   },
   {
     "path": "plugin/runtime/core/synthesis.py",
-    "sha256": "0ed5498a200080463aeca1a21827310600a20e6e391be65e32078ffb882d728a"
+    "sha256": "4962a1b45dfda525b47bb0a02fb2bdcd72a0b939c837552ce44245e33af445b0"
   },
   {
     "path": "tests/test_synthesis.py",
@@ -141,7 +185,7 @@
   },
   {
     "path": "plugin/runtime/core/reader_report.py",
-    "sha256": "c28ded49aca9ae4984a54a0e90a3ca4a4b2b8bb9d2a7bb5b4b7d4a2e7b024d4c"
+    "sha256": "a4306be4c74080ded740a1e1d773d47f82823792faf49835c0a5a1e3510a674e"
   },
   {
     "path": "plugin/runtime/core/monitoring.py",
@@ -153,11 +197,11 @@
   },
   {
     "path": "plugin/runtime/core/dashboard.py",
-    "sha256": "ed12648c5396c4364227dd3623b386f91bfb9c98935847ef9ebaaf61fdac4fcf"
+    "sha256": "d35426e3dc93ec395211186be8afa5e1e7294b9632900a5a42008f6eba455669"
   },
   {
     "path": "plugin/runtime/ui/dashboard.html",
-    "sha256": "f940c9d5095030978e282a94d151d7ab3e5dc89070073821e6a093eb910f5523"
+    "sha256": "e8ebf2349fe4d74d66b1606b4d530fd5dde2e43d565df4220bd2a382d274539f"
   },
   {
     "path": "tests/test_d4_d5.py",
@@ -177,15 +221,15 @@
   },
   {
     "path": "tests/test_research_loop.py",
-    "sha256": "132ae528cdb14cd76358b1364b6a84b2e5a70e6df677b495469a37c79f25de15"
+    "sha256": "409dab4fc2a53d0ea6fd8fcb0f5640a8f1cca6314fdb7fac2d2d7723218ba86b"
   },
   {
     "path": "plugin/runtime/core/research_loop.py",
-    "sha256": "71939b8863db338ac01a84a528700a5b1d71b42fc1c3b7fb9316aae9f181e72c"
+    "sha256": "873b8075dbf6ba4541eeb1f7f3d29080cd9b52dcb0989ee3eddea61e048f252d"
   },
   {
     "path": "plugin/workflows/RESEARCH_EXECUTION.md",
-    "sha256": "6a4c19640ac1df58f951c9acca381e68153887b80744e1757c615a153dcfe82f"
+    "sha256": "3944e7e8edd1193c30769383d1c094431c05dc0da84c24b625258c58e298bda7"
   },
   {
     "path": "plugin/runtime/core/research_quality.py",
@@ -197,7 +241,7 @@
   },
   {
     "path": "plugin/runtime/core/source_work.py",
-    "sha256": "598222018101205c6002b47796f000e979363662c11a3c6bd25c207b6fb76823"
+    "sha256": "7950154118d9322108e0d3581baf9aafa3f0b09aa12872d340cf212df047a519"
   },
   {
     "path": "tests/test_source_work.py",
@@ -205,7 +249,7 @@
   },
   {
     "path": "plugin/workflows/SOURCE_QUESTION_FLOW.md",
-    "sha256": "2a2107cfb78b74e87dded853a07d426e09cc983100700b24409b99843fe1d1ef"
+    "sha256": "057d4d2061034d1c9aa8336cddde81f2b4a9a3ffc8d142e716a498ad8b3fbd11"
   },
   {
     "path": "plugin/runtime/core/semantic_review.py",
@@ -213,15 +257,15 @@
   },
   {
     "path": "plugin/runtime/core/supply_view.py",
-    "sha256": "1397319f431960b5c67f6e31ca69ca46ff7bcc9e5f35544268b08da4d05a9e51"
+    "sha256": "082e4a4863a3ce02332077a4f859a7f8893d3e8d62fbc1c7e9f1361fec312bc7"
   },
   {
     "path": "plugin/runtime/core/delivery.py",
-    "sha256": "85d92ebdd124684fe6629516f09058e3a99b6ccbf7aa3956eeb052fd7b37953c"
+    "sha256": "e4ce353947f1c5e715db577822d48d6ab7a6c10d7785cb7286941ab7e4657b10"
   },
   {
     "path": "plugin/runtime/ui/dashboard.js",
-    "sha256": "ad52a0b0f2a47d44fa724052f169d2a4bf4b4319d37f7b8398d5562ef36a7dcc"
+    "sha256": "f5e9ded93b3ddb895d2fbe74e24e836940d77085a0c0af9b114457532227b2b4"
   },
   {
     "path": "tests/test_work_retest.py",
@@ -229,7 +273,7 @@
   },
   {
     "path": "plugin/workflows/REVIEW_AND_DELIVERY.md",
-    "sha256": "aa251e0885f9199ffa20281519a45e0bef08a5526418761c18c357f0b1a97987"
+    "sha256": "ad1bdcc1858b35a1fbe2b4d449c3d95f7311bc1aa4fdbeb0b6ae091c6a82585e"
   },
   {
     "path": "plugin/runtime/core/engines/__init__.py",
@@ -245,7 +289,7 @@
   },
   {
     "path": "plugin/workflows/RUNTIME_GUIDE.md",
-    "sha256": "c38fd1980f8117597561018862a6ebdd768eec9532c442912dde50b4fe57986a"
+    "sha256": "7518d0080765829d6bb865c3d75d87e71d4f2f442039545209bdf5f4cbb52b9e"
   },
   {
     "path": "plugin/methodology/research_rules.md",
@@ -257,7 +301,7 @@
   },
   {
     "path": "plugin/methodology/PRODUCT_CONTRACT.md",
-    "sha256": "746791fa3c54485cc350b010493e9e72e50b34b01141926cde649fafa6b63aba"
+    "sha256": "33988f16b72fb11f9c920c412c549132158fd9f8e7205fbb9fb898510ed08564"
   },
   {
     "path": "plugin/ontology/node_ids_v1.json",
@@ -273,38 +317,22 @@
   },
   {
     "path": "skills/initialize-project/SKILL.md",
-    "sha256": "2d324600f9e5be45094d6f442a951d91ebcbe8638c070e073a1ed151916934fe"
+    "sha256": "a76a00670d32cdffe6d1ffa3b1d9c6cf4a3165c239d22ad377d7d46985371a9a"
   },
   {
     "path": "skills/build-baseline/SKILL.md",
-    "sha256": "db02f78889bb52c18297b1480b42e2f460a62e219395e7e643705508e511a439"
+    "sha256": "ee31149839d01454e8eee7a3579eba408ff7748719e07567bfe4318901ceafc4"
   },
   {
     "path": "skills/monitor-update/SKILL.md",
-    "sha256": "f78bfb9ea0ba9ff61a86c4a0e83f476fedbd1e2211e4224804bf441685194aa2"
+    "sha256": "04a813afea5bdcf917e1262772d08c2ef064662cd6c01a830efb5bd6c146142c"
   },
   {
     "path": "skills/audit-research/SKILL.md",
-    "sha256": "a67ceb7a2465501955b5aa90feb7df0c31cb032889fc2331b793cd286b3e753c"
+    "sha256": "750ad3d90d565445b3c5fdc22a52765f13ae76d3e42fd174d12970dd480c1bd4"
   },
   {
     "path": "skills/build-dashboard/SKILL.md",
-    "sha256": "4a1926d202a3cb7567b52fe7d49420dcb6d41c3bd704651a24eba357beb74226"
-  },
-  {
-    "path": ".claude-plugin/plugin.json",
-    "sha256": "0b4131ba327c49ff6d5ec31bc1fb381d532c1b60361b9cb2acd104fd1ce28aaa"
-  },
-  {
-    "path": ".claude-plugin/marketplace.json",
-    "sha256": "09bec2bc92d949bd86274e077f9b3093c80de38f4181f26d58b61d1309e2f433"
-  },
-  {
-    "path": ".agents/plugins/marketplace.json",
-    "sha256": "1758bc7a2581cd0340c9ab4116e992f8ece2a11e77a3fe9c59587c8f1a5935d3"
-  },
-  {
-    "path": "docs/plans/RESEARCH_EFFICIENCY_PLAN_20260918.md",
-    "sha256": "c5c535e120ee85498063fcfb0970151a85af60ea82b0dba098a79cefb9b98208"
+    "sha256": "3a5058b0a90075a3e07e7f8e11360597bb116a3033bff1ea8f01264992c1122b"
   }
 ]

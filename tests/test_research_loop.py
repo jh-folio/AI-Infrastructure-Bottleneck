@@ -10,7 +10,7 @@ class ResearchLoopTests(unittest.TestCase):
     def setUp(self):
         self.fx=test_synthesis.SynthesisTests();self.fx.setUp();self.addCleanup(self.fx.doCleanups)
         self.store=self.fx.store
-        self.cid=loop.start(self.store,'start',{'objective':'Synthetic full inventory review','as_of_date':'2026-09-14'})['id']
+        self.cid=loop.start(self.store,'start',{'objective':'Synthetic full inventory review','as_of_date':'2026-09-14','scope_profile':'full-catalog-v1','catalog_version':'legacy-id-map-1.0'})['id']
         self.state=loop.resume(self.store,self.cid)
 
     def checkpoint_input(self):
@@ -73,7 +73,7 @@ class ResearchLoopTests(unittest.TestCase):
     def test_inventory_resume_and_idempotence(self):
         self.assertEqual(len(self.state['nodes']),87);self.assertFalse(self.state['ready_for_review'])
         self.assertEqual(len(self.state['pending']),87)
-        self.assertFalse(loop.start(self.store,'start',{'objective':'Synthetic full inventory review','as_of_date':'2026-09-14'})['inserted'])
+        self.assertFalse(loop.start(self.store,'start',{'objective':'Synthetic full inventory review','as_of_date':'2026-09-14','scope_profile':'full-catalog-v1','catalog_version':'legacy-id-map-1.0'})['inserted'])
         other=Store(self.store.folder,self.store.project_id)
         self.assertEqual(loop.resume(other,self.cid),self.state)
 
@@ -187,7 +187,8 @@ class NodeEvolutionTests(unittest.TestCase):
         self.assertTrue(any(q['node_id']=='A01' for q in state['questions']))
         self.assertTrue(any(p['node_id']=='A01-Z' for p in state['pending']))
         cid=loop.start(self.store,'next-campaign',{'objective':'Next study','as_of_date':'2026-09-14'})['id']
-        self.assertEqual(len(loop.resume(self.store,cid)['nodes']),91)
+        self.assertEqual(len(loop.resume(self.store,cid)['nodes']),92)
+        self.assertIn('F01',{n['node_id'] for n in loop.resume(self.store,cid)['nodes']})
 
     def test_id_reuse_and_direct_retirement_rejected(self):
         self.change('split',['A01'],['X','Y'])

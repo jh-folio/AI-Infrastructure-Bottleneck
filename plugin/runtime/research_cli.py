@@ -14,7 +14,7 @@ from extraction import filings,locate,text_packet
 from research_sources import sec,fetch,prices,capabilities
 
 
-def execute(action):
+def _execute(action):
     op=action['op']
     if op in ('workflow', 'project-discover', 'upgrade-check', 'upgrade-prepare', 'upgrade-verify'):
         import user_workflow
@@ -28,12 +28,24 @@ def execute(action):
     if op=='restore':
         return restore(action['backup_dir'],action['destination'])
     store=Store(action['state_dir'],action['project_id'])
+    import research_efficiency as efficiency
+    if op=='usage-summary':return efficiency.usage_summary(store)
+    if op=='research-batch':return efficiency.batch(store,action['request_id'],action['data'])
+    if op=='research-export':return efficiency.export_state(store,action['campaign_id'],action['destination'])
+    if op=='research-question-update':
+        from research_loop import update_question
+        return update_question(store,action['request_id'],action['data'])
+    if op=='research-scope':
+        from research_loop import change_scope
+        return change_scope(store,action['request_id'],action['data'])
     if op.startswith('coordination-'):
         import research_coordination as coordinator
         subop=op.removeprefix('coordination-')
         if subop=='status':return coordinator.status(store,action['campaign_id'])
         if subop=='schedule-packet':return coordinator.schedule_packet(store,action['campaign_id'])
-        if subop=='packet':return coordinator.packet(store,action['campaign_id'],action['job_id'])
+        if subop=='packet':
+            if action.get('view')=='full':return coordinator.packet(store,action['campaign_id'],action['job_id'])
+            return efficiency.packet_view(store,action['campaign_id'],action['job_id'],action.get('offset',0),action.get('limit',10),action.get('checkpoint_id'))
         return coordinator.execute(store,subop,action['request_id'],action['data'])
     if op=='export-delivery':
         import delivery
@@ -45,11 +57,11 @@ def execute(action):
         import source_work
         if op=='source-context':
             return source_work.context(store,action['document_id'],action['focus_terms'],action['counter_terms'],
-                                       action.get('max_chars',6000),action.get('cursors'))
+                                       action.get('max_chars',6000),action.get('cursors'),action.get('known_segments'))
         if op=='question-packet':
             return source_work.question_packet(store,action['campaign_id'],action['question_id'],
                         action['focus_terms'],action['counter_terms'],action.get('offset',0),
-                        action.get('limit',3),action.get('max_chars',6000),action.get('route_offset',0))
+                        action.get('limit',3),action.get('max_chars',6000),action.get('route_offset',0),action.get('known_segments'))
         handler={'source-plan':source_work.source_plan,'source-acquire':source_work.acquire,
                  'source-import':source_work.import_source}[op]
         return handler(store,action['request_id'],action['data'])
@@ -64,7 +76,9 @@ def execute(action):
         if op=='research-question':return research_loop.question(store,action['campaign_id'],action['question_id'])
         if op=='research-patch':return research_loop.patch(store,action['request_id'],action['data'])
         if op=='research-next':return research_loop.next_work(store,action['campaign_id'],action.get('limit',10))
-        if op=='research-resume':return research_loop.resume(store,action['campaign_id'])
+        if op=='research-resume':
+            if action.get('view')=='full':return research_loop.resume(store,action['campaign_id'])
+            return efficiency.resume_view(store,action['campaign_id'],action.get('offset',0),action.get('limit',10),action.get('checkpoint_id'))
         return (research_loop.start if op=='research-start' else research_loop.checkpoint)(store,action['request_id'],action['data'])
     if op in ('monitor-plan','monitor-run','schedule-packet'):
         import monitoring
@@ -153,6 +167,17 @@ def execute(action):
         from scoring import compare
         return compare(research.data(store,action['old_id'],'assessment'),research.data(store,action['new_id'],'assessment'))
     raise ValueError('Unknown operation')
+
+
+def execute(action):
+    result=_execute(action)
+    if action.get('metrics',True) and action.get('state_dir') and action.get('project_id'):
+        from research_efficiency import record_metric
+        try:record_metric(Store(action['state_dir'],action['project_id']),action,result)
+        except (OSError,ValueError,sqlite3.Error):
+            # A telemetry failure must never invite replay of a successful mutation.
+            if isinstance(result,dict):result={**result,'metrics_status':'unavailable'}
+    return result
 
 
 def main():

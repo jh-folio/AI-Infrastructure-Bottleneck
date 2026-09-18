@@ -62,11 +62,14 @@ def render_reader(value, evidence, documents, text):
     for c in value['coverage']:
         lines.append('| ' + t(c['segment']) + ' | ' + status[c['status']] + ': ' + t(c['reason']) + ' |')
     catalog=value.get('map_catalog',{})
+    profile=catalog.get('scope_profile')
+    if profile:
+        lines += ['', f"조사 목록 {profile['active_count']}개 중 기본 조사 {len(profile['included_node_ids'])}개, 인력·인허가 등 필요시 확인하는 요인 {len(profile['context_node_ids'])}개입니다.", '']
     if catalog.get('scope')=='full_active_catalog':
         lines += ['', '### 전체 조사 목록', '', '아래 목록은 공급망 지도의 노드와 같습니다. 판단 범위가 여러 개이면 각각 보존하며, 미확인을 낮은 병목으로 해석하지 않습니다.', '',
                   '| 구간 | 조사 상태 | 확인한 내용 또는 남은 공백 |', '|---|---|---|']
         for node in catalog['nodes']:
-            if node.get('lifecycle','active')!='active':continue
+            if node.get('lifecycle','active')!='active' or node.get('scope_role')=='context_only':continue
             qs=node.get('questions',[])
             from research_loop import DIMENSIONS
             state='미조사' if not qs else ('조사 진행 중' if any(q['status'] in ('open','blocked') for q in qs) or node.get('review_issues') or set(DIMENSIONS)-{q['dimension'] for q in qs} else '검토 기록 있음')

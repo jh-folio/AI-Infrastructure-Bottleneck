@@ -1,12 +1,14 @@
 # 최초 연구 실행과 재개
 
+**현행 범위·비용 계약(d5.11):** [효율적인 조사](EFFICIENT_RESEARCH.md)를 적용한다. 새 campaign의 기본 조사 대상은78개이며 인력/인허가10개는 필요한 맥락 요인으로 확인한다. 기존87개 ID·정의는 보존하고 기존 campaign은 명시적 전환 전까지 당시 범위를 유지한다. 아래87개 전수 조사 표현은 full-catalog-v1에 해당하며, 기본 프로필의 전수 조사 의무는 포함된 모든 노드에 적용한다.
+
 질문을 닫거나 결과를 생성하기 전에 [원문 의미 검토·같은 상태의 결과 제출](REVIEW_AND_DELIVERY.md)을 적용한다. source_reviews.application/semantic_review, 전체 노드 snapshot, node-relation/event와 export-delivery의 현행 계약이다.
 
 목표는 공급망 병목의 위치·심화도·추세에 답하는 것이다. 기술 점검을 끝냈다는 이유로 연구를 종료하지 않는다. 기존 5개 스킬을 사용하며 별도 LLM API·서버·RSS를 요구하지 않는다.
 
 ## 한 실행 안에서 끝까지 수행할 요청
 
-최초 보고서 요청은 현재 유효한 모든 노드의 실제 조사와 종합이다. 이를 에이전트가 '목록 검토', '중간 기준선', '기능 시험'으로 축소하지 않는다. **중간 파일 저장은 내부 작업이며 사용자 요청의 완료가 아니다.** 아래 순환을 [분야별 병렬 조사·자동 재개](AUTOMATIC_RESEARCH.md)에 연결한다. 주 에이전트는 가능한 다음 묶음을 계속 배정하고, 자동 진행 요청과 호스트 지원이 있으면 실행 사이에는 실제 예약으로 재개한다. 사용자 메시지를 분야별 진행 조건으로 삼지 않는다.
+최초 보고서 요청은 campaign 범위에 포함된 모든 유효 노드의 실제 조사와 종합이다. 이를 에이전트가 '목록 검토', '중간 기준선', '기능 시험'으로 축소하지 않는다. **중간 파일 저장은 내부 작업이며 사용자 요청의 완료가 아니다.** 아래 순환을 [분야별 병렬 조사·자동 재개](AUTOMATIC_RESEARCH.md)에 연결한다. 주 에이전트는 가능한 다음 묶음을 계속 배정하고, 자동 진행 요청과 호스트 지원이 있으면 실행 사이에는 실제 예약으로 재개한다. 사용자 메시지를 분야별 진행 조건으로 삼지 않는다.
 
 `research-next → 이번 질문의 원문 탐색·재조회·판단 → checkpoint → research-next`를 반복한다. 이미 조사한 원문은 저장소에서 찾아 쓰고, 작은 질문 묶음과 발췌만 컨텍스트에 올린다. pending을 없애려고 질문 상태를 일괄 변경하지 않는다. 미조사 항목의 답변을 생성하는 반복문은 조사 자동화가 아니다. 반복문은 실제 취득·재조회·기록에 사용한다.
 
@@ -71,12 +73,12 @@ bounded에는 최소 두 실제 내용/검색 경로의 확인 기록이 필요�
 - 시작: `{"op":"research-start","request_id":"study-1","data":{"objective":"AI 공급망의 병목 위치·심화도·추세","as_of_date":"실제 기준일"}}`
 - 재개: `{"op":"research-resume","campaign_id":"시작 결과 ID"}`. 반환 nodes/questions와 checkpoint_id를 유지한다.
 - 제출 확인: `{"op":"research-completion","campaign_id":"시작 결과 ID","report_id":"최신 검토본 ID"}`. 읽기 전용 확인이며 자체적으로 실행을 끝내거나 재예약하지 않는다.
-- 저장: `{"op":"research-checkpoint","request_id":"study-step-1","data":{"campaign_id":"시작 ID","previous_id":"최신 checkpoint_id","nodes":[],"questions":[]}}`. 배열은 비워 보내지 말고 재개 결과 전체를 수정해 전달한다. 같은 request_id는 동일 재시도에만 쓴다. 오래된 previous_id는 거부된다.
+- 저장: `{"op":"research-checkpoint","request_id":"study-step-1","data":{"campaign_id":"시작 ID","previous_id":"최신 checkpoint_id","nodes":[],"questions":[]}}`. 이 전체 저장 경로는 호환용이다. 기본은 research-patch 또는 research-question-update로 변경분만 전달한다. 같은 request_id는 동일 재시도에만 쓴다. 오래된 previous_id는 거부된다.
 
 node는 node_id/name/disposition/reason/document_ids다. investigated는 원문 미확보 상태도 허용하지만 실제 조사한 질문과 시도 기록은 필수다. scanned/selected는 저장된 문서 참조가 필요하다. question은 id/node_id/dimension/question/status/attempts다. dimension은 demand_supply/history/alternatives/operational_impact/trend다. attempts는 route/outcome/finding/document_ids 배열이며 outcome은 found/failed/irrelevant/unavailable이다. found는 실제 저장 문서가 필요하다. open/blocked는 next_action, resolved는 answer/closure_reason/judgment_ids, bounded는 answer/closure_reason/remaining_uncertainty/why_more_search_unlikely가 필요하다. 질문 ID·문장·대상과 이전 attempts는 보존하고 새 시도를 덧붙인다. 해석 정정은 새 시도와 답변에 기록한다.
 
 
-긴 조사에서는 `{"op":"research-next","campaign_id":"시작 ID","limit":10}`으로 다음 질문 묶음만 읽는다. 원문과 전체 시도 이력을 매번 대화에 출력하지 않는다. research-resume의 전체 상태는 로컬 JSON 파일로 받아 코드로 수정·checkpoint하고, 대화에는 이번 묶음의 새 근거와 판단만 전달한다. research-next는 작업을 대신 실행하는 자동 수집기가 아니라 에이전트가 이어서 실행할 목록이다.
+긴 조사에서는 `{"op":"research-next","campaign_id":"시작 ID","limit":10}`으로 다음 질문 묶음만 읽는다. 원문과 전체 시도 이력을 매번 대화에 출력하지 않는다. 전체 상태가 필요하면 research-export로 파일에 저장하고, 대화에는 이번 묶음의 새 근거와 판단만 전달한다. research-next는 작업을 대신 실행하는 자동 수집기가 아니라 에이전트가 이어서 실행할 목록이다.
 
 기존 버전 원장의 excluded 노드는 재개 시 미조사 작업으로 돌려준다. 원본 이력은 삭제하지 않고 새 checkpoint에서 해당 노드를 queued 또는 실제 조사 상태로 전환한다. full_inventory_investigated는 모든 노드의 조사 질문이 해결 또는 조사 후 공백으로 정리되었는지 나타낸다. 전수 조사를 했더라도 전체 결과가 미확인뿐이면 연구 검토본의 적합성은 별도로 판단한다.
 

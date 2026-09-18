@@ -261,3 +261,8 @@ Companies는 judgment의 선택적 companies 배열에서 name/role/evidence_ids
 ## 분야별 조율 — d5.9
 
 [병렬 조사·자동 재개](AUTOMATIC_RESEARCH.md)에 coordination-configure/status/claim/packet/renew/submit/apply/release/assign/schedule-packet/schedule/run/control/finish의 입력과 실행 절차를 정리했다. 실제 위임·예약은 호스트 도구로 수행하며 packet/영수증 저장이 실행 증명은 아니다.
+
+
+## d5.10 사용량·범위·인계
+
+[효율적인 조사](EFFICIENT_RESEARCH.md)가 현행 범위/응답 계약이다. research-resume/coordination-packet은 기본 compact-v1이며 view=full로 이전 응답을 명시한다. research-export/research-scope/research-question-update/research-batch/usage-summary와 source-context.known_segments는 이 계약을 따른다. 내부 Python resume은 전체 검증 상태를 유지한다.

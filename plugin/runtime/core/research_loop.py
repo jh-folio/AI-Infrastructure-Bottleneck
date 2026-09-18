@@ -5,6 +5,7 @@ from pathlib import Path
 from research_store import required, digest
 from research import data, existing_action
 from monitoring import exclusive
+import research_scope
 
 DIMENSIONS = ('demand_supply', 'history', 'alternatives', 'operational_impact', 'trend')
 DEFINITION_FIELDS = ('node_id','name','scope','lifecycle','predecessor_ids','replacement_ids','effective_date')
@@ -31,17 +32,26 @@ def start(store, request, value):
     with exclusive(store):
         old=existing_action(store,'task',request,action)
         if old:return old
-        ontology=json.loads((Path(__file__).resolve().parents[2]/'ontology/node_ids_v1.json').read_text(encoding='utf-8'))
+        from research_catalog import load,CURRENT_VERSION
+        ontology=load(value.get('catalog_version',CURRENT_VERSION))
         nodes=[{'node_id':n['Node_ID'],'name':n['Node_Name'],'disposition':'queued','reason':'',
-                'document_ids':[]} for n in ontology['nodes']]
+                'document_ids':[],**({'scope':n['scope']} if n.get('scope') else {})} for n in ontology['nodes']]
         latest=catalog_head(store)
         if latest:
             if date.fromisoformat(value['as_of_date'])<date.fromisoformat(latest['payload']['data']['change']['effective_date']):
                 raise ValueError('New campaign cutoff precedes current catalog; use the historical campaign')
+            original=nodes
             nodes=[{**n,'disposition':'queued','reason':'','document_ids':[]} for n in latest['payload']['data']['catalog']]
+            byid={n['node_id']:n for n in nodes}
+            for n in original:
+                if n['node_id']=='F01' and n['node_id'] in byid and byid[n['node_id']]['name']!=n['name']:
+                    raise ValueError('F01 catalog identity conflict; preserve existing history and review explicitly')
+                if n['node_id'] not in byid:nodes.append(n)
         return _save(store,request,action,{'type':'research_campaign','objective':value['objective'],
             'as_of_date':value['as_of_date'],'nodes':nodes,'questions':[],
-            'catalog_revision':latest['id'] if latest else None,
+            'scope_profile':research_scope.profile(value.get('scope_profile',research_scope.DEFAULT),
+                value['as_of_date'],'Declared at campaign creation'),
+            'catalog_version':ontology['version'],'catalog_revision':latest['id'] if latest else None,
             'note':'Investigation inventory only; no initialized judgments, scores or graph edges.'},
             [latest['id']] if latest else [])
 
@@ -52,7 +62,7 @@ def current(store, campaign_id):
     head=campaign_id;value=root
     for record in store.records('task'):
         v=record['payload']['data']
-        if v.get('type') in ('research_checkpoint','node_change') and v.get('campaign_id')==campaign_id:
+        if v.get('type') in ('research_checkpoint','node_change','research_scope_change') and v.get('campaign_id')==campaign_id:
             if v['previous_id']!=head:raise ValueError('Research checkpoint fork')
             head=record['id'];value=v
     return head,value
@@ -127,7 +137,8 @@ def checkpoint(store, request, value, _action=None, _locked=False):
                 raise ValueError('Preserve question identity and attempt history')
         for doc in docs:store.document(doc)
         revision=head if previous['type']=='node_change' else previous.get('catalog_revision')
-        return _save(store,request,action,{**value,'type':'research_checkpoint','catalog_revision':revision},refs,docs)
+        return _save(store,request,action,{**value,'type':'research_checkpoint','catalog_revision':revision,
+            'scope_profile':previous.get('scope_profile', {'version':research_scope.LEGACY})},refs,docs)
 
 
 def question(store,campaign_id,question_id):
@@ -137,6 +148,31 @@ def question(store,campaign_id,question_id):
     node=next(n for n in state['nodes'] if n['node_id']==item['node_id'])
     return {'campaign_id':campaign_id,'checkpoint_id':head,'node':node,'question':item,
             'read_only':True,'note':'One question record; fetch original source context separately.'}
+
+
+def update_question(store,request,value):
+    """Append new research without making the agent repeat immutable history."""
+    from copy import deepcopy
+    required(value,'campaign_id','previous_id','question_id')
+    action={'type':'research_question_update','data':value}
+    old=existing_action(store,'task',request,action)
+    if old:return old
+    head,state=current(store,value['campaign_id'])
+    if value['previous_id']!=head:raise ValueError('Stale checkpoint')
+    questions=deepcopy(state['questions'])
+    q=next((q for q in questions if q['id']==value['question_id']),None)
+    if q is None:raise ValueError('Question not found; use research-patch to create it')
+    fields=value.get('set',{})
+    allowed={'status','next_action','answer','closure_reason','judgment_ids','remaining_uncertainty',
+             'why_more_search_unlikely','semantic_review','scope','shared_source_review'}
+    if not isinstance(fields,dict) or not set(fields)<=allowed:raise ValueError('Unsupported question fields')
+    q.update(fields)
+    for field in ('attempts','source_reviews'):
+        additions=value.get(field+'_add',[])
+        if not isinstance(additions,list):raise ValueError('Expected additions list')
+        q.setdefault(field,[]).extend(additions)
+    return checkpoint(store,request,{'campaign_id':value['campaign_id'],'previous_id':head,
+        'nodes':state['nodes'],'questions':questions},_action=action)
 
 
 def patch(store,request,value):
@@ -165,11 +201,12 @@ def patch(store,request,value):
 
 def resume(store,campaign_id):
     head,v=current(store,campaign_id)
+    included=research_scope.included(v)
     pending=[{'node_id':n['node_id'],'action':'screen','name':n.get('name',n['node_id'])}
-             for n in v['nodes'] if active(n) and n['disposition'] in ('queued','excluded')]
-    active_ids={n['node_id'] for n in v['nodes'] if active(n)}
-    selected={n['node_id'] for n in v['nodes'] if active(n) and n['disposition']=='selected'}
-    investigated={n['node_id'] for n in v['nodes'] if active(n) and n['disposition'] not in ('queued','excluded')}
+             for n in v['nodes'] if n['node_id'] in included and n['disposition'] in ('queued','excluded')]
+    active_ids=included
+    selected={n['node_id'] for n in v['nodes'] if n['node_id'] in included and n['disposition']=='selected'}
+    investigated={n['node_id'] for n in v['nodes'] if n['node_id'] in included and n['disposition'] not in ('queued','excluded')}
     for node in sorted(investigated):
         for dim in DIMENSIONS:
             if not any(q['node_id']==node and q['dimension']==dim for q in v['questions']):
@@ -178,10 +215,10 @@ def resume(store,campaign_id):
                 for q in v['questions'] if q['node_id'] in active_ids and q['status'] in ('open','blocked')]
     resolved=any(q['status']=='resolved' and q['node_id'] in selected for q in v['questions'])
     from research_quality import inspect_questions
-    quality_work=inspect_questions(store,v['nodes'],v['questions'],data(store,campaign_id)['as_of_date'])
+    quality_work=inspect_questions(store,[n for n in v['nodes'] if n['node_id'] in included],v['questions'],data(store,campaign_id)['as_of_date'])
     pending+=quality_work
     return {'campaign_id':campaign_id,'checkpoint_id':head,'nodes':v['nodes'],'questions':v['questions'],
-            'pending':pending,'full_inventory_investigated':not pending,
+            'scope_profile':research_scope.resolve(v),'pending':pending,'full_inventory_investigated':not pending,
             'ready_for_review':bool(selected) and resolved and not pending,
             'quality_issues':quality_work,'research_quality_version':3,
             'meaning':'Source locations and repeated reviews checked; interpretation and user acceptance remain separate.'}
@@ -232,6 +269,7 @@ def change_nodes(store,request,value):
         for doc in docs:store.document(doc)
         return _save(store,request,action,{'type':'node_change','campaign_id':value['campaign_id'],
             'previous_id':head,'nodes':nodes,'questions':prior['questions'],'catalog':catalog,
+            'scope_profile':prior.get('scope_profile',{'version':research_scope.LEGACY}),
             'change':value,'comparison_policy':'No automatic evidence, score, trend or edge transfer'},[head],docs)
 
 
@@ -243,6 +281,23 @@ def next_work(store,campaign_id,limit=10):
     pending=state['pending']
     from source_work import next_details
     return {k:state[k] for k in ('campaign_id','checkpoint_id','ready_for_review')} | {
-        'pending_count':len(pending),'next_actions':next_details(store,campaign_id,state,pending[:limit]),
+        'scope_profile':state['scope_profile'],'pending_count':len(pending),'next_actions':next_details(store,campaign_id,state,pending[:limit]),
         'more_pending':len(pending)>limit,
         'instruction':'Execute this packet, persist source references and checkpoint; then request the next packet.'}
+
+
+def change_scope(store,request,value):
+    required(value,'campaign_id','previous_id','profile','reason','effective_date')
+    spec=research_scope.profile(value['profile'],value['effective_date'],value['reason'])
+    action={'type':'research_scope_change','data':value}
+    with exclusive(store):
+        old=existing_action(store,'task',request,action)
+        if old:return old
+        head,prior=current(store,value['campaign_id'])
+        if head!=value['previous_id']:raise ValueError('Stale checkpoint')
+        from research_coordination import state,live_jobs
+        if live_jobs(state(store,value['campaign_id'])):
+            raise ValueError('Release active work before changing scope')
+        return _save(store,request,action,{**prior,'type':'research_scope_change',
+            'campaign_id':value['campaign_id'],'previous_id':head,'scope_profile':spec,
+            'catalog_revision':head if prior['type']=='node_change' else prior.get('catalog_revision')},[head])

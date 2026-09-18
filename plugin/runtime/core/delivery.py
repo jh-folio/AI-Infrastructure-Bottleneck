@@ -12,10 +12,10 @@ def export(store, report_id, destination):
     snap = store.read_snapshot(report['snapshot_id'])
     catalog = report.get('map_catalog', {})
     nodes = catalog.get('nodes', [])
-    questions = [q for n in nodes if n.get('lifecycle', 'active') == 'active' for q in n.get('questions', [])]
+    questions = [q for n in nodes if n.get('lifecycle', 'active') == 'active' and n.get('scope_role')!='context_only' for q in n.get('questions', [])]
     identity = {'report_id': report_id, 'snapshot_id': report['snapshot_id'], 'projection_sha256': view['projection_sha256']}
     completion = {**identity, 'research_stage': report.get('research_stage', 'interim'),
-        'quality_version': report.get('research_quality_version'), 'inventory_scope': view['inventory_scope'],
+        'scope_profile':catalog.get('scope_profile'),'quality_version': report.get('research_quality_version'), 'inventory_scope': view['inventory_scope'],
         'active_nodes': len(view['nodes']), 'retired_nodes': sum(n.get('lifecycle') == 'retired' for n in nodes),
         'judgment_scopes': len(view['rows']), 'scored_scopes': sum(r['score'] is not None for r in view['rows']),
         'node_research_states': {s:sum(n['research_status']==s for n in view['nodes']) for s in ('uninvestigated','in_progress','review_recorded')},
