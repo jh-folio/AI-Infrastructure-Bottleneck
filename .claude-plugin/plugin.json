@@ -1,8 +1,17 @@
 {
   "name": "ai-infrastructure-bottleneck",
+  "displayName": "AI Bottleneck",
   "version": "0.3.0-d5.9",
   "description": "AI infrastructure research preview: public sources, evidence lineage and reproducible scoring.",
   "author": {
     "name": "jh-folio"
-  }
+  },
+  "homepage": "https://github.com/jh-folio/AI-Infrastructure-Bottleneck",
+  "repository": "https://github.com/jh-folio/AI-Infrastructure-Bottleneck",
+  "license": "BSD-3-Clause",
+  "keywords": [
+    "ai-infrastructure",
+    "supply-chain",
+    "research"
+  ]
 }

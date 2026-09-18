@@ -43,19 +43,27 @@ def verify_package(folder):
               and '.git' not in p.relative_to(root).parts and '__pycache__' not in p.relative_to(root).parts}
     if actual != names | {'PACKAGE_CONTENTS.json'}:
         raise ValueError('Package has missing or unlisted files')
-    required = {'plugin.json', '.codex-plugin/plugin.json', 'VERSION', 'README.md',
+    required = {'plugin.json', '.codex-plugin/plugin.json', '.claude-plugin/plugin.json',
+                '.claude-plugin/marketplace.json', 'VERSION', 'README.md',
                 'plugin/runtime/compatibility.json', 'plugin/workflows/USER_WORKFLOW.md'}
     if not required <= names:
         raise ValueError('Package entrypoints missing')
     manifest = read_json(root/'plugin.json')
     overlay = read_json(root/'.codex-plugin/plugin.json')
+    claude_manifest = read_json(root/'.claude-plugin/plugin.json')
+    marketplace = read_json(root/'.claude-plugin/marketplace.json')
     version = (root/'VERSION').read_text(encoding='utf-8').strip()
-    if manifest['name'] != 'ai-infrastructure-bottleneck' or overlay['name'] != manifest['name']:
+    if manifest['name'] != 'ai-infrastructure-bottleneck' or overlay['name'] != manifest['name'] \
+            or claude_manifest['name'] != manifest['name']:
         raise ValueError('Unexpected plugin identity')
-    if not version or manifest['version'] != version or overlay['version'] != version:
+    if not version or manifest['version'] != version or overlay['version'] != version \
+            or claude_manifest['version'] != version:
         raise ValueError('Package versions differ')
     if manifest['extensions']['com.openai']['interface'] != overlay['interface']:
         raise ValueError('Plugin presentation differs between manifests')
+    listed = {p['name'] for p in marketplace.get('plugins', [])}
+    if manifest['name'] not in listed:
+        raise ValueError('Marketplace listing does not include the plugin')
     skills = {p.split('/')[1] for p in names if p.startswith('skills/') and p.endswith('/SKILL.md')}
     if skills != SKILLS or overlay.get('skills') != './skills/':
         raise ValueError('Expected the five workflow skills')

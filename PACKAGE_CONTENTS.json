@@ -9,7 +9,7 @@
   },
   {
     "path": "README.md",
-    "sha256": "2a7985912034e3f6afe3b47a6d91664c8204748e4c7e1970c51740c8d0ae7110"
+    "sha256": "efff9984727b5405ca5b5458e1980384c5f85a9a92a45ff988586aa36afb70c6"
   },
   {
     "path": ".gitignore",
@@ -85,7 +85,7 @@
   },
   {
     "path": "plugin/runtime/core/package_integrity.py",
-    "sha256": "aaeb212ffb6d5e52ef324b98877d0238a3be1eaaaacfeeabc08793e895c62aab"
+    "sha256": "bea90d56925720320ee6b6e82e1145cf6ba9ac7dda1b618e9b9e89a24ca554e0"
   },
   {
     "path": "plugin/runtime/core/user_workflow.py",
@@ -97,7 +97,7 @@
   },
   {
     "path": "tests/test_user_workflow.py",
-    "sha256": "1a7e0945af1f5c41b3373ff32f9f8d2535119c4b4899e29fc0b3bccfebdce47e"
+    "sha256": "20dffa6ef4bfc3c4c4e44613dce1f53808ee1c82b843db20920d3178e2910b14"
   },
   {
     "path": "tests/USER_WORKFLOW_ACCEPTANCE.md",
@@ -290,6 +290,10 @@
   {
     "path": "skills/build-dashboard/SKILL.md",
     "sha256": "4a1926d202a3cb7567b52fe7d49420dcb6d41c3bd704651a24eba357beb74226"
+  },
+  {
+    "path": ".claude-plugin/plugin.json",
+    "sha256": "0b4131ba327c49ff6d5ec31bc1fb381d532c1b60361b9cb2acd104fd1ce28aaa"
   },
   {
     "path": ".claude-plugin/marketplace.json",
