@@ -217,10 +217,16 @@ def resume(store,campaign_id):
     from research_quality import inspect_questions
     quality_work=inspect_questions(store,[n for n in v['nodes'] if n['node_id'] in included],v['questions'],data(store,campaign_id)['as_of_date'])
     pending+=quality_work
+    from review_reuse import pending as review_pending
+    review_work=review_pending(store,campaign_id,v)
+    pending+=review_work
+    from research_impact import pending as impact_pending
+    impact_work=impact_pending(store,campaign_id,v)
+    pending+=impact_work
     return {'campaign_id':campaign_id,'checkpoint_id':head,'nodes':v['nodes'],'questions':v['questions'],
             'scope_profile':research_scope.resolve(v),'pending':pending,'full_inventory_investigated':not pending,
             'ready_for_review':bool(selected) and resolved and not pending,
-            'quality_issues':quality_work,'research_quality_version':3,
+            'quality_issues':quality_work+review_work+impact_work,'research_quality_version':3,
             'meaning':'Source locations and repeated reviews checked; interpretation and user acceptance remain separate.'}
 
 

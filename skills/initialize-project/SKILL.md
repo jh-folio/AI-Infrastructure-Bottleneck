@@ -17,4 +17,6 @@ description: AI Bottleneck 사용법과 가능한 기능을 안내하고 처음 
 
 반환 ID/경로/버전/첫 snapshot과 미지원 capability를 인계한다. 재접근 실패 시 초기화·재다운로드로 증거를 덮지 않는다. 기존 backup을 검증해 새 폴더로만 복구한다. 다음 최초 연구는 build-baseline, 기존 상태 갱신은 monitor-update로 연결한다. 기본값에 개인의 종목·점수·과거 결론·RSS를 넣지 않는다.
 
+Claude Cowork에서는 시작·재개·표시 등 모든 진입에서 [저장 위치와 복구](../../plugin/workflows/USER_WORKFLOW.md#claude-cowork-저장-위치와-복구)를 먼저 적용한다. 작업공간은 세션이 끝나면 사라질 수 있어 연결한 작업 폴더의 검증된 사본으로 이전 연구를 복구하며, 사본을 찾기 전에는 새 프로젝트를 만들지 않는다. 다른 호스트에는 적용하지 않는다.
+
 조회/재개나 실제 조사 시 [효율적인 조사](../../plugin/workflows/EFFICIENT_RESEARCH.md)를 적용한다. 새 연구는 기본78개/맥락10개이며 기존 campaign은 저장된 범위를 유지한다. 전체 원장을 반복 출력하지 않고 compact 조회·변경분 저장·묶음 인계를 사용한다.

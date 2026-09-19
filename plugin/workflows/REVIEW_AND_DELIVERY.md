@@ -50,7 +50,7 @@ synthesize에 campaign_id와 최신 checkpoint_id를 전달한다. interim도 �
 
 ## 고정한 결과 제출
 
-1. 노드별 해석·주요 종합 주장·모든 공백 종결을 원문으로 재검토한다. 같은 에이전트의 재검토는 독립 검토가 아니다.
+1. 노드별 해석·모든 공백 종결의 원문 검토가 존재하고 현재 유효한지 확인한다. [효율적인 조사 P3](EFFICIENT_RESEARCH.md)의 review-status가 valid인 같은 campaign/기준일/질문/역할의 영수증만 재사용하고 review-use로 남긴다. missing/pending_relevance/review_required는 원문과 반증을 실제로 재검토한다. 주요 종합 주장·분야 간 인과 연결·상대 심각도 비교·노드 간 근거 중복 오용과 보고서 judgment_reviews는 이번 결과에 대해 새로 검토한다. 같은 에이전트의 재검토는 독립 검토가 아니다.
 2. 최신 checkpoint에서 synthesize(research_stage=baseline_review) 후 research-completion을 확인한다. false면 같은 실행을 계속한다. 불가피한 호스트 중단은 미완료로 기록한다.
 3. export-delivery에 report_id와 새 destination 폴더를 전달한다. report.md, dashboard.html, dashboard-data.json, node_review_ledger.json, research_review.json, source_index.json, completion_manifest.json, DELIVERY.json이 같은 report/snapshot에서 생성된다. 각각 손으로 재작성해 개수·상태를 바꾸지 않는다. 기존 출력은 덮어쓰지 않는다.
 4. 동봉 렌더러의 HTML에서 전체 노드·범위 선택·원문 링크·점수 없는 이력·검색/확대/이동·모바일을 확인한다. 자체 HTML을 다시 작성하거나 점수 예시를 기본값으로 넣지 않는다.

@@ -22,11 +22,15 @@
 
 주 에이전트는 계획·배정·원문 검토·공통 DB 반영·종합·예약을 맡는다. 분야 담당 하위 에이전트는 배정된 노드의 실제 자료 탐색과 질문별 판단을 맡으며 공통 DB에 쓰지 않는다. 분야별 에이전트를 명시적으로 위임하고, 결과를 기다린 뒤 검토한다. 한 분야가 끝나면 같은 실행에서 가능한 다음 묶음을 배정한다. 사용자가 분야마다 다음 진행을 요청하도록 만들지 않는다.
 
+## 변경 감지와 배정 후보
+
+실행 시작 시, 그리고 자료 취득·monitor-run 이후에는 EFFICIENT_RESEARCH의 impact-scan과 research-dispatch를 사용한다. 최초 비교 기준 설정과 변경 재검토를 구분한다. dispatch의 claim_actions에 실제 worker_id와 안정된 request_id를 붙여 아래 claim 절차를 수행한다. 빈 응답이면 next_action을 따르고 완료를 추정하지 않는다. 주기적 전체 탐색과 미분류 자료·실패 재검토는 생략하지 않는다. 이 명령들은 호스트 실행/예약을 대신하지 않는다.
+
 ## 작은 묶음 배정과 원문 인계
 
 1. `coordination-status`는 전체9개 분야·유효 노드·미조사·진행 중인 작업을 반환한다. 새 노드가 한 분야의 계보를 계승하면 그 분야로 배정된다. 신규/분야 간 통합 노드는 `coordination-assign`의 `assignments:{"NODE_ID":"domain_id"}`로 책임 분야를 정한다. 목록에서 제외하지 않는다.
 2. `coordination-claim` data에 `domain_id`, `worker_id`, 선택적 `node_ids`를 전달한다. 결과 id가 job_id다. 중복 분야/동시 수 초과는 대기하고 이미 수행 중인 조사를 다시 시작하지 않는다. `coordination-packet`은 campaign_id/job_id를 최상위에 넣어 배정된 노드·질문만 읽는다.
-3. 담당자는 [자료 취득·재조회](SOURCE_QUESTION_FLOW.md)의 실제 자료 경로로 원문을 탐색한다. 읽기 전용 DB 접근이 가능하면 question-packet/source-context를 사용한다. 불가능하면 주 에이전트가 관련 원문·위치·질문 묶음을 분리 파일로 전달한다. 전체435개 원장을 각 담당자에게 복사하지 않는다.
+3. 담당자는 [자료 취득·재조회](SOURCE_QUESTION_FLOW.md)의 실제 자료 경로로 원문을 탐색한다. 읽기 전용 DB 접근이 가능하면 question-packet/source-context를 사용한다. 불가능하면 주 에이전트가 관련 원문·위치·질문 묶음을 분리 파일로 전달한다. campaign 전체 원장을 각 담당자에게 복사하지 않는다. 담당자는 [효율적인 조사](EFFICIENT_RESEARCH.md)의 조회·원문·묶음 계약만 필요한 시점에 읽고 설치/업그레이드/예약/화면 지침은 기본 인계에서 제외한다. 같은 자료를 공유하는 질문은 research-work-unit으로 작은 묶음을 편성할 수 있으나 배정 범위를 넘지 않는다. 원문을 실제로 받지 못한 새 작업자는 known_segments를 비운다.
 4. 담당자는 분리 산출물에 원문 bytes 또는 호스트 발췌의 캡처 종류·URL·제작자·해시·위치, 노드별 적용 범위/시점, 반증, 미해결 질문, 후속 경로를 남긴다. 자료 index에서 실제 문서를 따라가며 대체 자료 탐색을 수행한다. 모델 요약을 원문 인용으로 제출하지 않는다.
 5. 주 에이전트는 분리 산출물의 원문을 확인해 기존 source-plan/source-import/source-acquire, adopt/judgment/event로 순차 저장하고 실제 ID를 결과 질문에 연결한다. 이 단계의 근거/판단 저장만으로 질문을 완료 처리하지 않는다. 원장 반영은 아래 apply다. 원문 누락·접근 실패이면 해당 질문을 open/blocked로 유지한다.
 
@@ -52,7 +56,7 @@ nodes/questions는 기존 research-patch와 같은 완전한 항목 형식이다
 
 예약 실행은 최신 project/campaign/checkpoint를 복원하고 `coordination-run`으로 실제 host_run_id, schedule_id, observed_checkpoint를 기록한다. 동일 호스트 회차를 다시 기록하지 않는다. 최대 회차 도달은 새 회차 시작을 막으며 마지막 허용 회차의 작업은 수행할 수 있다. 실패 한도·회차 한도에 도달하면 control paused와 실제 예약 중단을 처리하고 미완료 상태를 알린다. 한도 증가를 임의로 반복해 무한 재실행하지 않는다.
 
-`coordination-status`에 살아 있는 담당 작업이 있으면 중복 배정하지 않는다. 비어 있는 분야만 claim할 수 있다. 최신 DB에 접근하지 못하면 새 DB를 만들지 않고 확인 가능한 최신 백업을 복원한다. 대화에 옛 DB가 첨부돼 있다는 사실만으로 최신 상태라고 판단하지 않는다. 복원이 안 되면 사용자 조치가 필요한 장애로 일시정지한다. 이것을 무인 재개 성공으로 세지 않는다.
+`coordination-status`에 살아 있는 담당 작업이 있으면 중복 배정하지 않는다. 비어 있는 분야만 claim할 수 있다. 최신 DB에 접근하지 못하면 새 DB를 만들지 않고 확인 가능한 최신 백업을 복원한다. Claude Cowork에서는 작업 폴더의 사본을 `durable-restore`로 복원한다(USER_WORKFLOW의 Cowork 절차). 대화에 옛 DB가 첨부돼 있다는 사실만으로 최신 상태라고 판단하지 않는다. 복원이 안 되면 사용자 조치가 필요한 장애로 일시정지한다. 이것을 무인 재개 성공으로 세지 않는다.
 
 완료 때는 전수 질문·원문 의미·분야 간 종합을 확인하고 synthesize→research-completion→export-delivery 후 `coordination-finish`에 campaign_id/report_id/meaning_review를 기록한다. 이후 실제 호스트 예약을 중단하고 그 결과를 coordination-schedule로 기록한다. 사용자 중지에는 `coordination-control` mode=paused/reason과 실제 예약 중단을 수행한다. completed/paused는 새 claim을 막는다. 예약 중단 실패는 그대로 표시하고 재시도하며, 늦게 호출된 실행도 저장된 중지 상태를 존중한다.
 

@@ -27,10 +27,37 @@ def _execute(action):
         return create(action['state_dir'],action['config'])
     if op=='restore':
         return restore(action['backup_dir'],action['destination'])
+    if op in ('durable-check','durable-discover','durable-restore'):
+        import durable_state
+        if op=='durable-check':return durable_state.check(action['durable_dir'])
+        if op=='durable-discover':return durable_state.discover(action['durable_dir'])
+        return durable_state.restore_latest(action['durable_dir'],action['destination'],action.get('project_id'),action.get('durable_keep',durable_state.KEEP_DEFAULT))
     store=Store(action['state_dir'],action['project_id'])
+    if op=='durable-sync':
+        import durable_state
+        config=durable_state.load_config(action['state_dir']) or {}
+        target=action.get('durable_dir') or config.get('durable_dir')
+        if not target:raise ValueError('Provide durable_dir; none is configured for this state')
+        keep=action.get('durable_keep',config.get('keep',durable_state.KEEP_DEFAULT))
+        if action.get('durable_dir') or not config:durable_state.configure(action['state_dir'],target,keep)
+        return durable_state.sync(store,target,keep,'durable-sync')
     import research_efficiency as efficiency
     if op=='usage-summary':return efficiency.usage_summary(store)
+    if op in ('impact-scan','impact-details','research-dispatch'):
+        import research_impact
+        if op=='impact-scan':return research_impact.scan(store,action['request_id'],action['data'])
+        if op=='impact-details':return research_impact.details(store,action['scan_id'],action.get('offset',0),action.get('limit',10))
+        return research_impact.dispatch(store,action['campaign_id'],action.get('max_nodes',3))
+    if op in ('review-status','review-seal','review-use'):
+        import review_reuse
+        if op=='review-status':return review_reuse.status(store,action['data'])
+        handler=review_reuse.seal if op=='review-seal' else review_reuse.reuse
+        return handler(store,action['request_id'],action['data'])
     if op=='research-batch':return efficiency.batch(store,action['request_id'],action['data'])
+    if op in ('research-work-unit','research-questions-update'):
+        import research_work_unit
+        if op=='research-work-unit':return research_work_unit.packet(store,action['data'])
+        return research_work_unit.update(store,action['request_id'],action['data'])
     if op=='research-export':return efficiency.export_state(store,action['campaign_id'],action['destination'])
     if op=='research-question-update':
         from research_loop import update_question
@@ -170,14 +197,26 @@ def _execute(action):
 
 
 def execute(action):
-    result=_execute(action)
+    try:
+        result=_execute(action)
+    except (OSError,ValueError,KeyError,TypeError,IndexError,sqlite3.Error):
+        _metric(action,{'status':'error'})
+        raise
+    import durable_state
+    result=durable_state.after_op(action,result)
+    if not _metric(action,result) and isinstance(result,dict):
+        result={**result,'metrics_status':'unavailable'}
+    return result
+
+
+def _metric(action,result):
     if action.get('metrics',True) and action.get('state_dir') and action.get('project_id'):
         from research_efficiency import record_metric
         try:record_metric(Store(action['state_dir'],action['project_id']),action,result)
-        except (OSError,ValueError,sqlite3.Error):
+        except (OSError,ValueError,KeyError,TypeError,sqlite3.Error):
             # A telemetry failure must never invite replay of a successful mutation.
-            if isinstance(result,dict):result={**result,'metrics_status':'unavailable'}
-    return result
+            return False
+    return True
 
 
 def main():

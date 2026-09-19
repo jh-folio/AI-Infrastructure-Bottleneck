@@ -116,7 +116,7 @@ def run(store, request, value, collector=None):
         changed = [r for r in results if r.get('content_change')]
         output = {'type':'monitor_run', 'action_sha256':digest(action), **value,
                   'results':results, 'status':'partial' if failures else 'collected',
-                  'review_required':bool(changed), 'failed_count':len(failures), 'changed_count':len(changed),
+                  'review_required':bool(changed or failures), 'failed_count':len(failures), 'changed_count':len(changed),
                   'industry_change':'not_assessed', 'snapshot_before':baseline['snapshot_id'],
                   'summary':'수집 실패가 있어 변화 없음을 확인할 수 없습니다.' if failures else
                             ('새 자료가 있어 근거 검토가 필요합니다.' if changed else '수집한 원문은 같았습니다. 산업 상황이 같다는 판정은 아닙니다.')}

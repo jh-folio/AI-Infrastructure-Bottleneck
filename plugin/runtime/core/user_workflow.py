@@ -5,6 +5,10 @@ from pathlib import Path
 import sqlite3
 
 from research_store import Store, FORMAT, digest
+import durable_state
+TEMP_WARNING = 'Claude Cowork의 기본 작업공간은 세션이 끝나면 사라질 수 있습니다. 연구를 이어가려면 작업 폴더에 검증된 사본이 필요합니다.'
+
+
 def read_json(path):
     return json.loads(Path(path).read_text(encoding='utf-8-sig'))
 
@@ -67,6 +71,43 @@ def discover(project_files):
     return {'projects': results, 'read_only': True}
 
 
+def durable_gate(action, intent, out, result):
+    """Claude Cowork only. Never start a new project silently while a durable copy may exist. Read-only."""
+    target = action.get('durable_dir')
+    if not target:
+        if action.get('durable_waived'):
+            out['durable'] = {'status': 'waived', 'warning': TEMP_WARNING}
+            return None
+        return result('durable_location_required', 'initialize-project',
+                      ['ask_connect_work_folder_or_waive', 'durable-check', 'retry_workflow'],
+                      TEMP_WARNING + ' 연결된 작업 폴더가 있으면 그 경로를 durable_dir로 넘기세요. 없으면 사용자에게 이 연구 전용 빈 폴더 연결을 안내하거나, 사라질 수 있음을 알린 뒤 임시 저장으로 진행할지 한 번만 확인하세요.')
+    try:
+        found = durable_state.discover(target)
+    except (ValueError, OSError):
+        return result('durable_location_required', 'initialize-project',
+                      ['ask_connect_work_folder_or_waive', 'durable-check', 'retry_workflow'],
+                      '연결한 폴더를 사용할 수 없습니다. 절대 경로·존재·쓰기 권한을 확인하거나 다른 작업 폴더를 연결하세요.',
+                      durable_dir=str(target))
+    usable = [p for p in found['projects'] if p['status'] == 'available']
+    damaged = [p for p in found['projects'] if p['status'] != 'available']
+    new_ok = intent in ('start', 'research') and bool(action.get('allow_new_project'))
+    out['durable'] = {'status': 'checked', 'durable_dir': found['durable_dir'], 'projects': len(usable)}
+    if usable and not new_ok:
+        if len(usable) > 1:
+            return result('project_selection_required', 'initialize-project', ['select_or_recover_project', 'durable-restore'],
+                          '작업 폴더에 검증된 사본이 있는 프로젝트가 여러 개입니다. 대화의 대상과 일치하는 project_id를 선택해 복구하세요.',
+                          projects=usable, source='durable', durable_dir=found['durable_dir'])
+        return result('durable_restore_available', 'initialize-project',
+                      ['durable-restore', 'retry_workflow_with_restored_state_dir'],
+                      '작업 폴더에서 이전 연구의 검증된 사본을 찾았습니다. 새로 시작하지 말고 복구해 이어가세요. 사용자가 새 프로젝트를 명시적으로 원할 때만 allow_new_project=true로 다시 호출하세요.',
+                      restore=usable[0], durable_dir=found['durable_dir'])
+    if damaged and not usable and not new_ok:
+        return result('recovery_required', 'initialize-project', ['report_damaged_durable_copies'],
+                      '작업 폴더에 연구 사본이 있지만 모두 검증에 실패했습니다. 새로 초기화하지 말고 사용자에게 알리세요.',
+                      projects=damaged, source='durable', durable_dir=found['durable_dir'])
+    return None
+
+
 def route(action):
     intent = action.get('intent', 'help')
     if intent not in INTENTS:
@@ -95,22 +136,51 @@ def route(action):
             return result('project_selection_required', 'initialize-project', ['select_or_recover_project'],
                           '기존 프로젝트를 선택하거나 접근 문제를 해결해야 합니다.', projects=projects)
         state_dir = projects[0]['state_dir']
+    cowork = action.get('host') == 'cowork'
     if not state_dir:
+        gate = durable_gate(action, intent, out, result) if cowork else None
+        if gate:
+            return gate
         if intent in ('start', 'research'):
-            return result('setup_required', 'initialize-project',
-                          ['capabilities', 'resolve_writable_state_location', 'init', 'continue_requested_research'],
+            steps, extra = ['capabilities', 'resolve_writable_state_location', 'init', 'continue_requested_research'], {}
+            if cowork and action.get('durable_dir'):
+                steps.insert(3, 'durable-sync')
+                extra['durable_dir'] = str(action['durable_dir'])
+            if cowork and out.get('durable', {}).get('status') == 'waived':
+                extra['warning'] = TEMP_WARNING
+            return result('setup_required', 'initialize-project', steps,
                           '접근 가능한 저장 위치를 확인하고 설정부터 요청한 연구까지 같은 실행에서 이어갑니다.',
-                          continue_to='build-baseline', scope_mode=action.get('scope_mode', 'full'))
+                          continue_to='build-baseline', scope_mode=action.get('scope_mode', 'full'), **extra)
         return result('no_project', 'initialize-project', ['explain_missing_state'],
                       '읽을 연구 상태가 없습니다. 기존 프로젝트 위치를 확인하거나 최초 연구를 요청하세요.')
     try:
         store = open_project(state_dir, action.get('project_id'))
         records = store.records()
     except (ValueError, KeyError, TypeError, OSError, sqlite3.Error):
-        return result('recovery_required', 'initialize-project', ['locate_original_or_verified_backup'],
-                      '기존 연구를 열 수 없습니다. 초기화하지 말고 원본·프로젝트 ID·호환성·백업을 확인하세요.')
+        steps, extra = ['locate_original_or_verified_backup'], {}
+        if cowork and action.get('durable_dir'):
+            try:
+                usable = [p for p in durable_state.discover(action['durable_dir'])['projects'] if p['status'] == 'available']
+            except (ValueError, OSError):
+                usable = []
+            if usable:
+                steps = ['durable-restore', 'retry_workflow_with_restored_state_dir']
+                extra = {'durable_candidates': usable, 'durable_dir': str(action['durable_dir'])}
+        return result('recovery_required', 'initialize-project', steps,
+                      '기존 연구를 열 수 없습니다. 초기화하지 말고 원본·프로젝트 ID·호환성·백업을 확인하세요.', **extra)
     out['project'] = {'state_dir': str(store.folder), 'project_id': store.project_id,
                       'name': store.config['name'], 'as_of_date': store.config['as_of_date']}
+    if cowork:
+        config, wanted = durable_state.load_config(store.folder), action.get('durable_dir')
+        if wanted and (not config or config['durable_dir'] != str(Path(wanted).resolve())):
+            out['durable'] = {'status': 'sync_required', 'action': 'durable-sync', 'durable_dir': str(wanted)}
+        elif config:
+            out['durable'] = {'status': 'configured', 'durable_dir': config['durable_dir']}
+        elif action.get('durable_waived'):
+            out['durable'] = {'status': 'waived', 'warning': TEMP_WARNING}
+        else:
+            out['durable'] = {'status': 'not_configured', 'warning': TEMP_WARNING,
+                              'action': 'ask_connect_work_folder_or_waive'}
     reports = [r for r in records if r['kind'] == 'report']
     campaigns = [r for r in records if r['kind'] == 'task' and r['payload']['data'].get('type') == 'research_campaign']
     out['counts'] = {k: sum(r['kind'] == k for r in records) for k in ('report', 'judgment', 'evidence')}

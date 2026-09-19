@@ -77,7 +77,7 @@ def state(store,cid):
             result['mode']='completed';result['completed_checkpoint']=e['completed_checkpoint']
     result['failures'] += sum(j['status']=='active' and datetime.fromisoformat(j['expires_at'])<=clock()
                               for j in result['jobs'].values())
-    if result['mode']=='completed' and loop.current(store,cid)[0]!=result.get('completed_checkpoint'):
+    if result['mode']=='completed' and (loop.current(store,cid)[0]!=result.get('completed_checkpoint') or loop.resume(store,cid)['pending']):
         result['mode']='paused'
     return result
 

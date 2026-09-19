@@ -40,6 +40,21 @@ python -X utf8 plugin/runtime/research_cli.py --action action.json
 
 `backup`은 공통 필드에 새 `destination`을 더한다. `restore`는 `{op:"restore", backup_dir:"기존 백업", destination:"새 폴더"}` 형태의 유효 JSON으로 실행한다. 백업·복구는 기존 폴더를 덮어쓰지 않는다. 최신 state를 backup한 뒤 새 세션에서 재접근하고, 원래 연구 폴더와 복구 폴더를 동시에 쓰는 것은 피한다. D1 DB는 별도로 보존한다.
 
+### Claude Cowork 내구 사본 — durable-*
+
+Claude Cowork 전용이며 `durable_dir`(연결한 작업 폴더의 절대경로)를 줄 때만 동작한다. 작업공간의 DB는 그대로 쓰고, 작업 폴더의 전용 하위 폴더 `AI-Bottleneck-State/<project_id>/<UTC시각>-<해시8>/`에 `research.sqlite`와 `backup.json`(기존 backup 형식 + name/as_of_date/trigger)을 남긴다. 백업은 작업공간에서 SQLite online backup으로 만든 뒤 파일로 복사하고, `backup.json`을 마지막에 쓴 다음 해시를 다시 읽어 검증한다. 작업 폴더에서 SQLite를 직접 열지 않으며 자기 하위 폴더 밖의 파일은 읽거나 지우지 않는다.
+
+```json
+{"op":"durable-check","durable_dir":"연결 폴더"}
+{"op":"durable-sync","state_dir":"STATE","project_id":"PROJECT_ID","durable_dir":"연결 폴더","durable_keep":5}
+{"op":"durable-discover","durable_dir":"연결 폴더"}
+{"op":"durable-restore","durable_dir":"연결 폴더","destination":"새 작업공간 폴더","project_id":"여러 개일 때만"}
+```
+
+`durable-check`는 전용 폴더를 만들고 쓰기·읽기를 확인하며 `PROBE.json` 표식을 남긴다. `prior_probe_found`가 true면 이 폴더가 이전 호출 뒤에도 남아 있다는 뜻이고 `foreign_entry_count`는 연결 폴더의 다른 항목 수다. `durable-sync`는 `durable_dir`를 주면 상태 폴더의 `durable.json`에 설정하고 최근 `durable_keep`(1~20, 기본 5)개만 남긴다. 회전은 자기 형식의 하위 폴더만 지우고 낯선 이름은 건드리지 않는다. `durable-discover`는 읽기 전용이며 최신 사본이 손상되면 이전 검증본을 반환하고 모두 손상이면 status=damaged다. `durable-restore`는 검증된 최신 사본을 새 폴더에 복구하고 같은 작업 폴더로 계속 저장하도록 설정한다. 기존 폴더는 덮어쓰지 않는다.
+
+설정된 상태에서 `init`(durable_dir를 준 경우)·research-start·research-checkpoint·research-return·node-change·research-scope·coordination-apply/finish·synthesize·export-delivery가 성공하면 응답에 `durable`(saved/failed)이 붙는다. 저장 실패는 성공한 연구 쓰기를 실패로 바꾸지 않으므로 응답의 `durable.status`를 반드시 확인하고 `failed`면 다음 저장 전에 재시도한다. `workflow`는 `host:"cowork"`일 때만 `durable_dir`·`durable_waived`·`allow_new_project`를 읽고 `durable_location_required`·`durable_restore_available`과 응답의 `durable` 상태를 반환한다. 읽기 전용이며 작업 폴더를 만들거나 쓰지 않는다.
+
 ## 취득·읽기
 
 각 행의 필드를 공통 action에 더한다.
@@ -266,3 +281,7 @@ Companies는 judgment의 선택적 companies 배열에서 name/role/evidence_ids
 ## d5.10 사용량·범위·인계
 
 [효율적인 조사](EFFICIENT_RESEARCH.md)가 현행 범위/응답 계약이다. research-resume/coordination-packet은 기본 compact-v1이며 view=full로 이전 응답을 명시한다. research-export/research-scope/research-question-update/research-batch/usage-summary와 source-context.known_segments는 이 계약을 따른다. 내부 Python resume은 전체 검증 상태를 유지한다.
+
+## 공통 자료 묶음(P0–P2)
+
+`research-work-unit`(data: campaign_id/checkpoint_id/question_ids/reason/expected_output, optional document_ids/job_id)은 작은 읽기 전용 편성이다. `research-questions-update`(request_id, data: campaign_id/previous_id/updates)는 기존 질문 여러 개의 델타를 한 번 반영한다. research-batch의 마지막 항목으로 사용할 수 있다. 배정된 질문은 기존 coordination-submit/apply 검토 경로를 따른다. 필드·부분 실패·재시도·계측·내구 사본 계약은 [효율적인 조사](EFFICIENT_RESEARCH.md)의 묶음 인계를 따른다.
